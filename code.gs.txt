@@ -351,7 +351,6 @@ function handleSaveOtPlan(sheet, data) {
     rowsToDelete.forEach(rowIndex => sheet.deleteRow(rowIndex));
 
     const newRows = plans
-        .filter(plan => (plan.startTime && plan.endTime) || plan.notes) // Only add rows that have OT or a leave note
         .map(plan => {
             const emp = employeeMap[plan.employeeId] || { fullName: 'Unknown', department: department };
             return [
@@ -359,9 +358,9 @@ function handleSaveOtPlan(sheet, data) {
                 plan.employeeId,
                 emp.fullName,
                 emp.department,
-                plan.startTime,
-                plan.endTime,
-                plan.notes
+                plan.startTime || '',
+                plan.endTime || '',
+                plan.notes || ''
             ];
     });
 
