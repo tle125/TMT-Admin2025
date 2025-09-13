@@ -388,6 +388,7 @@ function handleGetEmployees(sheet) {
         employeeId: headers.indexOf('รหัสพนักงาน'),
         department: headers.indexOf('ส่วนงาน'),
         position: headers.indexOf('ตำแหน่ง'),
+        duty: headers.indexOf('หน้าที่'),
         startDate: headers.indexOf('วันที่เริ่มงาน'),
         photoUrl: headers.indexOf('ลิงก์รูปถ่าย'),
         role: headers.indexOf('Role')
@@ -400,6 +401,7 @@ function handleGetEmployees(sheet) {
             employeeId: colIndices.employeeId > -1 ? row[colIndices.employeeId] : undefined,
             department: colIndices.department > -1 ? row[colIndices.department] : undefined,
             position: colIndices.position > -1 ? row[colIndices.position] : undefined,
+            duty: colIndices.duty > -1 ? row[colIndices.duty] : undefined,
             startDate: colIndices.startDate > -1 ? row[colIndices.startDate] : undefined,
             photoUrl: colIndices.photoUrl > -1 ? row[colIndices.photoUrl] : undefined,
             role: colIndices.role > -1 ? row[colIndices.role] : 'User'
