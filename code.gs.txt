@@ -28,6 +28,10 @@ function doGet(e) {
         const sheet = ss.getSheetByName(ATTENDANCE_SHEET_NAME);
         if(!sheet) return createJsonResponse({ status: 'success', data: [] });
         return handleGetAttendance(sheet, e.parameter.date);
+    } else if (action === 'getCalendarLeaveData') {
+        const sheet = ss.getSheetByName(ATTENDANCE_SHEET_NAME);
+        if(!sheet) return createJsonResponse({ status: 'success', data: {} });
+        return handleGetCalendarLeaveData(sheet);
     }
     else {
       return createJsonResponse({ status: 'error', message: 'Invalid GET action.' });
@@ -90,6 +94,52 @@ function doPost(e) {
     return createJsonResponse({ status: 'error', message: 'An unexpected error occurred: ' + error.toString() });
   }
 }
+
+function handleGetCalendarLeaveData(sheet) {
+    const data = sheet.getDataRange().getValues();
+    if (data.length < 2) {
+        return createJsonResponse({ status: 'success', data: {} });
+    }
+
+    const headers = data[0].map(h => h.trim());
+    const dateCol = headers.indexOf('วันที่');
+    const empIdCol = headers.indexOf('รหัสพนักงาน');
+    const nameCol = headers.indexOf('ชื่อ-นามสกุล');
+    const statusCol = headers.indexOf('สถานะ');
+    const reasonCol = headers.indexOf('เหตุผล');
+
+    if (dateCol === -1 || empIdCol === -1 || statusCol === -1 || nameCol === -1) {
+        return createJsonResponse({ status: 'error', message: 'Required columns (วันที่, รหัสพนักงาน, ชื่อ-นามสกุล, สถานะ) not found in เช็คชื่อ sheet.' });
+    }
+    
+    const leaveDataByDate = {};
+    const leaveStatusToExclude = ['มาทำงาน', 'สาย/Meeting'];
+
+    for (let i = 1; i < data.length; i++) {
+        const row = data[i];
+        const status = row[statusCol];
+
+        if (status && !leaveStatusToExclude.includes(status)) {
+            const date = new Date(row[dateCol]);
+            const dateStr = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+            
+            if (!leaveDataByDate[dateStr]) {
+                leaveDataByDate[dateStr] = [];
+            }
+            
+            leaveDataByDate[dateStr].push({
+                employeeName: row[nameCol],
+                employeeId: row[empIdCol],
+                leaveType: status,
+                reason: reasonCol > -1 ? row[reasonCol] : '',
+                leaveDate: date.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Bangkok' })
+            });
+        }
+    }
+    
+    return createJsonResponse({ status: 'success', data: leaveDataByDate });
+}
+
 
 function handleGetAttendance(sheet, date) {
     if (!date) return createJsonResponse({ status: 'error', message: 'Date parameter is missing.' });
@@ -320,7 +370,7 @@ function handleSaveOtPlan(sheet, data) {
     }
     
     if (headers.length === 0 || headers.join('').trim() === '') {
-        sheet.getRange(1, 1, 1, 7).setValues([['วันที่', 'รหัสพนักงาน', 'ชื่อ-สกุล', 'ส่วนงาน', 'เวลาเริ่ม', 'เวลาสิ้นสุด', 'หมายเหตุ / งาน']]);
+        sheet.getRange(1, 1, 1, 7).setValues([['วันที่',	'รหัสพนักงาน',	'ชื่อ-สกุล',	'ส่วนงาน',	'เวลาเริ่ม',	'เวลาสิ้นสุด',	'หมายเหตุ / งาน']]);
     }
 
     return createJsonResponse({ status: 'success', message: 'OT Plan saved successfully.' });
@@ -340,8 +390,7 @@ function handleGetEmployees(sheet) {
         position: headers.indexOf('ตำแหน่ง'),
         startDate: headers.indexOf('วันที่เริ่มงาน'),
         photoUrl: headers.indexOf('ลิงก์รูปถ่าย'),
-        role: headers.indexOf('Role'),
-        duty: headers.indexOf('หน้าที่')
+        role: headers.indexOf('Role')
     };
     for (let i = 1; i < data.length; i++) {
         const row = data[i];
@@ -353,8 +402,7 @@ function handleGetEmployees(sheet) {
             position: colIndices.position > -1 ? row[colIndices.position] : undefined,
             startDate: colIndices.startDate > -1 ? row[colIndices.startDate] : undefined,
             photoUrl: colIndices.photoUrl > -1 ? row[colIndices.photoUrl] : undefined,
-            role: colIndices.role > -1 ? row[colIndices.role] : 'User',
-            duty: colIndices.duty > -1 ? row[colIndices.duty] : undefined
+            role: colIndices.role > -1 ? row[colIndices.role] : 'User'
         });
     }
     return createJsonResponse({ status: 'success', data: employees });
