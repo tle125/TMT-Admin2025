@@ -348,6 +348,12 @@ function handleSaveOtPlan(sheet, data) {
       }
     }
     
+    // Ensure headers exist first
+    if (headers.length === 0 || headers.join('').trim() === '' || sheetData.length === 0) {
+        sheet.clear();
+        sheet.getRange(1, 1, 1, 7).setValues([['วันที่', 'รหัสพนักงาน', 'ชื่อ-สกุล', 'ส่วนงาน', 'เวลาเริ่ม', 'เวลาสิ้นสุด', 'หมายเหตุ / งาน']]);
+    }
+    
     rowsToDelete.forEach(rowIndex => sheet.deleteRow(rowIndex));
 
     const newRows = plans
@@ -366,10 +372,6 @@ function handleSaveOtPlan(sheet, data) {
 
     if (newRows.length > 0) {
         sheet.getRange(sheet.getLastRow() + 1, 1, newRows.length, newRows[0].length).setValues(newRows);
-    }
-    
-    if (headers.length === 0 || headers.join('').trim() === '') {
-        sheet.getRange(1, 1, 1, 7).setValues([['วันที่',	'รหัสพนักงาน',	'ชื่อ-สกุล',	'ส่วนงาน',	'เวลาเริ่ม',	'เวลาสิ้นสุด',	'หมายเหตุ / งาน']]);
     }
 
     return createJsonResponse({ status: 'success', message: 'OT Plan saved successfully.' });
