@@ -1,0 +1,553 @@
+// ID of the Google Sheet
+const SPREADSHEET_ID = '1NX0XlZd8qI4mk0ubcySPivoHFYv0847mEdBeK2nKvqE';
+// Sheet names
+const ACCOUNT_SHEET_NAME = 'Account';
+const EMPLOYEE_SHEET_NAME = 'ข้อมูลพนักงาน';
+const OT_PLAN_SHEET_NAME = 'Plan ot';
+const ATTENDANCE_SHEET_NAME = 'เช็คชื่อ';
+// ID of the Google Drive Folder for storing photos
+const EMPLOYEE_PHOTO_FOLDER_ID = '1_0Mt3Imhz0wg2-q8PaBXKWVwTe8Kxtjr';
+
+
+function doGet(e) {
+  try {
+    const action = e.parameter.action;
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+
+    if (action === 'getEmployees') {
+      const sheet = ss.getSheetByName(EMPLOYEE_SHEET_NAME);
+      if (!sheet) return createJsonResponse({ status: 'success', data: [] });
+      return handleGetEmployees(sheet);
+
+    } else if (action === 'getOtPlan') {
+      const sheet = ss.getSheetByName(OT_PLAN_SHEET_NAME);
+      if (!sheet) return createJsonResponse({ status: 'success', data: [] });
+      return handleGetOtPlan(sheet, e.parameter.date);
+
+    } else if (action === 'getAttendance') {
+        const sheet = ss.getSheetByName(ATTENDANCE_SHEET_NAME);
+        if(!sheet) return createJsonResponse({ status: 'success', data: [] });
+        return handleGetAttendance(sheet, e.parameter.date);
+    }
+    else {
+      return createJsonResponse({ status: 'error', message: 'Invalid GET action.' });
+    }
+  } catch (error) {
+    return createJsonResponse({ status: 'error', message: 'An unexpected error occurred: ' + error.toString() });
+  }
+}
+
+
+function doPost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents);
+    const action = data.action;
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+
+    switch(action) {
+        case 'register':
+        case 'login': {
+            const accountSheet = ss.getSheetByName(ACCOUNT_SHEET_NAME);
+            if (!accountSheet) return createJsonResponse({ status: 'error', message: 'Account sheet not found.' });
+            if (action === 'register') return handleRegistration(accountSheet, data);
+            
+            const employeeSheet = ss.getSheetByName(EMPLOYEE_SHEET_NAME);
+            const { username, password } = data;
+            return handleLogin(accountSheet, employeeSheet, username, password);
+        }
+        case 'addEmployee': {
+            let sheet = ss.getSheetByName(EMPLOYEE_SHEET_NAME);
+            if (!sheet) {
+                sheet = ss.insertSheet(EMPLOYEE_SHEET_NAME);
+                sheet.appendRow(['ชื่อ-นามสกุล', 'รหัสพนักงาน', 'ส่วนงาน', 'ตำแหน่ง', 'Role', 'วันที่เริ่มงาน', 'ลิงก์รูปถ่าย']);
+            }
+            return handleAddEmployee(sheet, data.data);
+        }
+        case 'updateEmployee': {
+            let sheet = ss.getSheetByName(EMPLOYEE_SHEET_NAME);
+            if (!sheet) return createJsonResponse({ status: 'error', message: 'Employee sheet not found.' });
+            return handleUpdateEmployee(sheet, data.data);
+        }
+        case 'deleteEmployee': {
+            let sheet = ss.getSheetByName(EMPLOYEE_SHEET_NAME);
+            if (!sheet) return createJsonResponse({ status: 'error', message: 'Employee sheet not found.' });
+            return handleDeleteEmployee(sheet, data.employeeId);
+        }
+        case 'saveOtPlan': {
+            let sheet = ss.getSheetByName(OT_PLAN_SHEET_NAME);
+            if (!sheet) return createJsonResponse({ status: 'error', message: 'Sheet "Plan ot" not found.' });
+            return handleSaveOtPlan(data.data);
+        }
+        case 'saveAttendance': {
+            let sheet = ss.getSheetByName(ATTENDANCE_SHEET_NAME);
+             if (!sheet) return createJsonResponse({ status: 'error', message: 'Sheet "เช็คชื่อ" not found.' });
+            return handleSaveAttendance(sheet, data.data);
+        }
+        default:
+            return createJsonResponse({ status: 'error', message: 'Invalid POST action.' });
+    }
+  } catch (error) {
+    return createJsonResponse({ status: 'error', message: 'An unexpected error occurred: ' + error.toString() });
+  }
+}
+
+function handleGetAttendance(sheet, date) {
+    if (!date) return createJsonResponse({ status: 'error', message: 'Date parameter is missing.' });
+    
+    const data = sheet.getDataRange().getValues();
+    if (data.length < 2) return createJsonResponse({ status: 'success', data: [] });
+
+    const headers = data[0].map(h => h.trim());
+    const dateCol = headers.indexOf('วันที่');
+    const empIdCol = headers.indexOf('รหัสพนักงาน');
+    const statusCol = headers.indexOf('สถานะ');
+    const reasonCol = headers.indexOf('เหตุผล');
+
+    if (dateCol === -1 || empIdCol === -1) {
+        return createJsonResponse({ status: 'error', message: 'Required columns (วันที่, รหัสพนักงาน) not found in เช็คชื่อ sheet.' });
+    }
+    
+    const requestedDate = new Date(date);
+    const records = data.slice(1)
+        .filter(row => {
+            if (!row[dateCol]) return false;
+            const rowDate = new Date(row[dateCol]);
+            return rowDate.getFullYear() === requestedDate.getFullYear() &&
+                   rowDate.getMonth() === requestedDate.getMonth() &&
+                   rowDate.getDate() === requestedDate.getDate();
+        })
+        .map(row => ({
+            employeeId: row[empIdCol],
+            status: statusCol > -1 ? row[statusCol] : 'มาทำงาน',
+            reason: reasonCol > -1 ? row[reasonCol] : ''
+        }));
+
+    return createJsonResponse({ status: 'success', data: records });
+}
+
+
+function handleSaveAttendance(sheet, data) {
+    const { date, records } = data;
+    if (!date || !records) {
+        return createJsonResponse({ status: 'error', message: 'Missing date or records data.' });
+    }
+
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const employeeSheet = ss.getSheetByName(EMPLOYEE_SHEET_NAME);
+    if (!employeeSheet) return createJsonResponse({ status: 'error', message: 'Employee data sheet not found.' });
+    
+    const employeeData = employeeSheet.getDataRange().getValues();
+    const employeeMap = employeeData.slice(1).reduce((acc, row) => {
+        const employeeId = row[1];
+        const fullName = row[0];
+        if (employeeId) acc[employeeId] = { fullName };
+        return acc;
+    }, {});
+
+    const sheetData = sheet.getDataRange().getValues();
+    const headers = sheetData.length > 0 ? sheetData[0].map(h => h.trim()) : [];
+    const dateColIdx = headers.indexOf('วันที่');
+    const empIdColIdx = headers.indexOf('รหัสพนักงาน');
+    
+    if (headers.length > 0 && (dateColIdx === -1 || empIdColIdx === -1)) {
+        return createJsonResponse({ status: 'error', message: 'Required columns (วันที่, รหัสพนักงาน) not found in เช็คชื่อ sheet.' });
+    }
+
+    const requestedDate = new Date(date);
+    
+    const updatedEmployeeIds = records.map(r => r.employeeId.toString());
+
+    const rowsToDelete = [];
+    if (sheetData.length > 1) {
+      for (let i = sheetData.length - 1; i >= 1; i--) {
+          const row = sheetData[i];
+          if (!row[dateColIdx]) continue;
+          const rowDate = new Date(row[dateColIdx]);
+          const rowEmpId = row[empIdColIdx].toString();
+          if (rowDate.getFullYear() === requestedDate.getFullYear() &&
+              rowDate.getMonth() === requestedDate.getMonth() &&
+              rowDate.getDate() === requestedDate.getDate() &&
+              updatedEmployeeIds.includes(rowEmpId)) {
+              rowsToDelete.push(i + 1);
+          }
+      }
+    }
+    
+    rowsToDelete.forEach(rowIndex => sheet.deleteRow(rowIndex));
+
+    const newRows = records.map(record => {
+        const emp = employeeMap[record.employeeId] || { fullName: 'Unknown' };
+        return [
+            date,
+            record.employeeId,
+            emp.fullName,
+            record.status,
+            record.reason,
+            new Date() // Timestamp
+        ];
+    });
+
+    if (newRows.length > 0) {
+        sheet.getRange(sheet.getLastRow() + 1, 1, newRows.length, newRows[0].length).setValues(newRows);
+    }
+    
+    if (headers.length === 0 || headers.join('').trim() === '') {
+        sheet.getRange(1, 1, 1, 6).setValues([['วันที่', 'รหัสพนักงาน', 'ชื่อ-นามสกุล', 'สถานะ', 'เหตุผล', 'เวลาบันทึก']]);
+    }
+
+    return createJsonResponse({ status: 'success', message: 'Attendance saved successfully.' });
+}
+
+
+function handleGetOtPlan(sheet, date) {
+    if (!date) {
+        return createJsonResponse({ status: 'error', message: 'Date parameter is missing.' });
+    }
+    const data = sheet.getDataRange().getValues();
+    if (data.length < 2) {
+        return createJsonResponse({ status: 'success', data: [] });
+    }
+    const headers = data[0].map(h => h.trim());
+    const planData = [];
+    
+    const dateCol = headers.indexOf('วันที่');
+    const empIdCol = headers.indexOf('รหัสพนักงาน');
+    const startTimeCol = headers.indexOf('เวลาเริ่ม');
+    const endTimeCol = headers.indexOf('เวลาสิ้นสุด');
+    const notesCol = headers.indexOf('หมายเหตุ / งาน');
+
+    if (dateCol === -1 || empIdCol === -1) {
+        return createJsonResponse({ status: 'error', message: 'Required columns (วันที่, รหัสพนักงาน) not found in Plan ot sheet.' });
+    }
+
+    const requestedDate = new Date(date);
+
+    for (let i = 1; i < data.length; i++) {
+        const row = data[i];
+        if (!row[dateCol]) continue;
+        const rowDate = new Date(row[dateCol]);
+        if (rowDate.getFullYear() === requestedDate.getFullYear() &&
+            rowDate.getMonth() === requestedDate.getMonth() &&
+            rowDate.getDate() === requestedDate.getDate()) 
+        {
+            planData.push({
+                employeeId: row[empIdCol],
+                startTime: startTimeCol > -1 ? row[startTimeCol] : '',
+                endTime: endTimeCol > -1 ? row[endTimeCol] : '',
+                notes: notesCol > -1 ? row[notesCol] : ''
+            });
+        }
+    }
+    return createJsonResponse({ status: 'success', data: planData });
+}
+
+
+function handleSaveOtPlan(data) {
+  const { date, plans, department } = data;
+  if (!date || !plans || !department) {
+    return createJsonResponse({ status: 'error', message: 'Missing date, plans, or department data.' });
+  }
+   
+   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+   let sheet = ss.getSheetByName(OT_PLAN_SHEET_NAME);
+   if (!sheet) {
+     return createJsonResponse({ status: 'error', message: 'Sheet "Plan ot" not found.' });
+   }
+    const employeeSheet = ss.getSheetByName(EMPLOYEE_SHEET_NAME);
+    if (!employeeSheet) {
+        return createJsonResponse({ status: 'error', message: 'Employee data sheet not found.' });
+    }
+    const employeeData = employeeSheet.getDataRange().getValues();
+    const employeeHeaders = employeeData[0].map(h => h.trim());
+    const empIdColIdx_empSheet = employeeHeaders.indexOf('รหัสพนักงาน');
+    const fullNameColIdx_empSheet = employeeHeaders.indexOf('ชื่อ-นามสกุล');
+    const deptColIdx_empSheet = employeeHeaders.indexOf('ส่วนงาน');
+    
+    const employeeMap = employeeData.slice(1).reduce((acc, row) => {
+        const employeeId = row[empIdColIdx_empSheet];
+        if (employeeId) {
+            acc[employeeId] = { 
+                fullName: row[fullNameColIdx_empSheet], 
+                department: row[deptColIdx_empSheet]
+            };
+        }
+        return acc;
+    }, {});
+    
+    // Check if sheet is empty and create headers if needed
+    if (sheet.getLastRow() === 0) {
+        sheet.getRange(1, 1, 1, 7).setValues([['วันที่', 'รหัสพนักงาน', 'ชื่อ-สกุล', 'ส่วนงาน', 'เวลาเริ่ม', 'เวลาสิ้นสุด', 'หมายเหตุ / งาน']]);
+    }
+    
+    const sheetData = sheet.getDataRange().getValues();
+    const headers = sheetData.length > 0 ? sheetData[0].map(h => h.trim()) : [];
+    const dateColIdx = headers.indexOf('วันที่');
+    const empIdColIdx = headers.indexOf('รหัสพนักงาน');
+    
+    if (headers.length > 0 && (dateColIdx === -1 || empIdColIdx === -1)) {
+        return createJsonResponse({ status: 'error', message: 'Required columns (วันที่, รหัสพนักงาน) not found in Plan ot sheet.' });
+    }
+
+    const requestedDate = new Date(date);
+
+    const updatedEmployeeIds = plans.map(p => p.employeeId.toString());
+
+    const rowsToDelete = [];
+    if (sheetData.length > 1) {
+      for (let i = sheetData.length - 1; i >= 1; i--) {
+          if (!sheetData[i][dateColIdx]) continue;
+          const rowDate = new Date(sheetData[i][dateColIdx]);
+          const rowEmpId = sheetData[i][empIdColIdx].toString();
+          if (rowDate.getFullYear() === requestedDate.getFullYear() &&
+              rowDate.getMonth() === requestedDate.getMonth() &&
+              rowDate.getDate() === requestedDate.getDate() &&
+              updatedEmployeeIds.includes(rowEmpId)) {
+              rowsToDelete.push(i + 1);
+          }
+      }
+    }
+    
+    rowsToDelete.forEach(rowIndex => sheet.deleteRow(rowIndex));
+
+    const newRows = plans
+        .map(plan => {
+            const emp = employeeMap[plan.employeeId] || { fullName: 'Unknown', department: department };
+            return [
+                date,
+                plan.employeeId,
+                emp.fullName,
+                emp.department,
+                plan.startTime || '',
+                plan.endTime || '',
+                plan.notes || ''
+            ];
+    });
+
+    if (newRows.length > 0) {
+        sheet.getRange(sheet.getLastRow() + 1, 1, newRows.length, newRows[0].length).setValues(newRows);
+    }
+
+    return createJsonResponse({ status: 'success', message: 'OT Plan saved successfully.' });
+}
+
+function handleGetEmployees(sheet) {
+    const data = sheet.getDataRange().getValues();
+    if (data.length < 2) {
+        return createJsonResponse({ status: 'success', data: [] });
+    }
+    const headers = data[0].map(h => h.trim());
+    const employees = [];
+    const colIndices = {
+        fullName: headers.indexOf('ชื่อ-นามสกุล'),
+        employeeId: headers.indexOf('รหัสพนักงาน'),
+        department: headers.indexOf('ส่วนงาน'),
+        position: headers.indexOf('ตำแหน่ง'),
+        startDate: headers.indexOf('วันที่เริ่มงาน'),
+        photoUrl: headers.indexOf('ลิงก์รูปถ่าย'),
+        role: headers.indexOf('Role')
+    };
+    for (let i = 1; i < data.length; i++) {
+        const row = data[i];
+        if (row.every(cell => cell === '')) continue;
+        employees.push({
+            fullName: colIndices.fullName > -1 ? row[colIndices.fullName] : undefined,
+            employeeId: colIndices.employeeId > -1 ? row[colIndices.employeeId] : undefined,
+            department: colIndices.department > -1 ? row[colIndices.department] : undefined,
+            position: colIndices.position > -1 ? row[colIndices.position] : undefined,
+            startDate: colIndices.startDate > -1 ? row[colIndices.startDate] : undefined,
+            photoUrl: colIndices.photoUrl > -1 ? row[colIndices.photoUrl] : undefined,
+            role: colIndices.role > -1 ? row[colIndices.role] : 'User'
+        });
+    }
+    return createJsonResponse({ status: 'success', data: employees });
+}
+
+function handleAddEmployee(sheet, employeeData) {
+    const { fullName, employeeId, department, position, startDate, role, photo, photoMimeType } = employeeData;
+    let photoUrl = '';
+    if (!fullName || !employeeId) {
+        return createJsonResponse({ status: 'error', message: 'กรุณากรอกชื่อ-นามสกุล และรหัสพนักงาน' });
+    }
+    try {
+        if (photo && photoMimeType) {
+            const fileName = `${employeeId}_${new Date().getTime()}`;
+            photoUrl = saveImageToDrive(photo, fileName, photoMimeType);
+        }
+        const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(h => h.trim());
+        const newRow = Array(headers.length).fill('');
+        headers.forEach((header, index) => {
+           switch (header) {
+                case 'ชื่อ-นามสกุล': newRow[index] = fullName; break;
+                case 'รหัสพนักงาน': newRow[index] = employeeId; break;
+                case 'ส่วนงาน': newRow[index] = department; break;
+                case 'ตำแหน่ง': newRow[index] = position; break;
+                case 'วันที่เริ่มงาน': newRow[index] = startDate; break;
+                case 'ลิงก์รูปถ่าย': newRow[index] = photoUrl; break;
+                case 'Role': newRow[index] = role; break;
+            }
+        });
+        sheet.appendRow(newRow);
+        return createJsonResponse({ status: 'success', message: 'Employee added successfully.' });
+    } catch (error) {
+        return createJsonResponse({ status: 'error', message: 'Could not save data: ' + error.toString() });
+    }
+}
+
+function handleUpdateEmployee(sheet, employeeData) {
+    const { originalEmployeeId, fullName, employeeId, department, position, startDate, role, photo, photoMimeType } = employeeData;
+    if (!originalEmployeeId) {
+        return createJsonResponse({ status: 'error', message: 'Original Employee ID is missing for update.' });
+    }
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0].map(h => h.trim());
+    const employeeIdColIndex = headers.indexOf('รหัสพนักงาน');
+    if (employeeIdColIndex === -1) {
+        return createJsonResponse({ status: 'error', message: 'Cannot find "รหัสพนักงาน" column in the sheet.' });
+    }
+    let rowIndex = -1;
+    for (let i = 1; i < data.length; i++) {
+        if (data[i][employeeIdColIndex] && data[i][employeeIdColIndex].toString() === originalEmployeeId.toString()) {
+            rowIndex = i + 1;
+            break;
+        }
+    }
+    if (rowIndex === -1) {
+        return createJsonResponse({ status: 'error', message: `Employee with ID ${originalEmployeeId} not found.` });
+    }
+    try {
+        const photoUrlColIndex = headers.indexOf('ลิงก์รูปถ่าย');
+        let photoUrl = photoUrlColIndex > -1 ? sheet.getRange(rowIndex, photoUrlColIndex + 1).getValue() : '';
+        if (photo && photoMimeType) {
+            const fileName = `${employeeId}_${new Date().getTime()}`;
+            photoUrl = saveImageToDrive(photo, fileName, photoMimeType);
+        }
+        headers.forEach((header, index) => {
+            const col = index + 1;
+            switch (header) {
+                case 'ชื่อ-นามสกุล': sheet.getRange(rowIndex, col).setValue(fullName); break;
+                case 'รหัสพนักงาน': sheet.getRange(rowIndex, col).setValue(employeeId); break;
+                case 'ส่วนงาน': sheet.getRange(rowIndex, col).setValue(department); break;
+                case 'ตำแหน่ง': sheet.getRange(rowIndex, col).setValue(position); break;
+                case 'วันที่เริ่มงาน': sheet.getRange(rowIndex, col).setValue(startDate); break;
+                case 'ลิงก์รูปถ่าย': sheet.getRange(rowIndex, col).setValue(photoUrl); break;
+                case 'Role': sheet.getRange(rowIndex, col).setValue(role); break;
+            }
+        });
+        return createJsonResponse({ status: 'success', message: 'Employee data updated successfully.' });
+    } catch (error) {
+        return createJsonResponse({ status: 'error', message: 'Could not update data: ' + error.toString() });
+    }
+}
+
+function handleDeleteEmployee(sheet, employeeId) {
+    if (!employeeId) {
+        return createJsonResponse({ status: 'error', message: 'Employee ID is missing for delete.' });
+    }
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0].map(h => h.trim());
+    const employeeIdColIndex = headers.indexOf('รหัสพนักงาน');
+     if (employeeIdColIndex === -1) {
+        return createJsonResponse({ status: 'error', message: 'Cannot find "รหัสพนักงาน" column.' });
+    }
+    let rowIndex = -1;
+    for (let i = 1; i < data.length; i++) {
+        if (data[i][employeeIdColIndex] && data[i][employeeIdColIndex].toString() === employeeId.toString()) {
+            rowIndex = i + 1; // 1-based index
+            break;
+        }
+    }
+    if (rowIndex > -1) {
+        sheet.deleteRow(rowIndex);
+        return createJsonResponse({ status: 'success', message: 'Employee deleted successfully.' });
+    } else {
+        return createJsonResponse({ status: 'error', message: `Employee with ID ${employeeId} not found.` });
+    }
+}
+
+function handleRegistration(sheet, data) {
+    const { username, password, fullName, position, department } = data;
+    if (!username || !password || !fullName) {
+        return createJsonResponse({ status: 'error', message: 'Username, password, and full name are required.' });
+    }
+    const users = sheet.getDataRange().getValues();
+    for (let i = 1; i < users.length; i++) {
+        if (users[i][0] === username) {
+            return createJsonResponse({ status: 'error', message: 'Username already exists.' });
+        }
+    }
+    sheet.appendRow([username, password, fullName, position, department]);
+    return createJsonResponse({ status: 'success', message: 'Registration successful.' });
+}
+
+function handleLogin(accountSheet, employeeSheet, loginIdentifier, password) {
+    if (!loginIdentifier || !password) {
+        return createJsonResponse({ status: 'error', message: 'กรุณากรอกชื่อผู้ใช้/รหัส และรหัสผ่าน' });
+    }
+    const accountUsers = accountSheet.getDataRange().getValues();
+    for (let i = 1; i < accountUsers.length; i++) {
+        const userRow = accountUsers[i];
+        const username = userRow[0];
+        if (username.toString() === loginIdentifier) {
+            const correctPassword = userRow[1];
+            if (correctPassword.toString() == password) {
+                const userData = {
+                    fullName: userRow[2] || '',
+                    position: userRow[3] || '',
+                    department: userRow[4] || ''
+                };
+                return createJsonResponse({ status: 'success', message: 'Login successful.', userData: userData });
+            } else {
+                return createJsonResponse({ status: 'error', message: 'รหัสผ่านไม่ถูกต้อง' });
+            }
+        }
+    }
+    if (!employeeSheet) {
+        return createJsonResponse({ status: 'error', message: 'ไม่พบชื่อผู้ใช้' });
+    }
+    const employeeData = employeeSheet.getDataRange().getValues();
+    let foundFullName = null;
+    for (let i = 1; i < employeeData.length; i++) {
+        const employeeRow = employeeData[i];
+        const employeeId = employeeRow[1];
+        if (employeeId && employeeId.toString() == loginIdentifier) {
+            foundFullName = employeeRow[0];
+            break;
+        }
+    }
+    if (foundFullName) {
+        for (let i = 1; i < accountUsers.length; i++) {
+            const userRow = accountUsers[i];
+            const fullNameInAccount = userRow[2];
+            if (fullNameInAccount === foundFullName) {
+                const correctPassword = userRow[1];
+                if (correctPassword.toString() == password) {
+                    const userData = {
+                        fullName: userRow[2] || '',
+                        position: userRow[3] || '',
+                        department: userRow[4] || '' 
+                    };
+                    return createJsonResponse({ status: 'success', message: 'Login successful.', userData: userData });
+                } else {
+                    return createJsonResponse({ status: 'error', message: 'รหัสผ่านไม่ถูกต้อง' });
+                }
+            }
+        }
+    }
+    return createJsonResponse({ status: 'error', message: 'ไม่พบชื่อผู้ใช้หรือรหัสพนักงาน' });
+}
+
+function saveImageToDrive(base64Data, fileName, mimeType) {
+    const folder = DriveApp.getFolderById(EMPLOYEE_PHOTO_FOLDER_ID);
+    const decoded = Utilities.base64Decode(base64Data);
+    const blob = Utilities.newBlob(decoded, mimeType, fileName);
+    const file = folder.createFile(blob);
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    const fileId = file.getId();
+    return `https://lh3.googleusercontent.com/d/${fileId}`;
+}
+
+function createJsonResponse(data) {
+    return ContentService.createTextOutput(JSON.stringify(data))
+        .setMimeType(ContentService.MimeType.JSON);
+}
+

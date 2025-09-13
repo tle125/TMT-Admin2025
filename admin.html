@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบลงทะเบียนและเข้าสู่ระบบ</title>
+    <!-- Google Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --primary-color: #135bec;
+            --primary-50: #f0f9ff;
+            --primary-100: #e0f2fe;
+            --primary-200: #bae6fd;
+            --primary-300: #7dd3fc;
+            --primary-400: #38bdf8;
+            --primary-500: #0ea5e9;
+            --primary-600: #0284c7;
+            --primary-700: #0369a1;
+            --primary-800: #075985;
+            --primary-900: #0c4a6e;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .page-container {
+             font-family: "Noto Sans Thai", "Inter", sans-serif;
+             width: 100%;
+             max-width: 100%;
+        }
+
+        /* Style for select dropdown arrow */
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24' 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1.2em;
+            padding-right: 2.5rem;
+        }
+        .status-btn.active {
+            background-color: var(--primary-600) !important;
+            color: white !important;
+            font-weight: bold;
+        }
+        .tab-btn.active {
+            border-bottom-color: var(--primary-600);
+            color: var(--primary-600);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 flex justify-center items-center min-h-screen">
+    
+
+
+    <!-- Auth Wrapper -->
+    <div id="auth-wrapper" class="w-full max-w-sm p-8">
+        <!-- Registration Form -->
+        <div id="register-container" class="hidden">
+            <div class="text-center mb-10">
+                <h1 class="text-4xl font-bold text-gray-800 tracking-tighter">Create Account</h1>
+                <p class="text-gray-500 mt-2">Let's get you started!</p>
+            </div>
+            <form id="register-form" class="space-y-6">
+                <div class="relative"><span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">person</span><input id="register-username" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] transition-shadow duration-200" placeholder="Username" type="text" required></div>
+                <div class="relative"><span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">badge</span><input id="register-fullname" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] transition-shadow duration-200" placeholder="ชื่อ-นามสกุล" type="text" required></div>
+                
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">work</span>
+                    <select id="register-position" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] transition-shadow duration-200" required>
+                        <option value="" disabled selected>กรุณาเลือกตำแหน่ง</option>
+                        <option value="Senior Warehouse Manager">Senior Warehouse Manager</option>
+                        <option value="Asistant Warehouse Manager">Asistant Warehouse Manager</option>
+                        <option value="Warehouse Supervisor">Warehouse Supervisor</option>
+                        <option value="Sr.Warehouse Officer">Sr.Warehouse Officer</option>
+                        <option value="Warehouse Officer">Warehouse Officer</option>
+                        <option value="Sr.Forklift Driver">Sr.Forklift Driver</option>
+                        <option value="Technical Service Forklift">Technical Service Forklift</option>
+                        <option value="Forklift Driver">Forklift Driver</option>
+                        <option value="Sr.Inspector">Sr.Inspector</option>
+                        <option value="Inspector">Inspector</option>
+                        <option value="Operator">Operator</option>
+                    </select>
+                </div>
+
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">groups</span>
+                    <select id="register-department" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] transition-shadow duration-200" required>
+                        <option value="" disabled selected>กรุณาเลือกส่วนงาน</option>
+                        <option value="Warehouse Manager">Warehouse Manager</option>
+                        <option value="Asistant Warehouse Manager">Asistant Warehouse Manager</option>
+                        <option value="A&I">A&I</option>
+                        <option value="MH">MH</option>
+                        <option value="SSRM">SSRM</option>
+                        <option value="COIL">COIL</option>
+                        <option value="FILM">FILM</option>
+                    </select>
+                </div>
+                
+                <div class="relative"><span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">lock</span><input id="register-password" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] transition-shadow duration-200" placeholder="Password" type="password" required></div>
+                <div class="relative"><span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">lock_reset</span><input id="confirm-password" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] transition-shadow duration-200" placeholder="Confirm Password" type="password" required></div>
+                <button type="submit" class="w-full bg-[var(--primary-color)] text-white font-bold py-4 px-4 rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-300 transform hover:scale-105">Register</button>
+            </form>
+            <div class="text-center mt-6"><p class="text-sm text-gray-500">Already have an account? <a href="#" id="show-login" class="font-semibold text-[var(--primary-color)] hover:underline">Login</a></p></div>
+        </div>
+
+        <!-- Login Form -->
+        <div id="login-container">
+            <div class="text-center mb-10">
+                <h1 class="text-4xl font-bold text-gray-800 tracking-tighter">Welcome Back!</h1>
+                <p class="text-gray-500 mt-2">Please login to your account.</p>
+            </div>
+            <form id="login-form" class="space-y-6">
+                <div class="relative"><span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">person</span><input id="login-username" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] transition-shadow duration-200" placeholder="Username / Employee ID" type="text" required></div>
+                <div class="relative"><span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">lock</span><input id="login-password" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] transition-shadow duration-200" placeholder="Password" type="password" required></div>
+                <button type="submit" class="w-full bg-[var(--primary-color)] text-white font-bold py-4 px-4 rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-300 transform hover:scale-105">Login</button>
+            </form>
+            <div class="text-center mt-6"><p class="text-sm text-gray-500">Don't have an account? <a href="#" id="show-register" class="font-semibold text-[var(--primary-color)] hover:underline">Register</a></p></div>
+        </div>
+    </div>
+    
+    <!-- Home Page -->
+    <div id="home-container" class="page-container hidden flex flex-col h-screen w-full bg-gray-50">
+        <header class="flex items-center justify-between p-4 bg-white shadow-sm w-full flex-shrink-0"><div class="w-10"></div><h1 class="text-xl font-bold text-gray-800">หน้าหลัก</h1><button class="logout-button flex items-center justify-center p-2 rounded-full hover:bg-gray-100" title="Logout"><span class="material-symbols-outlined text-gray-700">logout</span></button></header>
+        <main class="flex-1 p-6 flex justify-center items-center"><h2 class="text-2xl text-gray-600">ยินดีต้อนรับสู่หน้าหลัก</h2></main>
+        <footer class="bg-white shadow-t w-full flex-shrink-0"><nav class="flex justify-around border-t border-gray-200 py-2"><a href="#" data-page="home" class="nav-link flex flex-col items-center justify-end gap-1 text-[var(--primary-600)] font-semibold"><span class="material-symbols-outlined">home</span><p class="text-xs font-medium">หน้าหลัก</p></a><a href="#" data-page="employee-list" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]"><span class="material-symbols-outlined">groups</span><p class="text-xs font-medium">พนักงาน</p></a><a href="#" data-page="attendance" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]"><span class="material-symbols-outlined">checklist</span><p class="text-xs font-medium">เช็คชื่อ</p></a><a href="#" data-page="ot-plan" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]"><span class="material-symbols-outlined">schedule</span><p class="text-xs font-medium">Plan OT</p></a></nav></footer>
+    </div>
+    
+    <!-- Employee List Page -->
+    <div id="employee-list-container" class="page-container hidden flex flex-col h-screen w-full bg-gray-50">
+        <header class="flex items-center justify-between p-4 bg-white shadow-sm w-full flex-shrink-0"><div class="w-10"></div><h1 class="text-xl font-bold text-gray-800">รายชื่อพนักงาน wh1</h1><button class="logout-button flex items-center justify-center p-2 rounded-full hover:bg-gray-100" title="Logout"><span class="material-symbols-outlined text-gray-700">logout</span></button></header>
+        <main id="employee-list-main" class="flex-1 p-4 md:p-6 overflow-y-auto"></main>
+         <button id="add-employee-fab" class="fixed bottom-20 right-6 bg-[var(--primary-600)] text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-[var(--primary-700)] transition-transform transform hover:scale-110"><span class="material-symbols-outlined">add</span></button>
+        <footer class="bg-white shadow-t w-full flex-shrink-0"><nav class="flex justify-around border-t border-gray-200 py-2"><a href="#" data-page="home" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]"><span class="material-symbols-outlined">home</span><p class="text-xs font-medium">หน้าหลัก</p></a><a href="#" data-page="employee-list" class="nav-link flex flex-col items-center justify-end gap-1 text-[var(--primary-600)] font-semibold"><span class="material-symbols-outlined">groups</span><p class="text-xs font-medium">พนักงาน</p></a><a href="#" data-page="attendance" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]"><span class="material-symbols-outlined">checklist</span><p class="text-xs font-medium">เช็คชื่อ</p></a><a href="#" data-page="ot-plan" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]"><span class="material-symbols-outlined">schedule</span><p class="text-xs font-medium">Plan OT</p></a></nav></footer>
+    </div>
+
+    <!-- Add/Edit Employee Page -->
+    <div id="add-employee-container" class="page-container hidden flex flex-col h-screen w-full bg-gray-50">
+        <header class="flex items-center justify-start p-4 bg-white shadow-sm w-full flex-shrink-0"><button id="back-to-list-button" class="flex items-center justify-center p-2 rounded-full hover:bg-gray-100"><span class="material-symbols-outlined text-gray-700">arrow_back_ios_new</span></button><h1 id="employee-form-title" class="text-xl font-bold text-gray-800 flex-1 text-center">เพิ่มข้อมูลพนักงาน</h1><div class="w-10"></div></header>
+        <main class="flex-1 p-6 space-y-6 overflow-y-auto">
+            <div class="flex flex-col items-center space-y-4">
+                <div class="relative w-32 h-32"><img alt="Employee Photo" id="photo-preview" class="w-full h-full rounded-full object-cover" src="https://placehold.co/128x128/EFEFEF/AAAAAA?text=Photo"><label class="absolute bottom-0 right-0 flex items-center justify-center w-10 h-10 bg-[var(--primary-600)] rounded-full cursor-pointer hover:bg-[var(--primary-700)]" for="photo-upload"><span class="material-symbols-outlined text-white">photo_camera</span><input class="hidden" id="photo-upload" type="file" accept="image/*"></label></div>
+                <p class="text-gray-500 text-sm">อัปโหลดรูปถ่ายพนักงาน</p>
+            </div>
+            <form id="employee-form" class="space-y-6">
+                <div><label class="block text-sm font-medium text-gray-700" for="full-name">ชื่อ-นามสกุล</label><input class="mt-1 block w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-[var(--primary-500)] focus:border-[var(--primary-500)] sm:text-sm" id="full-name" placeholder="เช่น สุดา สุนทร" type="text"></div>
+                <div><label class="block text-sm font-medium text-gray-700" for="employee-id">รหัสพนักงาน</label><input class="mt-1 block w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-[var(--primary-500)] focus:border-[var(--primary-500)] sm:text-sm" id="employee-id" placeholder="เช่น 123456" type="text"></div>
+                <div><label class="block text-sm font-medium text-gray-700" for="department">ส่วนงาน</label><input class="mt-1 block w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-[var(--primary-500)] focus:border-[var(--primary-500)] sm:text-sm" id="department" placeholder="เช่น ฝ่ายขาย" type="text"></div>
+                <div><label class="block text-sm font-medium text-gray-700" for="position">ตำแหน่ง</label><input class="mt-1 block w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-[var(--primary-500)] focus:border-[var(--primary-500)] sm:text-sm" id="position" placeholder="เช่น พนักงานขาย" type="text"></div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700" for="role">Role (สิทธิ์การเข้าถึง)</label>
+                    <select id="role" class="mt-1 block w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-[var(--primary-500)] focus:border-[var(--primary-500)] sm:text-sm">
+                        <option value="User">User</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                </div>
+                <div><label class="block text-sm font-medium text-gray-700" for="start-date">วันที่เริ่มงาน</label><input class="mt-1 block w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-[var(--primary-500)] focus:border-[var(--primary-500)] sm:text-sm text-gray-500" id="start-date" type="date"></div>
+            </form>
+        </main>
+        <footer class="bg-white shadow-t w-full flex-shrink-0"><div class="px-6 py-4"><button id="save-employee-button" type="submit" form="employee-form" class="w-full flex items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-[var(--primary-600)] text-white text-base font-bold leading-normal tracking-wide shadow-md hover:bg-[var(--primary-700)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary-500)]"><span class="truncate">บันทึก</span></button></div></footer>
+    </div>
+
+    <!-- Attendance Page -->
+    <div id="attendance-container" class="page-container hidden flex flex-col h-screen w-full bg-gray-50">
+        <header class="flex items-center justify-between p-4 bg-white shadow-sm w-full flex-shrink-0"><div class="w-10"></div><h1 class="text-xl font-bold text-gray-800">เช็คชื่อพนักงาน</h1><button class="logout-button flex items-center justify-center p-2 rounded-full hover:bg-gray-100" title="Logout"><span class="material-symbols-outlined text-gray-700">logout</span></button></header>
+        <main id="attendance-main" class="flex-1 p-4 md:p-6 flex flex-col">
+            <div class="bg-white p-4 rounded-lg shadow-sm mb-4 flex-shrink-0">
+                <div class="flex items-center justify-between">
+                     <h2 class="text-lg font-semibold text-gray-800">เลือกวันที่</h2>
+                    <input type="date" id="attendance-date-picker" class="border border-gray-300 rounded-lg p-2">
+                </div>
+            </div>
+            <div id="attendance-tabs" class="flex border-b border-gray-200 bg-white rounded-t-lg overflow-x-auto flex-shrink-0"></div>
+            <div id="attendance-tab-content" class="overflow-y-auto flex-grow"></div>
+        </main>
+        <footer class="bg-white shadow-t w-full flex-shrink-0"><nav class="flex justify-around border-t border-gray-200 py-2"><a href="#" data-page="home" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]"><span class="material-symbols-outlined">home</span><p class="text-xs font-medium">หน้าหลัก</p></a><a href="#" data-page="employee-list" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]"><span class="material-symbols-outlined">groups</span><p class="text-xs font-medium">พนักงาน</p></a><a href="#" data-page="attendance" class="nav-link flex flex-col items-center justify-end gap-1 text-[var(--primary-600)] font-semibold"><span class="material-symbols-outlined">checklist</span><p class="text-xs font-medium">เช็คชื่อ</p></a><a href="#" data-page="ot-plan" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]"><span class="material-symbols-outlined">schedule</span><p class="text-xs font-medium">Plan OT</p></a></nav></footer>
+    </div>
+    
+    <!-- OT Plan Page -->
+    <div id="ot-plan-container" class="page-container hidden flex flex-col h-screen w-full bg-gray-50">
+        <header class="flex items-center justify-between p-4 bg-white shadow-sm w-full flex-shrink-0"><div class="w-10"></div><h1 class="text-xl font-bold text-gray-800">วางแผน OT</h1><button class="logout-button flex items-center justify-center p-2 rounded-full hover:bg-gray-100" title="Logout"><span class="material-symbols-outlined text-gray-700">logout</span></button></header>
+        <main id="ot-plan-main" class="flex-1 p-4 md:p-6 flex flex-col">
+            <div class="bg-white p-4 rounded-lg shadow-sm mb-4 flex-shrink-0">
+                <div class="flex items-center justify-between mb-4">
+                     <h2 class="text-lg font-semibold text-gray-800">เลือกวันที่</h2>
+                    <input type="date" id="ot-date-picker" class="border border-gray-300 rounded-lg p-2">
+                </div>
+            </div>
+             <div id="ot-plan-tabs" class="flex border-b border-gray-200 bg-white rounded-t-lg overflow-x-auto flex-shrink-0"></div>
+            <div id="ot-plan-tab-content" class="overflow-y-auto flex-grow"></div>
+        </main>
+        <footer class="bg-white shadow-t w-full flex-shrink-0"><nav class="flex justify-around border-t border-gray-200 py-2"><a href="#" data-page="home" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]"><span class="material-symbols-outlined">home</span><p class="text-xs font-medium">หน้าหลัก</p></a><a href="#" data-page="employee-list" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]"><span class="material-symbols-outlined">groups</span><p class="text-xs font-medium">พนักงาน</p></a><a href="#" data-page="attendance" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]"><span class="material-symbols-outlined">checklist</span><p class="text-xs font-medium">เช็คชื่อ</p></a><a href="#" data-page="ot-plan" class="nav-link flex flex-col items-center justify-end gap-1 text-[var(--primary-600)] font-semibold"><span class="material-symbols-outlined">schedule</span><p class="text-xs font-medium">Plan OT</p></a></nav></footer>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden items-center justify-center z-50">
+        <div class="relative mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                    <span class="material-symbols-outlined text-red-600">warning</span>
+                </div>
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mt-2">ลบข้อมูลพนักงาน</h3>
+                <div class="mt-2 px-7 py-3">
+                    <p class="text-sm text-gray-500">
+                        คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลพนักงานคนนี้? การกระทำนี้ไม่สามารถย้อนกลับได้
+                    </p>
+                    <p id="employee-to-delete-name" class="font-bold text-gray-800 mt-2"></p>
+                </div>
+                <div class="items-center px-4 py-3 gap-2 flex">
+                    <button id="cancel-delete-btn" class="w-full px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">
+                        ยกเลิก
+                    </button>
+                    <button id="confirm-delete-btn" class="w-full px-4 py-2 bg-red-600 text-white rounded-md shadow-sm hover:bg-red-700">
+                        ยืนยันการลบ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Leave Type Selection Modal -->
+    <div id="leave-type-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="relative mx-auto p-5 border w-full max-w-sm shadow-lg rounded-md bg-white">
+            <div class="text-center">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">เลือกประเภทการลา</h3>
+                <div id="leave-options-container" class="grid grid-cols-2 gap-3 mt-4">
+                    <!-- Buttons will be injected here -->
+                </div>
+                 <button id="cancel-leave-selection-btn" class="mt-4 w-full px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">
+                    ยกเลิก
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const GAS_URL = 'https://script.google.com/macros/s/AKfycbwCjCZSLwe4n688I24ecEIDauCjlVNsrCqcPHyOf7Bv3wT5unbPwjgWgoADzuMcWP7Axg/exec';
+
+            // State variables
+            let isEditMode = false;
+            let editingEmployeeId = null;
+            let photoBase64 = null;
+            let employeeIdToDelete = null;
+            let currentEditingLeaveEmployeeCard = null;
+            
+            // Wrappers & Containers
+            const containers = {
+                auth: document.getElementById('auth-wrapper'),
+                register: document.getElementById('register-container'),
+                login: document.getElementById('login-container'),
+                home: document.getElementById('home-container'),
+                employeeList: document.getElementById('employee-list-container'),
+                addEmployee: document.getElementById('add-employee-container'),
+                otPlan: document.getElementById('ot-plan-container'),
+                attendance: document.getElementById('attendance-container'),
+            };
+            
+            // Forms, Inputs, etc.
+            const registerForm = document.getElementById('register-form');
+            const loginForm = document.getElementById('login-form');
+            const employeeForm = document.getElementById('employee-form');
+            const photoUploadInput = document.getElementById('photo-upload');
+            const photoPreview = document.getElementById('photo-preview');
+            const employeeListMain = document.getElementById('employee-list-main');
+            const employeeFormTitle = document.getElementById('employee-form-title');
+            const saveEmployeeButtonSpan = document.getElementById('save-employee-button').querySelector('span');
+            const deleteModal = document.getElementById('delete-modal');
+            const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+            const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+            const employeeToDeleteName = document.getElementById('employee-to-delete-name');
+            const otDatePicker = document.getElementById('ot-date-picker');
+            const attendanceDatePicker = document.getElementById('attendance-date-picker');
+            const leaveTypeModal = document.getElementById('leave-type-modal');
+            const leaveOptionsContainer = document.getElementById('leave-options-container');
+            const cancelLeaveSelectionBtn = document.getElementById('cancel-leave-selection-btn');
+            const attendanceTabs = document.getElementById('attendance-tabs');
+            const attendanceTabContent = document.getElementById('attendance-tab-content');
+            const otPlanTabs = document.getElementById('ot-plan-tabs');
+            const otPlanTabContent = document.getElementById('ot-plan-tab-content');
+            
+
+            // --- FUNCTIONS ---
+            const showMessage = (message, isError = false) => {
+                 if (isError) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด',
+                        text: message,
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#ef4444'
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'สำเร็จ',
+                        text: message,
+                        timer: 1500,
+                        showConfirmButton: false,
+                        timerProgressBar: true
+                    });
+                }
+            };
+
+            const resetEmployeeForm = () => {
+                isEditMode = false;
+                editingEmployeeId = null;
+                employeeFormTitle.textContent = 'เพิ่มข้อมูลพนักงาน';
+                employeeForm.reset();
+                document.getElementById('employee-id').readOnly = false;
+                photoPreview.src = 'https://placehold.co/128x128/EFEFEF/AAAAAA?text=Photo';
+                photoBase64 = null;
+                photoUploadInput.value = '';
+                saveEmployeeButtonSpan.textContent = 'บันทึก';
+            };
+
+            const openEditEmployeeForm = (emp) => {
+                isEditMode = true;
+                editingEmployeeId = emp.employeeId;
+                employeeFormTitle.textContent = 'แก้ไขข้อมูลพนักงาน';
+
+                document.getElementById('full-name').value = emp.fullName || '';
+                document.getElementById('employee-id').value = emp.employeeId || '';
+                document.getElementById('employee-id').readOnly = true;
+                document.getElementById('department').value = emp.department || '';
+                document.getElementById('position').value = emp.position || '';
+                document.getElementById('role').value = emp.role || 'User';
+                
+                try {
+                    document.getElementById('start-date').value = emp.startDate ? new Date(emp.startDate).toISOString().split('T')[0] : '';
+                } catch(e){
+                    document.getElementById('start-date').value = '';
+                }
+
+                photoPreview.src = emp.photoUrl || 'https://placehold.co/128x128/EFEFEF/AAAAAA?text=Photo';
+                photoBase64 = null; 
+
+                saveEmployeeButtonSpan.textContent = 'อัปเดต';
+                toggleView('add-employee');
+            };
+
+            const openDeleteConfirmation = (emp) => {
+                Swal.fire({
+                    title: 'ยืนยันการลบ',
+                    text: `คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลของ ${emp.fullName}? การกระทำนี้ไม่สามารถย้อนกลับได้`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'ยืนยันการลบ',
+                    cancelButtonText: 'ยกเลิก'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        employeeIdToDelete = emp.employeeId;
+                        handleDelete();
+                    }
+                });
+            };
+            
+            const handleDelete = async () => {
+                if (!employeeIdToDelete) return;
+
+                try {
+                    const response = await fetch(GAS_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({
+                            action: 'deleteEmployee',
+                            employeeId: employeeIdToDelete
+                        })
+                    });
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        showMessage('ลบข้อมูลพนักงานเรียบร้อยแล้ว');
+                        fetchAndDisplayEmployees();
+                    } else {
+                        showMessage(result.message, true);
+                    }
+                } catch (error) {
+                    showMessage('เกิดข้อผิดพลาดในการลบข้อมูล', true);
+                } finally {
+                   employeeIdToDelete = null;
+                }
+            };
+
+            const renderEmployeeList = (employees) => {
+                employeeListMain.innerHTML = '';
+                if (!employees || employees.length === 0) {
+                    employeeListMain.innerHTML = `<p class="text-center text-gray-500 mt-8">ยังไม่มีข้อมูลพนักงาน</p>`;
+                    return;
+                }
+
+                const groupedByDept = employees.reduce((acc, emp) => {
+                    const dept = emp.department || 'ไม่ระบุส่วนงาน';
+                    if (!acc[dept]) acc[dept] = [];
+                    acc[dept].push(emp);
+                    return acc;
+                }, {});
+
+                for (const dept in groupedByDept) {
+                    const deptContainer = document.createElement('div');
+                    deptContainer.className = 'mb-6';
+                    
+                    const deptHeader = document.createElement('h2');
+                    deptHeader.className = 'text-lg font-bold text-gray-700 mb-3 px-2';
+                    deptHeader.textContent = dept;
+                    deptContainer.appendChild(deptHeader);
+
+                    const grid = document.createElement('div');
+                    grid.className = 'space-y-3';
+                    
+                    groupedByDept[dept].forEach(emp => {
+                        const card = document.createElement('div');
+                        card.className = 'flex items-center bg-white p-3 rounded-xl shadow-sm space-x-4';
+                        const photoSrc = emp.photoUrl || 'https://placehold.co/64x64/EFEFEF/AAAAAA?text=No+Img';
+                        
+                        // คำนวณอายุงาน
+                        const calculateWorkExperience = (startDate) => {
+                            if (!startDate) return 'ไม่ระบุ';
+                            const start = new Date(startDate);
+                            const now = new Date();
+                            if (isNaN(start.getTime())) return 'ไม่ระบุ';
+                            const diffTime = Math.abs(now - start);
+                            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                            
+                            const years = Math.floor(diffDays / 365);
+                            const months = Math.floor((diffDays % 365) / 30);
+                            
+                            let result = '';
+                            if(years > 0) result += `${years} ปี `;
+                            if(months > 0) result += `${months} เดือน`;
+                            
+                            return result.trim() || 'น้อยกว่า 1 เดือน';
+                        };
+                        
+                        const workExperience = calculateWorkExperience(emp.startDate);
+                        
+                        card.innerHTML = `
+                            <img src="${photoSrc}" alt="${emp.fullName}" class="w-16 h-16 rounded-full object-cover bg-gray-200" onerror="this.src='https://placehold.co/64x64/EFEFEF/AAAAAA?text=Error'">
+                            <div class="flex-1">
+                                <p class="font-bold text-gray-800">${emp.fullName}</p>
+                                <p class="text-sm text-gray-500">${emp.position || '-'}</p>
+                                <p class="text-xs text-gray-400 mt-1">ID: ${emp.employeeId} | Role: ${emp.role || 'User'}</p>
+                                <p class="text-xs text-blue-600 mt-1">อายุงาน: ${workExperience}</p>
+                            </div>
+                            <div class="flex flex-col space-y-1">
+                                <button class="edit-employee-btn p-2 rounded-full hover:bg-gray-100 transition-colors">
+                                    <span class="material-symbols-outlined text-gray-600">edit</span>
+                                </button>
+                                <button class="delete-employee-btn p-2 rounded-full hover:bg-red-100 transition-colors">
+                                    <span class="material-symbols-outlined text-red-500">delete</span>
+                                </button>
+                            </div>
+                        `;
+                        card.querySelector('.edit-employee-btn').addEventListener('click', () => openEditEmployeeForm(emp));
+                        card.querySelector('.delete-employee-btn').addEventListener('click', () => openDeleteConfirmation(emp));
+                        grid.appendChild(card);
+                    });
+
+                    deptContainer.appendChild(grid);
+                    employeeListMain.appendChild(deptContainer);
+                }
+            };
+
+            const fetchAndDisplayEmployees = async () => {
+                employeeListMain.innerHTML = `<p class="text-center text-gray-500 mt-8">กำลังโหลดข้อมูล...</p>`;
+                try {
+                    const response = await fetch(`${GAS_URL}?action=getEmployees`);
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        renderEmployeeList(result.data);
+                    } else {
+                        showMessage(result.message, true);
+                        employeeListMain.innerHTML = `<p class="text-center text-red-500 mt-8">ไม่สามารถโหลดข้อมูลได้</p>`;
+                    }
+                } catch (error) {
+                    showMessage('เกิดข้อผิดพลาดในการเชื่อมต่อ', true);
+                    employeeListMain.innerHTML = `<p class="text-center text-red-500 mt-8">เกิดข้อผิดพลาดในการเชื่อมต่อ</p>`;
+                }
+            };
+            
+            // --- Attendance Functions ---
+             const openLeaveModal = (card) => {
+                currentEditingLeaveEmployeeCard = card;
+                const leaveTypes = ['ลาป่วย', 'ลากิจ', 'ลาพักร้อน', 'ลงบวช', 'ลาแต่งงาน'];
+                leaveOptionsContainer.innerHTML = leaveTypes.map(lt => 
+                    `<button type="button" data-leave-type="${lt}" class="leave-option-btn w-full p-3 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">${lt}</button>`
+                ).join('');
+                leaveTypeModal.classList.remove('hidden');
+                leaveTypeModal.classList.add('flex');
+            };
+
+            const closeLeaveModal = () => {
+                currentEditingLeaveEmployeeCard = null;
+                leaveTypeModal.classList.add('hidden');
+                leaveTypeModal.classList.remove('flex');
+            };
+            
+            const initializeAttendancePage = () => {
+                const today = new Date().toISOString().split('T')[0];
+                attendanceDatePicker.value = today;
+                fetchDataForAttendance(today);
+            };
+
+            const fetchDataForAttendance = async (date) => {
+                attendanceTabs.innerHTML = `<p class="p-4 text-gray-500">กำลังโหลด...</p>`;
+                attendanceTabContent.innerHTML = '';
+                try {
+                    const empResponse = await fetch(`${GAS_URL}?action=getEmployees`);
+                    const empResult = await empResponse.json();
+
+                    const attendanceResponse = await fetch(`${GAS_URL}?action=getAttendance&date=${date}`);
+                    const attendanceResult = await attendanceResponse.json();
+
+                    if (empResult.status === 'success') {
+                        const existingRecords = attendanceResult.status === 'success' ? attendanceResult.data : [];
+                        renderAttendanceList(empResult.data, existingRecords);
+                    } else {
+                        showMessage(empResult.message, true);
+                        attendanceTabs.innerHTML = `<p class="p-4 text-red-500">ไม่สามารถโหลดข้อมูลพนักงานได้</p>`;
+                    }
+                } catch (error) {
+                    showMessage('เกิดข้อผิดพลาดในการเชื่อมต่อ', true);
+                    attendanceTabs.innerHTML = `<p class="p-4 text-red-500">เกิดข้อผิดพลาดในการเชื่อมต่อ</p>`;
+                }
+            };
+            
+            const renderAttendanceList = (employees, existingRecords) => {
+                attendanceTabs.innerHTML = '';
+                attendanceTabContent.innerHTML = '';
+                if (!employees || employees.length === 0) {
+                    attendanceTabs.innerHTML = `<p class="p-4 text-gray-500">ยังไม่มีข้อมูลพนักงาน</p>`;
+                    return;
+                }
+
+                const recordMap = existingRecords.reduce((acc, record) => {
+                    acc[record.employeeId] = record;
+                    return acc;
+                }, {});
+
+                const groupedByDept = employees.reduce((acc, emp) => {
+                    const dept = emp.department || 'ไม่ระบุส่วนงาน';
+                    if (!acc[dept]) acc[dept] = [];
+                    acc[dept].push(emp);
+                    return acc;
+                }, {});
+                
+                const leaveTypes = ['ลาป่วย', 'ลากิจ', 'ลาพักร้อน', 'ลงบวช', 'ลาแต่งงาน'];
+                let isFirstTab = true;
+
+                for (const dept in groupedByDept) {
+                    // Create Tab Button
+                    const tabButton = document.createElement('button');
+                    tabButton.className = `tab-btn px-4 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300 whitespace-nowrap`;
+                    tabButton.textContent = dept;
+                    tabButton.dataset.department = dept;
+                    if (isFirstTab) tabButton.classList.add('active');
+                    attendanceTabs.appendChild(tabButton);
+
+                    // Create Tab Content Pane
+                    const deptContainer = document.createElement('div');
+                    deptContainer.className = 'tab-pane';
+                    if (!isFirstTab) deptContainer.classList.add('hidden');
+                    deptContainer.dataset.departmentContent = dept;
+
+                    const deptHeader = document.createElement('div');
+                    deptHeader.className = 'flex justify-between items-center p-4 bg-gray-100 rounded-t-lg';
+                    deptHeader.innerHTML = `
+                        <h3 class="text-md font-bold text-gray-800">${dept}</h3>
+                        <div class="flex items-center gap-2">
+                            <button type="button" class="dept-reset-attendance-btn bg-gray-500 text-white px-3 py-1 rounded text-xs hover:bg-gray-600 transition-colors" data-department="${dept}">
+                                รีเซต
+                            </button>
+                             <button type="button" class="dept-save-attendance-btn bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 transition-colors" data-department="${dept}">
+                                บันทึก
+                            </button>
+                        </div>
+                    `;
+                    deptContainer.appendChild(deptHeader);
+                    
+                    const list = document.createElement('div');
+                    list.className = 'divide-y bg-white rounded-b-lg shadow-sm';
+
+                    groupedByDept[dept].forEach(emp => {
+                        const record = recordMap[emp.employeeId] || {};
+                        const card = document.createElement('div');
+                        card.className = 'p-4';
+                        card.dataset.employeeId = emp.employeeId;
+                        
+                        const currentStatus = record.status || 'มาทำงาน';
+                        card.dataset.currentStatus = currentStatus;
+
+                        const mainStatusTypes = ['มาทำงาน', 'ลา', 'ขาดงาน', 'ลาออก', 'สาย/Meeting'];
+                        
+                        let displayStatus = currentStatus;
+                        let isLeave = false;
+                        if(leaveTypes.includes(currentStatus)){
+                            displayStatus = 'ลา';
+                            isLeave = true;
+                        }
+
+                        const statusButtons = mainStatusTypes.map(s => {
+                            let text = s;
+                            if(s === 'ลา' && isLeave){ text = currentStatus; }
+                            const isActive = (s === displayStatus);
+                            return `<button type="button" data-main-status="${s}" class="status-btn px-2 py-1 text-xs rounded transition-colors ${isActive ? 'active' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">${text}</button>`
+                        }).join('');
+
+                        card.innerHTML = `
+                            <div class="flex items-start space-x-4">
+                               <img src="${emp.photoUrl || 'https://placehold.co/48x48/EFEFEF/AAAAAA?text=No+Img'}" alt="${emp.fullName}" class="w-12 h-12 rounded-full object-cover bg-gray-200" onerror="this.src='https://placehold.co/48x48/EFEFEF/AAAAAA?text=Error'">
+                                <div class="flex-1">
+                                    <p class="font-bold text-gray-800">${emp.fullName}</p>
+                                    <p class="text-sm text-gray-500">${emp.employeeId}</p>
+                                </div>
+                            </div>
+                            <div class="attendance-details pl-16 mt-2 space-y-2">
+                               <div class="attendance-status-buttons flex flex-wrap gap-1">
+                                    ${statusButtons}
+                               </div>
+                               <input type="text" class="attendance-reason w-full border border-gray-300 rounded p-2 text-sm ${currentStatus === 'มาทำงาน' ? 'hidden' : ''}" placeholder="ระบุเหตุผล (ถ้ามี)" value="${record.reason || ''}">
+                            </div>
+                        `;
+                        list.appendChild(card);
+                    });
+                     deptContainer.appendChild(list);
+                     attendanceTabContent.appendChild(deptContainer);
+                     isFirstTab = false;
+                }
+
+                // Delegated event listeners for tabs and actions
+                attendanceTabs.addEventListener('click', (e) => {
+                    const tabButton = e.target.closest('.tab-btn');
+                    if(tabButton){
+                        attendanceTabs.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                        tabButton.classList.add('active');
+                        
+                        attendanceTabContent.querySelectorAll('.tab-pane').forEach(pane => pane.classList.add('hidden'));
+                        attendanceTabContent.querySelector(`[data-department-content="${tabButton.dataset.department}"]`).classList.remove('hidden');
+                    }
+                });
+                
+                attendanceTabContent.addEventListener('click', (e) => {
+                    const button = e.target.closest('.status-btn, .dept-reset-attendance-btn, .dept-save-attendance-btn');
+                    if (!button) return;
+
+                    if (button.classList.contains('status-btn')) {
+                        const card = button.closest('[data-employee-id]');
+                        const mainStatus = button.dataset.mainStatus;
+
+                        if (mainStatus === 'ลา') {
+                            openLeaveModal(card);
+                        } else {
+                            card.dataset.currentStatus = mainStatus;
+                            const buttonGroup = button.parentElement;
+                            const reasonInput = card.querySelector('.attendance-reason');
+
+                            buttonGroup.querySelectorAll('.status-btn').forEach(btn => {
+                                btn.classList.remove('active');
+                                btn.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                                if(btn.dataset.mainStatus === 'ลา') btn.textContent = 'ลา';
+                            });
+                            button.classList.add('active');
+                            button.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+
+                             if (mainStatus === 'มาทำงาน') {
+                                reasonInput.classList.add('hidden');
+                                reasonInput.value = '';
+                            } else {
+                                reasonInput.classList.remove('hidden');
+                            }
+                        }
+                    }
+
+                    if (button.classList.contains('dept-reset-attendance-btn')) {
+                        const deptContainer = button.closest('.tab-pane');
+                        deptContainer.querySelectorAll('[data-employee-id]').forEach(card => {
+                            card.dataset.currentStatus = 'มาทำงาน';
+                            const buttonGroup = card.querySelector('.attendance-status-buttons');
+                            const reasonInput = card.querySelector('.attendance-reason');
+                            
+                            buttonGroup.querySelectorAll('.status-btn').forEach(btn => {
+                                btn.classList.remove('active');
+                                btn.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                                if (btn.dataset.mainStatus === 'มาทำงาน') {
+                                    btn.classList.add('active');
+                                    btn.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                                }
+                                if(btn.dataset.mainStatus === 'ลา') btn.textContent = 'ลา';
+                            });
+                            reasonInput.classList.add('hidden');
+                            reasonInput.value = '';
+                        });
+                         showMessage(`รีเซตข้อมูล ${button.dataset.department} เรียบร้อยแล้ว`);
+                    }
+                    
+                    if (button.classList.contains('dept-save-attendance-btn')) {
+                        const department = button.dataset.department;
+                        handleSaveAttendance(department, button);
+                    }
+                });
+                
+                leaveOptionsContainer.addEventListener('click', (e) => {
+                    const button = e.target.closest('.leave-option-btn');
+                    if (button && currentEditingLeaveEmployeeCard) {
+                        const selectedLeaveType = button.dataset.leaveType;
+                        currentEditingLeaveEmployeeCard.dataset.currentStatus = selectedLeaveType;
+
+                        const buttonGroup = currentEditingLeaveEmployeeCard.querySelector('.attendance-status-buttons');
+                        const reasonInput = currentEditingLeaveEmployeeCard.querySelector('.attendance-reason');
+
+                        buttonGroup.querySelectorAll('.status-btn').forEach(btn => {
+                             btn.classList.remove('active');
+                             btn.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                        });
+
+                        const leaveBtn = buttonGroup.querySelector('[data-main-status="ลา"]');
+                        if(leaveBtn){
+                             leaveBtn.classList.add('active');
+                             leaveBtn.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                             leaveBtn.textContent = selectedLeaveType;
+                        }
+                        
+                        reasonInput.classList.remove('hidden');
+                        closeLeaveModal();
+                    }
+                });
+                cancelLeaveSelectionBtn.addEventListener('click', closeLeaveModal);
+            };
+            
+            const handleSaveAttendance = async (departmentToSave, button) => {
+                const date = attendanceDatePicker.value;
+                if(!date) { showMessage('กรุณาเลือกวันที่', true); return; }
+
+                const records = [];
+                const deptContainer = document.querySelector(`[data-department-content="${departmentToSave}"]`);
+                if(deptContainer){
+                    deptContainer.querySelectorAll('[data-employee-id]').forEach(card => {
+                        records.push({
+                            employeeId: card.dataset.employeeId,
+                            status: card.dataset.currentStatus || 'มาทำงาน',
+                            reason: card.querySelector('.attendance-reason').value
+                        });
+                    });
+                }
+
+                if(records.length === 0) {
+                     showMessage('ไม่มีข้อมูลให้บันทึก', true);
+                     return;
+                }
+
+                button.disabled = true;
+                button.textContent = 'กำลังบันทึก...';
+                
+                try {
+                     const response = await fetch(GAS_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({
+                            action: 'saveAttendance',
+                            data: { date, records }
+                        })
+                    });
+                    const result = await response.json();
+                    if(result.status === 'success') {
+                        showMessage(`บันทึกข้อมูลส่วนงาน ${departmentToSave} เรียบร้อยแล้ว`);
+                    } else {
+                        showMessage(result.message, true);
+                    }
+                } catch(error) {
+                    showMessage('เกิดข้อผิดพลาดในการบันทึก', true);
+                } finally {
+                    button.disabled = false;
+                    button.textContent = 'บันทึก';
+                }
+            };
+            
+            attendanceDatePicker.addEventListener('change', () => fetchDataForAttendance(attendanceDatePicker.value));
+            
+            // --- OT Plan Functions ---
+            const initializeOtPlanPage = () => {
+                const today = new Date().toISOString().split('T')[0];
+                otDatePicker.value = today;
+                fetchEmployeesForOtPlan(today);
+            };
+
+            const fetchEmployeesForOtPlan = async (date) => {
+                 otPlanTabs.innerHTML = `<p class="p-4 text-gray-500">กำลังโหลด...</p>`;
+                 otPlanTabContent.innerHTML = '';
+                try {
+                    const [empResponse, planResponse, attendanceResponse] = await Promise.all([
+                        fetch(`${GAS_URL}?action=getEmployees`),
+                        fetch(`${GAS_URL}?action=getOtPlan&date=${date}`),
+                        fetch(`${GAS_URL}?action=getAttendance&date=${date}`)
+                    ]);
+
+                    const empResult = await empResponse.json();
+                    const planResult = await planResponse.json();
+                    const attendanceResult = await attendanceResponse.json();
+
+                    if (empResult.status === 'success') {
+                        const existingPlan = planResult.status === 'success' ? planResult.data : [];
+                        const existingAttendance = attendanceResult.status === 'success' ? attendanceResult.data : [];
+                        renderOtPlanList(empResult.data, existingPlan, existingAttendance);
+                    } else {
+                        showMessage(empResult.message, true);
+                        otPlanTabs.innerHTML = `<p class="p-4 text-red-500">ไม่สามารถโหลดข้อมูลพนักงานได้</p>`;
+                    }
+                } catch (error) {
+                    showMessage('เกิดข้อผิดพลาดในการเชื่อมต่อ', true);
+                    otPlanTabs.innerHTML = `<p class="p-4 text-red-500">เกิดข้อผิดพลาดในการเชื่อมต่อ</p>`;
+                }
+            };
+
+            const renderOtPlanList = (employees, existingPlan, existingAttendance) => {
+                otPlanTabs.innerHTML = '';
+                otPlanTabContent.innerHTML = '';
+                 if (!employees || employees.length === 0) {
+                    otPlanTabs.innerHTML = `<p class="p-4 text-gray-500">ยังไม่มีข้อมูลพนักงาน</p>`;
+                    return;
+                }
+
+                const planMap = existingPlan.reduce((acc, plan) => { acc[plan.employeeId] = plan; return acc; }, {});
+                const attendanceMap = existingAttendance.reduce((acc, record) => { acc[record.employeeId] = record; return acc; }, {});
+
+                const groupedByDept = employees.reduce((acc, emp) => {
+                    const dept = emp.department || 'ไม่ระบุส่วนงาน';
+                    if (!acc[dept]) acc[dept] = [];
+                    acc[dept].push(emp);
+                    return acc;
+                }, {});
+                
+                let isFirstTab = true;
+
+                for (const dept in groupedByDept) {
+                    const tabButton = document.createElement('button');
+                    tabButton.className = `tab-btn px-4 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300 whitespace-nowrap`;
+                    tabButton.textContent = dept;
+                    tabButton.dataset.department = dept;
+                    if (isFirstTab) tabButton.classList.add('active');
+                    otPlanTabs.appendChild(tabButton);
+                    
+                    const deptContainer = document.createElement('div');
+                    deptContainer.className = 'tab-pane';
+                    if (!isFirstTab) deptContainer.classList.add('hidden');
+                    deptContainer.dataset.departmentContent = dept;
+
+                    const deptHeader = document.createElement('div');
+                    deptHeader.className = 'flex justify-between items-center p-4 bg-gray-100 rounded-t-lg';
+                    deptHeader.innerHTML = `
+                        <h3 class="text-md font-bold text-gray-800">${dept}</h3>
+                         <div class="flex items-center gap-2">
+                            <button type="button" class="dept-select-all-ot-btn bg-green-500 text-white px-3 py-1 rounded text-xs hover:bg-green-600 transition-colors" data-department="${dept}">
+                                เลือกทั้งหมด
+                            </button>
+                            <button type="button" class="dept-reset-ot-btn bg-gray-500 text-white px-3 py-1 rounded text-xs hover:bg-gray-600 transition-colors" data-department="${dept}">
+                                รีเซต
+                            </button>
+                             <button type="button" class="dept-save-ot-btn bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 transition-colors" data-department="${dept}">
+                                บันทึก
+                            </button>
+                        </div>
+                    `;
+                    deptContainer.appendChild(deptHeader);
+                    
+                    const list = document.createElement('div');
+                    list.className = 'divide-y bg-white rounded-b-lg shadow-sm';
+
+                    groupedByDept[dept].forEach(emp => {
+                        const plan = planMap[emp.employeeId] || {};
+                        const attendanceRecord = attendanceMap[emp.employeeId] || { status: 'มาทำงาน' };
+                        const isNotWorking = attendanceRecord.status !== 'มาทำงาน' && attendanceRecord.status !== 'สาย/Meeting';
+                        
+                        const card = document.createElement('div');
+                        card.className = 'p-4';
+                        card.dataset.employeeId = emp.employeeId;
+                        card.dataset.attendanceStatus = attendanceRecord.status;
+
+
+                        const isOt = !!plan.startTime && !isNotWorking;
+
+                        card.innerHTML = `
+                            <div class="flex items-start space-x-4">
+                                <input type="checkbox" class="ot-checkbox mt-1 h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" ${isOt ? 'checked' : ''} ${isNotWorking ? 'disabled' : ''}>
+                                <img src="${emp.photoUrl || 'https://placehold.co/48x48/EFEFEF/AAAAAA?text=No+Img'}" alt="${emp.fullName}" class="w-12 h-12 rounded-full object-cover bg-gray-200" onerror="this.src='https://placehold.co/48x48/EFEFEF/AAAAAA?text=Error'">
+                                <div class="flex-1">
+                                    <p class="font-bold text-gray-800">${emp.fullName}</p>
+                                    <p class="text-sm text-gray-500">${emp.employeeId}</p>
+                                    ${isNotWorking ? `<p class="text-xs text-red-500 font-bold mt-1">${attendanceRecord.status}</p>` : ''}
+                                </div>
+                            </div>
+                            <div class="ot-details pl-16 mt-2 space-y-2 ${isOt ? '' : 'hidden'}">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="text-xs text-gray-500">เวลาเริ่ม</label>
+                                        <input type="time" class="ot-start-time w-full border border-gray-300 rounded p-1 text-sm" value="${plan.startTime || '17:30'}">
+                                    </div>
+                                    <div>
+                                        <label class="text-xs text-gray-500">เวลาสิ้นสุด</label>
+                                        <input type="time" class="ot-end-time w-full border border-gray-300 rounded p-1 text-sm" value="${plan.endTime || '20:30'}">
+                                    </div>
+                                </div>
+                                 <div class="flex gap-2">
+                                    <button type="button" class="ot-off-btn bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition-colors">ออกโอที</button>
+                                    <button type="button" class="ot-saturday-off-btn bg-yellow-500 text-white px-3 py-1 rounded text-xs hover:bg-yellow-600 transition-colors">หยุดวันเสาร์</button>
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-500">หมายเหตุ / งาน</label>
+                                    <input type="text" class="ot-notes w-full border border-gray-300 rounded p-1 text-sm" placeholder="ระบุงานที่ทำ" value="${plan.notes || ''}">
+                                </div>
+                            </div>
+                        `;
+                        list.appendChild(card);
+                    });
+                     deptContainer.appendChild(list);
+                     otPlanTabContent.appendChild(deptContainer);
+                     isFirstTab = false;
+                }
+
+                 // Add event listeners for tabs
+                otPlanTabs.addEventListener('click', (e) => {
+                     const tabButton = e.target.closest('.tab-btn');
+                    if(tabButton){
+                        otPlanTabs.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                        tabButton.classList.add('active');
+                        
+                        otPlanTabContent.querySelectorAll('.tab-pane').forEach(pane => pane.classList.add('hidden'));
+                        otPlanTabContent.querySelector(`[data-department-content="${tabButton.dataset.department}"]`).classList.remove('hidden');
+                    }
+                });
+
+                // Add event listeners using event delegation for better performance
+                otPlanTabContent.addEventListener('change', (e) => {
+                     if(e.target.classList.contains('ot-checkbox')){
+                        const card = e.target.closest('[data-employee-id]');
+                        const details = card.querySelector('.ot-details');
+                        if (e.target.checked) {
+                            details.classList.remove('hidden');
+                        } else {
+                            details.classList.add('hidden');
+                        }
+                     }
+                });
+                
+                otPlanTabContent.addEventListener('click', (e) => {
+                    const button = e.target.closest('.ot-off-btn, .ot-saturday-off-btn, .dept-reset-ot-btn, .dept-select-all-ot-btn, .dept-save-ot-btn');
+                    if(!button) return;
+
+                    if(button.classList.contains('ot-off-btn')){
+                        const card = button.closest('[data-employee-id]');
+                        const startTimeInput = card.querySelector('.ot-start-time');
+                        const endTimeInput = card.querySelector('.ot-end-time');
+                        startTimeInput.value = '17:00';
+                        endTimeInput.value = '17:00';
+                    }
+
+                    if(button.classList.contains('ot-saturday-off-btn')){
+                        const card = button.closest('[data-employee-id]');
+                        const startTimeInput = card.querySelector('.ot-start-time');
+                        const endTimeInput = card.querySelector('.ot-end-time');
+                        const notesInput = card.querySelector('.ot-notes');
+                        startTimeInput.value = '00:00';
+                        endTimeInput.value = '00:00';
+                        notesInput.value = 'หยุดวันเสาร์';
+                    }
+                    
+                    if(button.classList.contains('dept-select-all-ot-btn')){
+                        const deptContainer = button.closest('.tab-pane');
+                        deptContainer.querySelectorAll('.ot-checkbox').forEach(checkbox => {
+                             if (!checkbox.disabled && !checkbox.checked) {
+                                checkbox.checked = true;
+                                const changeEvent = new Event('change', { bubbles: true });
+                                checkbox.dispatchEvent(changeEvent);
+                            }
+                        });
+                        showMessage(`เลือกพนักงานทั้งหมดในส่วนงาน ${button.dataset.department} เรียบร้อยแล้ว`);
+                    }
+
+                    if(button.classList.contains('dept-reset-ot-btn')){
+                         const deptContainer = button.closest('.tab-pane');
+                         deptContainer.querySelectorAll('[data-employee-id]').forEach(card => {
+                            const checkbox = card.querySelector('.ot-checkbox');
+                             if (checkbox && checkbox.checked) {
+                                checkbox.checked = false;
+                                const changeEvent = new Event('change', { bubbles: true });
+                                checkbox.dispatchEvent(changeEvent);
+                            }
+                         });
+                         showMessage(`รีเซตข้อมูล ${button.dataset.department} เรียบร้อยแล้ว`);
+                    }
+                     if (button.classList.contains('dept-save-ot-btn')) {
+                        const department = button.dataset.department;
+                        handleSaveOtPlan(department, button);
+                    }
+                });
+            };
+
+            const handleSaveOtPlan = async (departmentToSave, button) => {
+                const date = otDatePicker.value;
+                if (!date) { showMessage('กรุณาเลือกวันที่', true); return; }
+
+                const plans = [];
+                const deptContainer = document.querySelector(`[data-department-content="${departmentToSave}"]`);
+                if(deptContainer){
+                    deptContainer.querySelectorAll('[data-employee-id]').forEach(card => {
+                        const checkbox = card.querySelector('.ot-checkbox');
+                        
+                        // Always save a record for every employee in the department
+                        const employeeId = card.dataset.employeeId;
+                        let startTime = '', endTime = '', notes = '';
+
+                        if (checkbox && checkbox.checked) { // If checked for OT
+                            startTime = card.querySelector('.ot-start-time').value;
+                            endTime = card.querySelector('.ot-end-time').value;
+                            notes = card.querySelector('.ot-notes').value;
+                        } else if (checkbox && checkbox.disabled) { // If on leave
+                            notes = card.dataset.attendanceStatus || 'ลา';
+                        }
+                        // For employees not on leave and not selected for OT, startTime, endTime, and notes will be blank
+                        
+                        plans.push({ employeeId, startTime, endTime, notes });
+                    });
+                }
+                
+                button.disabled = true;
+                button.textContent = 'กำลังบันทึก...';
+                
+                try {
+                     const response = await fetch(GAS_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({
+                            action: 'saveOtPlan',
+                            data: { date, plans, department: departmentToSave }
+                        })
+                    });
+                    const result = await response.json();
+                    if(result.status === 'success') {
+                        showMessage(`บันทึกแผน OT ส่วนงาน ${departmentToSave} เรียบร้อยแล้ว`);
+                    } else {
+                        showMessage(result.message, true);
+                    }
+
+                } catch(error) {
+                    showMessage('เกิดข้อผิดพลาดในการบันทึก', true);
+                } finally {
+                    button.disabled = false;
+                    button.textContent = 'บันทึก';
+                }
+            };
+
+
+            otDatePicker.addEventListener('change', () => fetchEmployeesForOtPlan(otDatePicker.value));
+
+
+            const toggleView = (show) => {
+                Object.values(containers).forEach(c => c.classList.add('hidden'));
+                const pageMap = {
+                    'login': ['auth', 'login'], 'register': ['auth', 'register'],
+                    'home': ['home'], 'employee-list': ['employeeList'],
+                    'add-employee': ['addEmployee'],
+                    'ot-plan': ['otPlan'], 'attendance': ['attendance']
+                };
+                if (pageMap[show]) {
+                    pageMap[show].forEach(key => containers[key].classList.remove('hidden'));
+                }
+                // Highlight active nav link
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    if (link.dataset.page === show) {
+                        link.classList.remove('text-gray-500', 'hover:text-[var(--primary-600)]');
+                        link.classList.add('text-[var(--primary-600)]', 'font-semibold');
+                    } else {
+                         link.classList.add('text-gray-500', 'hover:text-[var(--primary-600)]');
+                        link.classList.remove('text-[var(--primary-600)]', 'font-semibold');
+                    }
+                });
+                
+                if (show === 'employee-list') { fetchAndDisplayEmployees(); }
+                if (show === 'ot-plan') { initializeOtPlanPage(); }
+                if (show === 'attendance') { initializeAttendancePage(); }
+            };
+            
+            // --- EVENT LISTENERS ---
+            document.getElementById('show-login').addEventListener('click', (e) => { e.preventDefault(); toggleView('login'); });
+            document.getElementById('show-register').addEventListener('click', (e) => { e.preventDefault(); toggleView('register'); });
+            document.getElementById('add-employee-fab').addEventListener('click', () => { resetEmployeeForm(); toggleView('add-employee'); });
+            document.getElementById('back-to-list-button').addEventListener('click', () => { resetEmployeeForm(); toggleView('employee-list'); });
+            document.querySelectorAll('.nav-link').forEach(link => { link.addEventListener('click', (e) => { e.preventDefault(); toggleView(link.dataset.page); }); });
+            document.querySelectorAll('.logout-button').forEach(button => { button.addEventListener('click', () => { toggleView('login'); showMessage('You have been logged out.'); }); });
+            
+            photoUploadInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const base64String = event.target.result;
+                        photoPreview.src = base64String;
+                        photoBase64 = base64String.split(',')[1];
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            registerForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const button = e.target.querySelector('button');
+                const password = document.getElementById('register-password').value;
+                const confirmPassword = document.getElementById('confirm-password').value;
+                if (password !== confirmPassword) { showMessage('รหัสผ่านไม่ตรงกัน', true); return; }
+                button.disabled = true; button.textContent = 'Registering...';
+                try {
+                    const response = await fetch(GAS_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({
+                            action: 'register',
+                            username: document.getElementById('register-username').value.trim(),
+                            password: password,
+                            fullName: document.getElementById('register-fullname').value.trim(),
+                            position: document.getElementById('register-position').value.trim(),
+                            department: document.getElementById('register-department').value.trim()
+                        })
+                    });
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        showMessage('Registration successful! Please login.');
+                        registerForm.reset();
+                        toggleView('login');
+                    } else { showMessage(result.message, true); }
+                } catch (error) { showMessage('An error occurred during registration.', true); } 
+                finally { button.disabled = false; button.textContent = 'Register'; }
+            });
+
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const button = e.target.querySelector('button');
+                button.disabled = true; button.textContent = 'Logging in...';
+                try {
+                    const response = await fetch(GAS_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ action: 'login', username: document.getElementById('login-username').value.trim(), password: document.getElementById('login-password').value })
+                    });
+                    const result = await response.json();
+                    if (result.status === 'success' && result.userData) {
+                        document.getElementById('full-name').value = result.userData.fullName || '';
+                        document.getElementById('position').value = result.userData.position || '';
+                        document.getElementById('department').value = result.userData.department || '';
+                        toggleView('add-employee');
+                        loginForm.reset();
+                    } else { showMessage(result.message, true); }
+                } catch (error) { showMessage('An error occurred during login.', true); } 
+                finally { button.disabled = false; button.textContent = 'Login'; }
+            });
+
+            employeeForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const button = document.getElementById('save-employee-button');
+                const employeeData = {
+                    fullName: document.getElementById('full-name').value.trim(),
+                    employeeId: document.getElementById('employee-id').value.trim(),
+                    department: document.getElementById('department').value.trim(),
+                    position: document.getElementById('position').value.trim(),
+                    role: document.getElementById('role').value,
+                    startDate: document.getElementById('start-date').value,
+                    photo: photoBase64,
+                    photoMimeType: photoUploadInput.files[0] ? photoUploadInput.files[0].type : null
+                };
+
+                if (!employeeData.fullName || !employeeData.employeeId) { showMessage('กรุณากรอกชื่อ-นามสกุล และรหัสพนักงาน', true); return; }
+                
+                const action = isEditMode ? 'updateEmployee' : 'addEmployee';
+                if(isEditMode){
+                    employeeData.originalEmployeeId = editingEmployeeId;
+                }
+
+                button.disabled = true; saveEmployeeButtonSpan.textContent = 'กำลังบันทึก...';
+                try {
+                    const response = await fetch(GAS_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ action: action, data: employeeData })
+                    });
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        showMessage(isEditMode ? 'อัปเดตข้อมูลเรียบร้อยแล้ว' : 'บันทึกข้อมูลพนักงานเรียบร้อยแล้ว');
+                        resetEmployeeForm();
+                        toggleView('employee-list');
+                    } else { showMessage(result.message, true); }
+                } catch (error) { showMessage('เกิดข้อผิดพลาดในการบันทึกข้อมูล', true); } 
+                finally { button.disabled = false; saveEmployeeButtonSpan.textContent = isEditMode ? 'อัปเดต' : 'บันทึก'; }
+            });
+
+            toggleView('login');
+        });
+    </script>
+</body>
+</html>
+

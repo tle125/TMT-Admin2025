@@ -1,0 +1,148 @@
+<html><head>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Inter%3Awght%40400%3B500%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<meta charset="utf-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<title>Stitch Design</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+</head>
+<body class="bg-gray-50 text-gray-800" style='font-family: Inter, "Noto Sans", sans-serif;'>
+<div class="flex min-h-screen">
+<aside class="w-64 bg-white shadow-md flex flex-col">
+<div class="p-6">
+<h1 class="text-xl font-bold text-gray-900">HR Admin</h1>
+<p class="text-sm text-gray-500">Acme Co.</p>
+</div>
+<nav class="flex-1 px-4 space-y-2">
+<a class="flex items-center gap-3 px-4 py-2 rounded-md bg-blue-100 text-blue-700 font-medium" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 rounded-md text-gray-600 hover:bg-gray-100 hover:text-gray-900 font-medium" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span>Employees</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 rounded-md text-gray-600 hover:bg-gray-100 hover:text-gray-900 font-medium" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span>Leave</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 rounded-md text-gray-600 hover:bg-gray-100 hover:text-gray-900 font-medium" href="#">
+<span class="material-symbols-outlined">work</span>
+<span>Recruitment</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 rounded-md text-gray-600 hover:bg-gray-100 hover:text-gray-900 font-medium" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span>Payroll</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 rounded-md text-gray-600 hover:bg-gray-100 hover:text-gray-900 font-medium" href="#">
+<span class="material-symbols-outlined">schedule</span>
+<span>Attendance</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 rounded-md text-gray-600 hover:bg-gray-100 hover:text-gray-900 font-medium" href="#">
+<span class="material-symbols-outlined">assessment</span>
+<span>Performance</span>
+</a>
+</nav>
+</aside>
+<main class="flex-1 p-8">
+<header class="mb-8">
+<h2 class="text-4xl font-bold text-gray-900">Dashboard</h2>
+<p class="text-gray-500">Overview of key HR metrics and quick actions</p>
+</header>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+<div class="bg-white p-6 rounded-lg shadow">
+<p class="text-sm font-medium text-gray-600">Total Employees</p>
+<p class="text-3xl font-bold text-gray-900 mt-2">250</p>
+<p class="text-sm font-medium text-green-500 mt-1">+10%</p>
+</div>
+<div class="bg-white p-6 rounded-lg shadow">
+<p class="text-sm font-medium text-gray-600">Active Recruitments</p>
+<p class="text-3xl font-bold text-gray-900 mt-2">5</p>
+<p class="text-sm font-medium text-red-500 mt-1">-5%</p>
+</div>
+<div class="bg-white p-6 rounded-lg shadow">
+<p class="text-sm font-medium text-gray-600">Leaves Today</p>
+<p class="text-3xl font-bold text-gray-900 mt-2">12</p>
+<p class="text-sm font-medium text-green-500 mt-1">+2%</p>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+<div class="bg-white p-6 rounded-lg shadow">
+<h3 class="text-lg font-semibold text-gray-900 mb-4">Employee Distribution by Department</h3>
+<div class="h-64">
+<div class="grid grid-flow-col gap-6 grid-rows-[1fr_auto] items-end justify-items-center h-full px-3">
+<div class="bg-blue-200 w-full" style="height: 100%;"></div>
+<p class="text-xs font-medium text-gray-500">Engineering</p>
+<div class="bg-blue-200 w-full" style="height: 70%;"></div>
+<p class="text-xs font-medium text-gray-500">Marketing</p>
+<div class="bg-blue-200 w-full" style="height: 100%;"></div>
+<p class="text-xs font-medium text-gray-500">Sales</p>
+<div class="bg-blue-200 w-full" style="height: 50%;"></div>
+<p class="text-xs font-medium text-gray-500">HR</p>
+<div class="bg-blue-200 w-full" style="height: 10%;"></div>
+<p class="text-xs font-medium text-gray-500">Operations</p>
+</div>
+</div>
+</div>
+<div class="bg-white p-6 rounded-lg shadow">
+<h3 class="text-lg font-semibold text-gray-900 mb-4">Employee Growth Over Time</h3>
+<div class="h-64">
+<svg fill="none" height="100%" preserveAspectRatio="none" viewBox="0 0 472 150" width="100%" xmlns="http://www.w3.org/2000/svg">
+<path d="M0 109C18.1538 109 18.1538 21 36.3077 21C54.4615 21 54.4615 41 72.6154 41C90.7692 41 90.7692 93 108.923 93C127.077 93 127.077 33 145.231 33C163.385 33 163.385 101 181.538 101C199.692 101 199.692 61 217.846 61C236 61 236 45 254.154 45C272.308 45 272.308 121 290.462 121C308.615 121 308.615 149 326.769 149C344.923 149 344.923 1 363.077 1C381.231 1 381.231 81 399.385 81C417.538 81 417.538 129 435.692 129C453.846 129 453.846 25 472 25V149H0V109Z" fill="url(#paint0_linear_1)"></path>
+<path d="M0 109C18.1538 109 18.1538 21 36.3077 21C54.4615 21 54.4615 41 72.6154 41C90.7692 41 90.7692 93 108.923 93C127.077 93 127.077 33 145.231 33C163.385 33 163.385 101 181.538 101C199.692 101 199.692 61 217.846 61C236 61 236 45 254.154 45C272.308 45 272.308 121 290.462 121C308.615 121 308.615 149 326.769 149C344.923 149 344.923 1 363.077 1C381.231 1 381.231 81 399.385 81C417.538 81 417.538 129 435.692 129C453.846 129 453.846 25 472 25" stroke="#1173d4" stroke-linecap="round" stroke-width="3"></path>
+<defs>
+<linearGradient gradientUnits="userSpaceOnUse" id="paint0_linear_1" x1="236" x2="236" y1="1" y2="149">
+<stop stop-color="#1173d4" stop-opacity="0.2"></stop>
+<stop offset="1" stop-color="#1173d4" stop-opacity="0"></stop>
+</linearGradient>
+</defs>
+</svg>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div>
+<h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+<div class="flex gap-4">
+<button class="flex-1 bg-[#1173d4] text-white font-bold py-3 px-4 rounded-md hover:bg-blue-700 transition duration-300">Add New Employee</button>
+<button class="flex-1 bg-gray-200 text-gray-800 font-bold py-3 px-4 rounded-md hover:bg-gray-300 transition duration-300">Manage Leave Requests</button>
+</div>
+</div>
+<div>
+<h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Activities</h3>
+<div class="space-y-4">
+<div class="flex items-start gap-4">
+<div class="bg-blue-100 p-2 rounded-full">
+<span class="material-symbols-outlined text-blue-600">person_add</span>
+</div>
+<div>
+<p class="font-medium text-gray-900">New employee onboarding</p>
+<p class="text-sm text-gray-500">Sarah Chen joined the team</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="bg-green-100 p-2 rounded-full">
+<span class="material-symbols-outlined text-green-600">check_circle</span>
+</div>
+<div>
+<p class="font-medium text-gray-900">Leave request approved</p>
+<p class="text-sm text-gray-500">David Lee's leave request for 2 days was approved</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="bg-yellow-100 p-2 rounded-full">
+<span class="material-symbols-outlined text-yellow-600">event</span>
+</div>
+<div>
+<p class="font-medium text-gray-900">Performance review scheduled</p>
+<p class="text-sm text-gray-500">Review for Emily Wong is scheduled for next week</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+</body></html>
