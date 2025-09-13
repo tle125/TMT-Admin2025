@@ -76,7 +76,7 @@ function doPost(e) {
         case 'saveOtPlan': {
             let sheet = ss.getSheetByName(OT_PLAN_SHEET_NAME);
             if (!sheet) return createJsonResponse({ status: 'error', message: 'Sheet "Plan ot" not found.' });
-            return handleSaveOtPlan(data.data);
+            return handleSaveOtPlan(sheet, data.data);
         }
         case 'saveAttendance': {
             let sheet = ss.getSheetByName(ATTENDANCE_SHEET_NAME);
@@ -242,17 +242,13 @@ function handleGetOtPlan(sheet, date) {
 }
 
 
-function handleSaveOtPlan(data) {
-  const { date, plans, department } = data;
-  if (!date || !plans || !department) {
-    return createJsonResponse({ status: 'error', message: 'Missing date, plans, or department data.' });
-  }
-   
-   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-   let sheet = ss.getSheetByName(OT_PLAN_SHEET_NAME);
-   if (!sheet) {
-     return createJsonResponse({ status: 'error', message: 'Sheet "Plan ot" not found.' });
-   }
+function handleSaveOtPlan(sheet, data) {
+    const { date, plans, department } = data;
+    if (!date || !plans || !department) {
+        return createJsonResponse({ status: 'error', message: 'Missing date, plans, or department data.' });
+    }
+    
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const employeeSheet = ss.getSheetByName(EMPLOYEE_SHEET_NAME);
     if (!employeeSheet) {
         return createJsonResponse({ status: 'error', message: 'Employee data sheet not found.' });
@@ -273,11 +269,6 @@ function handleSaveOtPlan(data) {
         }
         return acc;
     }, {});
-    
-    // Check if sheet is empty and create headers if needed
-    if (sheet.getLastRow() === 0) {
-        sheet.getRange(1, 1, 1, 7).setValues([['วันที่', 'รหัสพนักงาน', 'ชื่อ-สกุล', 'ส่วนงาน', 'เวลาเริ่ม', 'เวลาสิ้นสุด', 'หมายเหตุ / งาน']]);
-    }
     
     const sheetData = sheet.getDataRange().getValues();
     const headers = sheetData.length > 0 ? sheetData[0].map(h => h.trim()) : [];
@@ -310,6 +301,7 @@ function handleSaveOtPlan(data) {
     rowsToDelete.forEach(rowIndex => sheet.deleteRow(rowIndex));
 
     const newRows = plans
+        .filter(plan => (plan.startTime && plan.endTime) || plan.notes) // Only add rows that have OT or a leave note
         .map(plan => {
             const emp = employeeMap[plan.employeeId] || { fullName: 'Unknown', department: department };
             return [
@@ -317,14 +309,18 @@ function handleSaveOtPlan(data) {
                 plan.employeeId,
                 emp.fullName,
                 emp.department,
-                plan.startTime || '',
-                plan.endTime || '',
-                plan.notes || ''
+                plan.startTime,
+                plan.endTime,
+                plan.notes
             ];
     });
 
     if (newRows.length > 0) {
         sheet.getRange(sheet.getLastRow() + 1, 1, newRows.length, newRows[0].length).setValues(newRows);
+    }
+    
+    if (headers.length === 0 || headers.join('').trim() === '') {
+        sheet.getRange(1, 1, 1, 7).setValues([['วันที่', 'รหัสพนักงาน', 'ชื่อ-สกุล', 'ส่วนงาน', 'เวลาเริ่ม', 'เวลาสิ้นสุด', 'หมายเหตุ / งาน']]);
     }
 
     return createJsonResponse({ status: 'success', message: 'OT Plan saved successfully.' });
@@ -344,7 +340,8 @@ function handleGetEmployees(sheet) {
         position: headers.indexOf('ตำแหน่ง'),
         startDate: headers.indexOf('วันที่เริ่มงาน'),
         photoUrl: headers.indexOf('ลิงก์รูปถ่าย'),
-        role: headers.indexOf('Role')
+        role: headers.indexOf('Role'),
+        duty: headers.indexOf('หน้าที่')
     };
     for (let i = 1; i < data.length; i++) {
         const row = data[i];
@@ -356,7 +353,8 @@ function handleGetEmployees(sheet) {
             position: colIndices.position > -1 ? row[colIndices.position] : undefined,
             startDate: colIndices.startDate > -1 ? row[colIndices.startDate] : undefined,
             photoUrl: colIndices.photoUrl > -1 ? row[colIndices.photoUrl] : undefined,
-            role: colIndices.role > -1 ? row[colIndices.role] : 'User'
+            role: colIndices.role > -1 ? row[colIndices.role] : 'User',
+            duty: colIndices.duty > -1 ? row[colIndices.duty] : undefined
         });
     }
     return createJsonResponse({ status: 'success', data: employees });

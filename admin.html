@@ -196,6 +196,16 @@
                      <h2 class="text-lg font-semibold text-gray-800">เลือกวันที่</h2>
                     <input type="date" id="ot-date-picker" class="border border-gray-300 rounded-lg p-2">
                 </div>
+                <div id="ot-total-summary" class="bg-blue-50 border border-blue-200 rounded-lg p-3 hidden">
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="font-semibold text-blue-800">สรุปรวมทั้งหมด:</span>
+                        <div class="flex gap-4 text-blue-700">
+                            <span id="total-all-employees">พนักงานทั้งหมด: 0 คน</span>
+                            <span id="total-all-ot-employees">OT: 0 คน</span>
+                            <span id="total-all-ot-hours" class="font-bold">รวม: 0.0 ชั่วโมง</span>
+                        </div>
+                    </div>
+                </div>
             </div>
              <div id="ot-plan-tabs" class="flex border-b border-gray-200 bg-white rounded-t-lg overflow-x-auto flex-shrink-0"></div>
             <div id="ot-plan-tab-content" class="overflow-y-auto flex-grow"></div>
@@ -860,7 +870,14 @@
                     const deptHeader = document.createElement('div');
                     deptHeader.className = 'flex justify-between items-center p-4 bg-gray-100 rounded-t-lg';
                     deptHeader.innerHTML = `
-                        <h3 class="text-md font-bold text-gray-800">${dept}</h3>
+                        <div class="flex flex-col">
+                            <h3 class="text-md font-bold text-gray-800">${dept}</h3>
+                            <div class="dept-summary text-sm text-gray-600 mt-1">
+                                <span class="total-employees">พนักงาน: ${groupedByDept[dept].length} คน</span> | 
+                                <span class="total-ot-employees">OT: 0 คน</span> | 
+                                <span class="total-ot-hours">รวม: 0.0 ชั่วโมง</span>
+                            </div>
+                        </div>
                          <div class="flex items-center gap-2">
                             <button type="button" class="dept-select-all-ot-btn bg-green-500 text-white px-3 py-1 rounded text-xs hover:bg-green-600 transition-colors" data-department="${dept}">
                                 เลือกทั้งหมด
@@ -901,8 +918,9 @@
                                     ${isNotWorking ? `<p class="text-xs text-red-500 font-bold mt-1">${attendanceRecord.status}</p>` : ''}
                                 </div>
                             </div>
+                            <div class="employee-duty" data-duty="${emp.duty || ''}" style="display: none;"></div>
                             <div class="ot-details pl-16 mt-2 space-y-2 ${isOt ? '' : 'hidden'}">
-                                <div class="grid grid-cols-2 gap-2">
+                                <div class="grid grid-cols-3 gap-2">
                                     <div>
                                         <label class="text-xs text-gray-500">เวลาเริ่ม</label>
                                         <input type="time" class="ot-start-time w-full border border-gray-300 rounded p-1 text-sm" value="${plan.startTime || '17:30'}">
@@ -910,6 +928,10 @@
                                     <div>
                                         <label class="text-xs text-gray-500">เวลาสิ้นสุด</label>
                                         <input type="time" class="ot-end-time w-full border border-gray-300 rounded p-1 text-sm" value="${plan.endTime || '20:30'}">
+                                    </div>
+                                    <div>
+                                        <label class="text-xs text-gray-500">ชั่วโมง OT</label>
+                                        <div class="ot-hours-display bg-blue-50 border border-blue-200 rounded p-1 text-sm text-center font-bold text-blue-700">0.0</div>
                                     </div>
                                 </div>
                                  <div class="flex gap-2">
@@ -926,6 +948,15 @@
                     });
                      deptContainer.appendChild(list);
                      otPlanTabContent.appendChild(deptContainer);
+                     
+                     // Calculate initial OT hours for this department
+                     setTimeout(() => {
+                         list.querySelectorAll('[data-employee-id]').forEach(card => {
+                             calculateOtHours(card);
+                         });
+                         updateDepartmentSummary(deptContainer);
+                     }, 100);
+                     
                      isFirstTab = false;
                 }
 
@@ -948,9 +979,23 @@
                         const details = card.querySelector('.ot-details');
                         if (e.target.checked) {
                             details.classList.remove('hidden');
+                            // แสดงหน้าที่ในช่องหมายเหตุถ้าทำ OT ปกติ
+                            const dutyElement = card.querySelector('.employee-duty');
+                            const notesInput = card.querySelector('.ot-notes');
+                            if (dutyElement && notesInput && dutyElement.dataset.duty && !notesInput.value) {
+                                notesInput.value = dutyElement.dataset.duty;
+                            }
+                            calculateOtHours(card);
                         } else {
                             details.classList.add('hidden');
                         }
+                        updateDepartmentSummary(card.closest('.tab-pane'));
+                     }
+                     
+                     if(e.target.classList.contains('ot-start-time') || e.target.classList.contains('ot-end-time')){
+                        const card = e.target.closest('[data-employee-id]');
+                        calculateOtHours(card);
+                        updateDepartmentSummary(card.closest('.tab-pane'));
                      }
                 });
                 
@@ -964,6 +1009,8 @@
                         const endTimeInput = card.querySelector('.ot-end-time');
                         startTimeInput.value = '17:00';
                         endTimeInput.value = '17:00';
+                        calculateOtHours(card);
+                        updateDepartmentSummary(card.closest('.tab-pane'));
                     }
 
                     if(button.classList.contains('ot-saturday-off-btn')){
@@ -974,6 +1021,8 @@
                         startTimeInput.value = '00:00';
                         endTimeInput.value = '00:00';
                         notesInput.value = 'หยุดวันเสาร์';
+                        calculateOtHours(card);
+                        updateDepartmentSummary(card.closest('.tab-pane'));
                     }
                     
                     if(button.classList.contains('dept-select-all-ot-btn')){
@@ -985,6 +1034,7 @@
                                 checkbox.dispatchEvent(changeEvent);
                             }
                         });
+                        updateDepartmentSummary(deptContainer);
                         showMessage(`เลือกพนักงานทั้งหมดในส่วนงาน ${button.dataset.department} เรียบร้อยแล้ว`);
                     }
 
@@ -998,6 +1048,7 @@
                                 checkbox.dispatchEvent(changeEvent);
                             }
                          });
+                         updateDepartmentSummary(deptContainer);
                          showMessage(`รีเซตข้อมูล ${button.dataset.department} เรียบร้อยแล้ว`);
                     }
                      if (button.classList.contains('dept-save-ot-btn')) {
@@ -1006,6 +1057,107 @@
                     }
                 });
             };
+
+            // Function to calculate OT hours for individual employee
+            const calculateOtHours = (card) => {
+                const checkbox = card.querySelector('.ot-checkbox');
+                const startTimeInput = card.querySelector('.ot-start-time');
+                const endTimeInput = card.querySelector('.ot-end-time');
+                const hoursDisplay = card.querySelector('.ot-hours-display');
+                
+                if (!checkbox.checked || checkbox.disabled) {
+                    hoursDisplay.textContent = '0.0';
+                    return 0;
+                }
+                
+                const startTime = startTimeInput.value;
+                const endTime = endTimeInput.value;
+                
+                if (!startTime || !endTime) {
+                    hoursDisplay.textContent = '0.0';
+                    return 0;
+                }
+                
+                // Convert time to minutes for calculation
+                const [startHour, startMin] = startTime.split(':').map(Number);
+                const [endHour, endMin] = endTime.split(':').map(Number);
+                
+                let startMinutes = startHour * 60 + startMin;
+                let endMinutes = endHour * 60 + endMin;
+                
+                // Handle overnight OT (end time next day)
+                if (endMinutes <= startMinutes) {
+                    endMinutes += 24 * 60; // Add 24 hours
+                }
+                
+                const totalMinutes = endMinutes - startMinutes;
+                const hours = totalMinutes / 60;
+                
+                hoursDisplay.textContent = hours.toFixed(1);
+                return hours;
+            };
+            
+            // Function to update department summary
+             const updateDepartmentSummary = (deptContainer) => {
+                 const totalEmployeesSpan = deptContainer.querySelector('.total-employees');
+                 const totalOtEmployeesSpan = deptContainer.querySelector('.total-ot-employees');
+                 const totalOtHoursSpan = deptContainer.querySelector('.total-ot-hours');
+                 
+                 const employeeCards = deptContainer.querySelectorAll('[data-employee-id]');
+                 const totalEmployees = employeeCards.length;
+                 
+                 let otEmployeeCount = 0;
+                 let totalOtHours = 0;
+                 
+                 employeeCards.forEach(card => {
+                     const checkbox = card.querySelector('.ot-checkbox');
+                     if (checkbox && checkbox.checked && !checkbox.disabled) {
+                         otEmployeeCount++;
+                         const hours = calculateOtHours(card);
+                         totalOtHours += hours;
+                     }
+                 });
+                 
+                 totalOtEmployeesSpan.textContent = `OT: ${otEmployeeCount} คน`;
+                 totalOtHoursSpan.textContent = `รวม: ${totalOtHours.toFixed(1)} ชั่วโมง`;
+                 
+                 // Update overall summary
+                 updateOverallSummary();
+             };
+             
+             // Function to update overall summary
+             const updateOverallSummary = () => {
+                 const totalSummary = document.getElementById('ot-total-summary');
+                 const totalAllEmployeesSpan = document.getElementById('total-all-employees');
+                 const totalAllOtEmployeesSpan = document.getElementById('total-all-ot-employees');
+                 const totalAllOtHoursSpan = document.getElementById('total-all-ot-hours');
+                 
+                 let allEmployeeCount = 0;
+                 let allOtEmployeeCount = 0;
+                 let allOtHours = 0;
+                 
+                 document.querySelectorAll('.tab-pane [data-employee-id]').forEach(card => {
+                     allEmployeeCount++;
+                     const checkbox = card.querySelector('.ot-checkbox');
+                     if (checkbox && checkbox.checked && !checkbox.disabled) {
+                         allOtEmployeeCount++;
+                         const hoursDisplay = card.querySelector('.ot-hours-display');
+                         const hours = parseFloat(hoursDisplay.textContent) || 0;
+                         allOtHours += hours;
+                     }
+                 });
+                 
+                 totalAllEmployeesSpan.textContent = `พนักงานทั้งหมด: ${allEmployeeCount} คน`;
+                 totalAllOtEmployeesSpan.textContent = `OT: ${allOtEmployeeCount} คน`;
+                 totalAllOtHoursSpan.textContent = `รวม: ${allOtHours.toFixed(1)} ชั่วโมง`;
+                 
+                 // Show summary if there are employees
+                 if (allEmployeeCount > 0) {
+                     totalSummary.classList.remove('hidden');
+                 } else {
+                     totalSummary.classList.add('hidden');
+                 }
+             };
 
             const handleSaveOtPlan = async (departmentToSave, button) => {
                 const date = otDatePicker.value;
