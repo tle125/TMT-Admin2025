@@ -6,19 +6,11 @@ const EMPLOYEE_SHEET_NAME = 'ข้อมูลพนักงาน';
 const OT_PLAN_SHEET_NAME = 'Plan ot';
 const ATTENDANCE_SHEET_NAME = 'เช็คชื่อ';
 const SHIFT_SHEET_NAME = 'ตารางกะ';
-const SHIFT_MANAGEMENT_SHEET_NAME = 'จัดการกะ';
 // ID of the Google Drive Folder for storing photos
 const EMPLOYEE_PHOTO_FOLDER_ID = '1_0Mt3Imhz0wg2-q8PaBXKWVwTe8Kxtjr';
+// *** ADDED: Define missing sheet name variable ***
+const SHIFT_MANAGEMENT_SHEET_NAME = 'ตารางกะ';
 
-// Handle CORS preflight requests
-function doOptions(e) {
-  return ContentService.createTextOutput('')
-    .setMimeType(ContentService.MimeType.TEXT)
-    .setHeader('Access-Control-Allow-Origin', '*')
-    .setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-    .setHeader('Access-Control-Allow-Headers', 'Content-Type')
-    .setHeader('Access-Control-Max-Age', '86400');
-}
 
 function doGet(e) {
   try {
@@ -79,8 +71,8 @@ function doPost(e) {
             if (action === 'register') return handleRegistration(accountSheet, data);
             
             const employeeSheet = ss.getSheetByName(EMPLOYEE_SHEET_NAME);
-            const { loginIdentifier, password } = data;
-            return handleLogin(accountSheet, employeeSheet, loginIdentifier, password);
+            const { username, password } = data;
+            return handleLogin(accountSheet, employeeSheet, username, password);
         }
         case 'addEmployee': {
             let sheet = ss.getSheetByName(EMPLOYEE_SHEET_NAME);
@@ -110,17 +102,11 @@ function doPost(e) {
              if (!sheet) return createJsonResponse({ status: 'error', message: 'Sheet "เช็คชื่อ" not found.' });
             return handleSaveAttendance(sheet, data.data);
         }
-         case 'saveShift': {
+        // *** RENAMED ACTION to match frontend call ***
+        case 'saveShiftAssignment': {
             let sheet = ss.getSheetByName(SHIFT_SHEET_NAME);
             if (!sheet) return createJsonResponse({ status: 'error', message: 'Sheet "ตารางกะ" not found.' });
-            return handleSaveShift(sheet, data.data);
-        }
-        case 'saveShiftAssignment': {
-            let sheet = ss.getSheetByName(SHIFT_MANAGEMENT_SHEET_NAME);
-            if (!sheet) {
-                sheet = ss.insertSheet(SHIFT_MANAGEMENT_SHEET_NAME);
-                sheet.getRange(1, 1, 1, 5).setValues([['วันที่', 'ประเภทกะ', 'เวลากะ', 'รหัสพนักงาน', 'ชื่อพนักงาน']]);
-            }
+            // *** UPDATED: Pass the correct data object ***
             return handleSaveShiftAssignment(sheet, data.shiftData);
         }
         default:
@@ -165,8 +151,8 @@ function handleGetShiftData(sheet, date, shiftType) {
     return createJsonResponse({ status: 'success', data: records });
 }
 
-
-function handleSaveShift(sheet, data) {
+// *** RENAMED FUNCTION and UPDATED PARAMETERS to match frontend call ***
+function handleSaveShiftAssignment(sheet, data) {
     const { date, shiftType, employeeIds } = data;
     if (!date || !shiftType || !employeeIds) {
         return createJsonResponse({ status: 'error', message: 'Missing date, shiftType, or employeeIds data.' });
@@ -196,23 +182,27 @@ function handleSaveShift(sheet, data) {
 
     const requestedDate = new Date(date);
     
-    const rowsToDelete = [];
+    // This logic correctly deletes existing rows for the same date and shift type before adding new ones.
+    let rowsToDelete = [];
     if (sheetData.length > 1) {
-      for (let i = sheetData.length - 1; i >= 1; i--) {
-          const row = sheetData[i];
-          if (!row[dateColIdx]) continue;
-          const rowDate = new Date(row[dateColIdx]);
-          const rowShiftType = row[shiftTypeColIdx];
-          if (rowDate.getFullYear() === requestedDate.getFullYear() &&
-              rowDate.getMonth() === requestedDate.getMonth() &&
-              rowDate.getDate() === requestedDate.getDate() &&
-              rowShiftType === shiftType) {
-              rowsToDelete.push(i + 1);
-          }
-      }
+        for (let i = sheetData.length - 1; i >= 1; i--) {
+            const row = sheetData[i];
+            if (!row[dateColIdx]) continue;
+            const rowDate = new Date(row[dateColIdx]);
+            const rowShiftType = row[shiftTypeColIdx];
+            if (rowDate.getFullYear() === requestedDate.getFullYear() &&
+                rowDate.getMonth() === requestedDate.getMonth() &&
+                rowDate.getDate() === requestedDate.getDate() &&
+                rowShiftType === shiftType) {
+                // Since we are replacing all assignments for this shift, we can delete any existing ones.
+                rowsToDelete.push(i + 1);
+            }
+        }
     }
-    
-    rowsToDelete.forEach(rowIndex => sheet.deleteRow(rowIndex));
+
+    // Delete rows in reverse order to avoid shifting indices
+    rowsToDelete.sort((a, b) => b - a).forEach(rowIndex => sheet.deleteRow(rowIndex));
+
 
     const newRows = employeeIds.map(id => {
         const emp = employeeMap[id.toString()] || { fullName: 'Unknown', department: 'Unknown' };
@@ -233,7 +223,7 @@ function handleSaveShift(sheet, data) {
         sheet.getRange(1, 1, 1, 5).setValues([['วันที่', 'ประเภทกะ', 'รหัสพนักงาน', 'ชื่อ-สกุล', 'ส่วนงาน']]);
     }
 
-    return createJsonResponse({ status: 'success', message: 'Shift data saved successfully.' });
+    return createJsonResponse({ success: true, message: 'Shift data saved successfully.' });
 }
 
 
@@ -673,77 +663,59 @@ function handleRegistration(sheet, data) {
 }
 
 function handleLogin(accountSheet, employeeSheet, loginIdentifier, password) {
-    console.log('Login attempt:', loginIdentifier); // Debug log
-    
     if (!loginIdentifier || !password) {
         return createJsonResponse({ status: 'error', message: 'กรุณากรอกชื่อผู้ใช้/รหัส และรหัสผ่าน' });
     }
-    
     const accountUsers = accountSheet.getDataRange().getValues();
-    console.log('Account users data:', accountUsers.length); // Debug log
-    
-    // First, try to find by username in Account sheet
     for (let i = 1; i < accountUsers.length; i++) {
         const userRow = accountUsers[i];
         const username = userRow[0];
-        if (username && username.toString().trim() === loginIdentifier.toString().trim()) {
+        if (username.toString() === loginIdentifier) {
             const correctPassword = userRow[1];
-            if (correctPassword && correctPassword.toString().trim() === password.toString().trim()) {
+            if (correctPassword.toString() == password) {
                 const userData = {
                     fullName: userRow[2] || '',
                     position: userRow[3] || '',
                     department: userRow[4] || ''
                 };
-                console.log('Login successful by username:', loginIdentifier); // Debug log
                 return createJsonResponse({ status: 'success', message: 'Login successful.', userData: userData });
             } else {
-                console.log('Wrong password for username:', loginIdentifier); // Debug log
                 return createJsonResponse({ status: 'error', message: 'รหัสผ่านไม่ถูกต้อง' });
             }
         }
     }
-    
-    // If not found by username, try to find by employee ID
     if (!employeeSheet) {
         return createJsonResponse({ status: 'error', message: 'ไม่พบชื่อผู้ใช้' });
     }
-    
     const employeeData = employeeSheet.getDataRange().getValues();
     let foundFullName = null;
-    
     for (let i = 1; i < employeeData.length; i++) {
         const employeeRow = employeeData[i];
         const employeeId = employeeRow[1];
-        if (employeeId && employeeId.toString().trim() === loginIdentifier.toString().trim()) {
+        if (employeeId && employeeId.toString() == loginIdentifier) {
             foundFullName = employeeRow[0];
             break;
         }
     }
-    
     if (foundFullName) {
-        // Find the account by full name
         for (let i = 1; i < accountUsers.length; i++) {
             const userRow = accountUsers[i];
             const fullNameInAccount = userRow[2];
-            if (fullNameInAccount && fullNameInAccount.toString().trim() === foundFullName.toString().trim()) {
+            if (fullNameInAccount === foundFullName) {
                 const correctPassword = userRow[1];
-                if (correctPassword && correctPassword.toString().trim() === password.toString().trim()) {
+                if (correctPassword.toString() == password) {
                     const userData = {
                         fullName: userRow[2] || '',
                         position: userRow[3] || '',
                         department: userRow[4] || '' 
                     };
-                    console.log('Login successful by employee ID:', loginIdentifier); // Debug log
                     return createJsonResponse({ status: 'success', message: 'Login successful.', userData: userData });
                 } else {
-                    console.log('Wrong password for employee ID:', loginIdentifier); // Debug log
                     return createJsonResponse({ status: 'error', message: 'รหัสผ่านไม่ถูกต้อง' });
                 }
             }
         }
     }
-    
-    console.log('User not found:', loginIdentifier); // Debug log
     return createJsonResponse({ status: 'error', message: 'ไม่พบชื่อผู้ใช้หรือรหัสพนักงาน' });
 }
 
@@ -777,57 +749,6 @@ function handleGetShiftAssignments(sheet, date, shiftType) {
     }
 }
 
-function handleSaveShiftAssignment(sheet, shiftData) {
-    try {
-        const { date, shiftType, employeeIds, shiftTime } = shiftData;
-        
-        if (!date || !shiftType || !employeeIds || !Array.isArray(employeeIds)) {
-            return createJsonResponse({ success: false, message: 'ข้อมูลไม่ครบถ้วน' });
-        }
-        
-        // ลบข้อมูลเก่าของวันที่และกะเดียวกัน
-        const data = sheet.getDataRange().getValues();
-        const rowsToDelete = [];
-        
-        for (let i = data.length - 1; i >= 1; i--) {
-            const row = data[i];
-            const rowDate = row[0] ? new Date(row[0]).toISOString().split('T')[0] : '';
-            const rowShiftType = row[1];
-            
-            if (rowDate === date && rowShiftType === shiftType) {
-                rowsToDelete.push(i + 1); // +1 เพราะ getRange ใช้ 1-indexed
-            }
-        }
-        
-        // ลบแถวเก่า
-        for (const rowIndex of rowsToDelete) {
-            sheet.deleteRow(rowIndex);
-        }
-        
-        // เพิ่มข้อมูลใหม่
-        const employeeSheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(EMPLOYEE_SHEET_NAME);
-        const employeeData = employeeSheet ? employeeSheet.getDataRange().getValues() : [];
-        
-        for (const employeeId of employeeIds) {
-            let employeeName = employeeId; // fallback
-            
-            // หาชื่อพนักงานจากรหัสพนักงาน
-            for (let i = 1; i < employeeData.length; i++) {
-                if (employeeData[i][1] === employeeId) { // สมมติว่าคอลัมน์ B เป็นรหัสพนักงาน
-                    employeeName = employeeData[i][0]; // คอลัมน์ A เป็นชื่อ
-                    break;
-                }
-            }
-            
-            sheet.appendRow([date, shiftType, shiftTime, employeeId, employeeName]);
-        }
-        
-        return createJsonResponse({ success: true, message: 'บันทึกการจัดเข้ากะเรียบร้อยแล้ว' });
-    } catch (error) {
-        return createJsonResponse({ success: false, message: 'Error saving shift assignment: ' + error.toString() });
-    }
-}
-
 function saveImageToDrive(base64Data, fileName, mimeType) {
     const folder = DriveApp.getFolderById(EMPLOYEE_PHOTO_FOLDER_ID);
     const decoded = Utilities.base64Decode(base64Data);
@@ -840,8 +761,5 @@ function saveImageToDrive(base64Data, fileName, mimeType) {
 
 function createJsonResponse(data) {
     return ContentService.createTextOutput(JSON.stringify(data))
-        .setMimeType(ContentService.MimeType.JSON)
-        .setHeader('Access-Control-Allow-Origin', '*')
-        .setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-        .setHeader('Access-Control-Allow-Headers', 'Content-Type');
+        .setMimeType(ContentService.MimeType.JSON);
 }

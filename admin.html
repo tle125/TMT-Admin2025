@@ -465,8 +465,8 @@
                         <span class="material-symbols-outlined text-blue-600 text-2xl mr-3">assessment</span>
                         <h3 class="text-lg font-semibold text-gray-800">รายงานการเข้างาน</h3>
                     </div>
-                    <p class="text-gray-600 mb-4">ดูรายงานการเข้างานของพนักงานแต่ละคน</p>
-                    <button class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700">ดูรายงาน</button>
+                    <p class="text-gray-600 mb-4">ดูรายงานการลาของพนักงานจัดกลุ่มตามส่วนงาน</p>
+                    <button id="attendance-report-btn" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700">ดูรายงาน</button>
                 </div>
                 <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
                     <div class="flex items-center mb-4">
@@ -483,6 +483,89 @@
                     </div>
                     <p class="text-gray-600 mb-4">รายงานสรุปประจำเดือนและประจำปี</p>
                     <button class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700">ดูรายงาน</button>
+                </div>
+            </div>
+        </main>
+        <footer class="bg-white shadow-t w-full flex-shrink-0 fixed bottom-0 left-0 right-0 z-50">
+            <nav class="flex justify-around border-t border-gray-200 py-2">
+                <a href="#" data-page="home" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]">
+                    <span class="material-symbols-outlined">home</span>
+                    <p class="text-xs font-medium">หน้าหลัก</p>
+                </a>
+                <a href="#" data-page="employee-list" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]">
+                    <span class="material-symbols-outlined">groups</span>
+                    <p class="text-xs font-medium">พนักงาน</p>
+                </a>
+                <a href="#" data-page="attendance" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]">
+                    <span class="material-symbols-outlined">checklist</span>
+                    <p class="text-xs font-medium">เช็คชื่อ</p>
+                </a>
+                <a href="#" id="more-menu-btn" class="nav-link flex flex-col items-center justify-end gap-1 text-[var(--primary-600)] font-semibold cursor-pointer">
+                    <span class="material-symbols-outlined">more_horiz</span>
+                    <p class="text-xs font-medium">เพิ่มเติม</p>
+                </a>
+            </nav>
+        </footer>
+    </div>
+
+    <!-- Attendance Report Container -->
+    <div id="attendance-report-container" class="page-container hidden flex flex-col h-screen w-full bg-gray-50">
+        <header class="flex items-center justify-between p-4 shadow-sm w-full flex-shrink-0" style="background-color: var(--orange-200);">
+            <button id="back-to-reports-btn" class="flex items-center justify-center p-2 rounded-full hover:bg-gray-100" title="กลับ">
+                <span class="material-symbols-outlined text-gray-700">arrow_back</span>
+            </button>
+            <h1 class="text-xl font-bold text-gray-800">รายงานการเข้างาน</h1>
+            <button class="logout-button flex items-center justify-center p-2 rounded-full hover:bg-gray-100" title="Logout">
+                <span class="material-symbols-outlined text-gray-700">logout</span>
+            </button>
+        </header>
+        <main class="flex-1 p-4 md:p-6 pb-20 overflow-y-auto">
+            <!-- Date Selection -->
+            <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-4">
+                <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-blue-600">calendar_today</span>
+                        <label class="font-medium text-gray-700">เลือกวันที่:</label>
+                    </div>
+                    <input type="date" id="report-date-picker" class="border border-gray-300 rounded-lg p-2 flex-1 sm:flex-none">
+                    <button id="load-report-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2">
+                        <span class="material-symbols-outlined">search</span>
+                        โหลดรายงาน
+                    </button>
+                </div>
+            </div>
+
+            <!-- Report Summary -->
+            <div id="report-summary" class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-4 hidden">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="material-symbols-outlined text-green-600">summarize</span>
+                    <h3 class="text-lg font-semibold text-gray-800">สรุปรายงาน</h3>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div class="text-center p-3 bg-red-50 rounded-lg">
+                        <div class="text-2xl font-bold text-red-600" id="total-leave-count">0</div>
+                        <div class="text-sm text-gray-600">รวมคนลา</div>
+                    </div>
+                    <div class="text-center p-3 bg-blue-50 rounded-lg">
+                        <div class="text-2xl font-bold text-blue-600" id="sick-leave-count">0</div>
+                        <div class="text-sm text-gray-600">ลาป่วย</div>
+                    </div>
+                    <div class="text-center p-3 bg-yellow-50 rounded-lg">
+                        <div class="text-2xl font-bold text-yellow-600" id="personal-leave-count">0</div>
+                        <div class="text-sm text-gray-600">ลากิจ</div>
+                    </div>
+                    <div class="text-center p-3 bg-purple-50 rounded-lg">
+                        <div class="text-2xl font-bold text-purple-600" id="other-leave-count">0</div>
+                        <div class="text-sm text-gray-600">อื่นๆ</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Content -->
+            <div id="report-content" class="space-y-4">
+                <div class="text-center py-8 text-gray-500">
+                    <span class="material-symbols-outlined text-4xl mb-2 block">description</span>
+                    <p>เลือกวันที่และกดโหลดรายงานเพื่อดูข้อมูลการลา</p>
                 </div>
             </div>
         </main>
@@ -884,6 +967,7 @@
                 attendance: document.getElementById('attendance-container'),
                 calendar: document.getElementById('calendar-container'),
                 reports: document.getElementById('reports-container'), 
+                attendanceReport: document.getElementById('attendance-report-container'),
                 settings: document.getElementById('settings-container'), 
                 help: document.getElementById('help-container')
             };
@@ -1438,6 +1522,239 @@
             
             attendanceDatePicker.addEventListener('change', () => fetchDataForAttendance(attendanceDatePicker.value));
             
+            // --- Attendance Report Functions ---
+            const initializeAttendanceReport = () => {
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('report-date-picker').value = today;
+                document.getElementById('report-summary').classList.add('hidden');
+                
+                // แสดง loading และโหลดข้อมูลจริงของวันปัจจุบัน
+                document.getElementById('report-content').innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <span class="material-symbols-outlined text-4xl mb-2 block animate-spin">refresh</span>
+                        <p>กำลังโหลดข้อมูลรายงานการเข้างานของวันที่ ${formatThaiDate(today)}...</p>
+                    </div>
+                `;
+                
+                // โหลดข้อมูลจริงทันทีเมื่อเข้าหน้า
+                loadAttendanceReport();
+            };
+            
+            const loadAttendanceReport = async () => {
+                const date = document.getElementById('report-date-picker').value;
+                if (!date) {
+                    showMessage('กรุณาเลือกวันที่', true);
+                    return;
+                }
+                
+                try {
+                    // แสดง loading
+                    document.getElementById('report-content').innerHTML = `
+                        <div class="text-center py-8 text-gray-500">
+                            <span class="material-symbols-outlined text-4xl mb-2 block animate-spin">refresh</span>
+                            <p>กำลังโหลดข้อมูล...</p>
+                        </div>
+                    `;
+                    
+                    // ดึงข้อมูลพนักงานและการเข้างาน
+                    const [empResponse, attendanceResponse] = await Promise.all([
+                        fetch(`${GAS_URL}?action=getEmployees`),
+                        fetch(`${GAS_URL}?action=getAttendance&date=${date}`)
+                    ]);
+                    
+                    const empResult = await empResponse.json();
+                    const attendanceResult = await attendanceResponse.json();
+                    
+                    if (empResult.status !== 'success') {
+                        throw new Error('ไม่สามารถโหลดข้อมูลพนักงานได้');
+                    }
+                    
+                    const employees = empResult.data;
+                    const attendanceRecords = attendanceResult.status === 'success' ? attendanceResult.data : [];
+                    
+                    // สร้าง map ของข้อมูลการเข้างาน
+                    const attendanceMap = attendanceRecords.reduce((acc, record) => {
+                        acc[record.employeeId] = record;
+                        return acc;
+                    }, {});
+                    
+                    // กรองเฉพาะคนที่ลา (ไม่ใช่ มาทำงาน และ สาย/Meeting)
+                    const leaveEmployees = employees.filter(emp => {
+                        const attendance = attendanceMap[emp.employeeId];
+                        return attendance && attendance.status !== 'มาทำงาน' && attendance.status !== 'สาย/Meeting';
+                    }).map(emp => ({
+                        ...emp,
+                        attendance: attendanceMap[emp.employeeId]
+                    }));
+                    
+                    renderAttendanceReport(leaveEmployees, date);
+                    
+                } catch (error) {
+                    console.error('Error loading attendance report:', error);
+                    
+                    // แสดงข้อมูลทดสอบเมื่อไม่สามารถเชื่อมต่อได้
+                    const testData = [
+                        {
+                            employeeId: 'EMP001',
+                            fullName: 'สมชาย ใจดี',
+                            department: 'IT',
+                            photoUrl: 'https://placehold.co/40x40/4F46E5/FFFFFF?text=SC',
+                            attendance: {
+                                status: 'ลาป่วย',
+                                reason: 'ไข้หวัด'
+                            }
+                        },
+                        {
+                            employeeId: 'EMP002',
+                            fullName: 'สมหญิง รักงาน',
+                            department: 'HR',
+                            photoUrl: 'https://placehold.co/40x40/EC4899/FFFFFF?text=SH',
+                            attendance: {
+                                status: 'ลากิจ',
+                                reason: 'ธุระส่วนตัว'
+                            }
+                        },
+                        {
+                            employeeId: 'EMP003',
+                            fullName: 'สมศักดิ์ ขยันทำงาน',
+                            department: 'IT',
+                            photoUrl: 'https://placehold.co/40x40/10B981/FFFFFF?text=SS',
+                            attendance: {
+                                status: 'ลาพักร้อน',
+                                reason: 'เที่ยวกับครอบครัว'
+                            }
+                        }
+                    ];
+                    
+                    // แสดงข้อความแจ้งเตือนและข้อมูลทดสอบ
+                    document.getElementById('report-content').innerHTML = `
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="material-symbols-outlined text-yellow-600">warning</span>
+                                <h4 class="font-medium text-yellow-800">ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้</h4>
+                            </div>
+                            <p class="text-yellow-700 text-sm mb-2">กำลังแสดงข้อมูลตัวอย่างเพื่อการทดสอบ</p>
+                            <p class="text-yellow-600 text-xs">ข้อผิดพลาด: ${error.message}</p>
+                        </div>
+                    `;
+                    
+                    renderAttendanceReport(testData, date);
+                }
+            };
+            
+            const renderAttendanceReport = (leaveEmployees, date) => {
+                // คำนวณสถิติ
+                const stats = {
+                    total: leaveEmployees.length,
+                    sick: leaveEmployees.filter(emp => emp.attendance.status === 'ลาป่วย').length,
+                    personal: leaveEmployees.filter(emp => emp.attendance.status === 'ลากิจ').length,
+                    other: leaveEmployees.filter(emp => !['ลาป่วย', 'ลากิจ'].includes(emp.attendance.status)).length
+                };
+                
+                // อัปเดตสรุป
+                document.getElementById('total-leave-count').textContent = stats.total;
+                document.getElementById('sick-leave-count').textContent = stats.sick;
+                document.getElementById('personal-leave-count').textContent = stats.personal;
+                document.getElementById('other-leave-count').textContent = stats.other;
+                document.getElementById('report-summary').classList.remove('hidden');
+                
+                if (leaveEmployees.length === 0) {
+                    document.getElementById('report-content').innerHTML = `
+                        <div class="text-center py-8 text-green-600">
+                            <span class="material-symbols-outlined text-4xl mb-2 block">check_circle</span>
+                            <p class="text-lg font-medium">ไม่มีพนักงานลาในวันที่ ${formatThaiDate(date)}</p>
+                            <p class="text-sm">พนักงานทุกคนมาทำงานครบ</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // จัดกลุ่มตามแผนก
+                const departmentGroups = leaveEmployees.reduce((acc, emp) => {
+                    const dept = emp.department || 'ไม่ระบุแผนก';
+                    if (!acc[dept]) acc[dept] = [];
+                    acc[dept].push(emp);
+                    return acc;
+                }, {});
+                
+                // สร้าง HTML
+                let reportHTML = `
+                    <div class="mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">รายงานการลาวันที่ ${formatThaiDate(date)}</h3>
+                        <p class="text-gray-600">พบพนักงานลา ${leaveEmployees.length} คน จาก ${Object.keys(departmentGroups).length} แผนก</p>
+                    </div>
+                `;
+                
+                Object.entries(departmentGroups).forEach(([department, employees]) => {
+                    reportHTML += `
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-4">
+                            <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                                <h4 class="font-semibold text-gray-800 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-blue-600">business</span>
+                                    แผนก ${department}
+                                    <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">${employees.length} คน</span>
+                                </h4>
+                            </div>
+                            <div class="p-4">
+                                <div class="space-y-3">
+                    `;
+                    
+                    employees.forEach(emp => {
+                        const statusColor = getStatusColor(emp.attendance.status);
+                        reportHTML += `
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center gap-3">
+                                    <img src="${emp.photoUrl || 'https://placehold.co/40x40/EFEFEF/AAAAAA?text=No+Img'}" 
+                                         alt="${emp.fullName}" 
+                                         class="w-10 h-10 rounded-full object-cover bg-gray-200" 
+                                         onerror="this.src='https://placehold.co/40x40/EFEFEF/AAAAAA?text=Error'">
+                                    <div>
+                                        <p class="font-medium text-gray-800">${emp.fullName}</p>
+                                        <p class="text-sm text-gray-500">${emp.employeeId}</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="inline-block px-3 py-1 rounded-full text-sm font-medium ${statusColor}">
+                                        ${emp.attendance.status}
+                                    </span>
+                                    ${emp.attendance.reason ? `<p class="text-xs text-gray-500 mt-1">${emp.attendance.reason}</p>` : ''}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    reportHTML += `
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                document.getElementById('report-content').innerHTML = reportHTML;
+            };
+            
+            const getStatusColor = (status) => {
+                const colors = {
+                    'ลาป่วย': 'bg-blue-100 text-blue-800',
+                    'ลากิจ': 'bg-yellow-100 text-yellow-800',
+                    'ลาพักร้อน': 'bg-green-100 text-green-800',
+                    'ลงบวช': 'bg-purple-100 text-purple-800',
+                    'ลาแต่งงาน': 'bg-pink-100 text-pink-800',
+                    'ขาดงาน': 'bg-red-100 text-red-800',
+                    'ลาออก': 'bg-gray-100 text-gray-800'
+                };
+                return colors[status] || 'bg-gray-100 text-gray-800';
+            };
+            
+            const formatThaiDate = (dateStr) => {
+                const date = new Date(dateStr);
+                const thaiMonths = [
+                    'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+                    'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+                ];
+                return `${date.getDate()} ${thaiMonths[date.getMonth()]} ${date.getFullYear() + 543}`;
+            };
+            
             // --- OT Plan Functions ---
             const initializeOtPlanPage = () => {
                 const today = new Date().toISOString().split('T')[0];
@@ -1864,6 +2181,7 @@
                     'add-employee': ['addEmployee'],
                     'ot-plan': ['otPlan'], 'attendance': ['attendance'],
                     'calendar': ['calendar'], 'reports': ['reports'], 
+                    'attendance-report': ['attendanceReport'],
                     'settings': ['settings'], 'help': ['help'],
                     'shift-management': ['shiftManagement'],
                     'shift-schedule': ['shiftSchedule']
@@ -2413,6 +2731,14 @@
             document.getElementById('show-register').addEventListener('click', (e) => { e.preventDefault(); toggleView('register'); });
             document.getElementById('add-employee-fab').addEventListener('click', () => { resetEmployeeForm(); toggleView('add-employee'); });
             document.getElementById('back-to-list-button').addEventListener('click', () => { resetEmployeeForm(); toggleView('employee-list'); });
+            
+            // Attendance Report Event Listeners
+            document.getElementById('attendance-report-btn').addEventListener('click', () => {
+                toggleView('attendance-report');
+                initializeAttendanceReport();
+            });
+            document.getElementById('back-to-reports-btn').addEventListener('click', () => toggleView('reports'));
+            document.getElementById('load-report-btn').addEventListener('click', loadAttendanceReport);
             document.querySelectorAll('.nav-link:not(#more-menu-btn)').forEach(link => { link.addEventListener('click', (e) => { e.preventDefault(); toggleView(link.dataset.page); }); });
             document.querySelectorAll('.logout-button').forEach(button => { button.addEventListener('click', () => { toggleView('login'); showMessage('คุณออกจากระบบเรียบร้อยแล้ว'); }); });
             
