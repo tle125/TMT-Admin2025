@@ -58,6 +58,26 @@
             color: var(--primary-600);
             font-weight: 600;
         }
+        .department-tab {
+            padding: 8px 16px;
+            border: 1px solid #e5e7eb;
+            background-color: #f9fafb;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 6px;
+            margin-right: 8px;
+            font-size: 14px;
+        }
+        .department-tab:hover {
+            background-color: #f3f4f6;
+            color: #374151;
+        }
+        .department-tab.active {
+            background-color: var(--primary-600);
+            color: white;
+            border-color: var(--primary-600);
+        }
     </style>
 </head>
 <body class="bg-gray-50 flex justify-center items-center min-h-screen">
@@ -169,6 +189,154 @@
             </form>
         </main>
         <footer class="bg-white shadow-t w-full flex-shrink-0"><div class="px-6 py-4"><button id="save-employee-button" type="submit" form="employee-form" class="w-full flex items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-[var(--primary-600)] text-white text-base font-bold leading-normal tracking-wide shadow-md hover:bg-[var(--primary-700)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary-500)]"><span class="truncate">บันทึก</span></button></div></footer>
+    </div>
+
+    <!-- Shift Management Page -->
+    <div id="shift-management-container" class="page-container hidden flex flex-col h-screen w-full bg-gray-50">
+        <header class="flex items-center justify-between p-4 bg-white shadow-sm w-full flex-shrink-0">
+            <div class="w-10"></div>
+            <h1 class="text-xl font-bold text-gray-800">จัดการเข้ากะ</h1>
+            <button class="logout-button flex items-center justify-center p-2 rounded-full hover:bg-gray-100" title="Logout">
+                <span class="material-symbols-outlined text-gray-700">logout</span>
+            </button>
+        </header>
+        <main id="shift-management-main" class="flex-1 p-4 md:p-6 pb-20 flex flex-col">
+            <!-- Shift Type Selection -->
+            <div class="bg-white p-4 rounded-lg shadow-sm mb-4 flex-shrink-0">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">เลือกประเภทกะ</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <button id="morning-shift-btn" class="shift-type-btn bg-blue-100 border-2 border-blue-300 text-blue-800 p-4 rounded-lg hover:bg-blue-200 transition-colors">
+                        <div class="text-center">
+                            <span class="material-symbols-outlined text-2xl mb-2 block">wb_sunny</span>
+                            <h3 class="font-semibold">กะเช้า</h3>
+                            <p class="text-sm">08:00 - 17:00</p>
+                        </div>
+                    </button>
+                    <button id="night-shift-btn" class="shift-type-btn bg-purple-100 border-2 border-purple-300 text-purple-800 p-4 rounded-lg hover:bg-purple-200 transition-colors">
+                        <div class="text-center">
+                            <span class="material-symbols-outlined text-2xl mb-2 block">nights_stay</span>
+                            <h3 class="font-semibold">กะดึก</h3>
+                            <p class="text-sm">20:00 - 08:00</p>
+                        </div>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Date Selection -->
+            <div class="bg-white p-4 rounded-lg shadow-sm mb-4 flex-shrink-0">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-gray-800">เลือกวันที่</h2>
+                    <input type="date" id="shift-date-picker" class="border border-gray-300 rounded-lg p-2">
+                </div>
+            </div>
+            
+            <!-- Employee List for Shift Assignment -->
+            <div class="bg-white rounded-lg shadow-sm flex-1 overflow-hidden">
+                <div class="p-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-lg font-semibold text-gray-800">กำหนดกะพนักงาน</h2>
+                        <button id="save-shift-btn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:bg-gray-400 flex items-center" disabled>
+                            <span class="material-symbols-outlined mr-1 text-base">save</span>
+                            บันทึก
+                        </button>
+                    </div>
+                    <p id="shift-info" class="text-sm text-gray-600 mt-2">เลือกประเภทกะและวันที่เพื่อเริ่มกำหนดกะ</p>
+                    
+                    <!-- Department Tabs -->
+                    <div id="department-tabs" class="mt-4 hidden">
+                        <div class="flex space-x-2 overflow-x-auto">
+                            <!-- Tabs will be dynamically generated -->
+                        </div>
+                    </div>
+                </div>
+                <div id="shift-employee-list" class="p-4 overflow-y-auto">
+                    <p class="text-center text-gray-500 py-8">เลือกประเภทกะและวันที่เพื่อแสดงรายชื่อพนักงาน</p>
+                </div>
+            </div>
+        </main>
+        <footer class="bg-white shadow-t w-full flex-shrink-0 fixed bottom-0 left-0 right-0 z-50">
+            <nav class="flex justify-around border-t border-gray-200 py-2">
+                <a href="#" data-page="home" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]">
+                    <span class="material-symbols-outlined">home</span>
+                    <p class="text-xs font-medium">หน้าหลัก</p>
+                </a>
+                <a href="#" data-page="employee-list" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]">
+                    <span class="material-symbols-outlined">groups</span>
+                    <p class="text-xs font-medium">พนักงาน</p>
+                </a>
+                <a href="#" data-page="attendance" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]">
+                    <span class="material-symbols-outlined">checklist</span>
+                    <p class="text-xs font-medium">เช็คชื่อ</p>
+                </a>
+                <a href="#" id="more-menu-btn" class="nav-link flex flex-col items-center justify-end gap-1 text-[var(--primary-600)] font-semibold cursor-pointer">
+                    <span class="material-symbols-outlined">more_horiz</span>
+                    <p class="text-xs font-medium">เพิ่มเติม</p>
+                </a>
+            </nav>
+        </footer>
+    </div>
+
+    <!-- Shift Schedule Page -->
+    <div id="shift-schedule-container" class="page-container hidden flex flex-col h-screen w-full bg-gray-50">
+        <header class="flex items-center justify-between p-4 bg-white shadow-sm w-full flex-shrink-0">
+            <div class="w-10"></div>
+            <h1 class="text-xl font-bold text-gray-800">ตารางกะ</h1>
+            <button class="logout-button flex items-center justify-center p-2 rounded-full hover:bg-gray-100" title="Logout">
+                <span class="material-symbols-outlined text-gray-700">logout</span>
+            </button>
+        </header>
+        <main id="shift-schedule-main" class="flex-1 p-4 md:p-6 pb-20 flex flex-col">
+            <!-- Date Selection -->
+            <div class="bg-white p-4 rounded-lg shadow-sm mb-4 flex-shrink-0">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-gray-800">เลือกวันที่</h2>
+                    <div class="flex items-center gap-2">
+                        <input type="date" id="schedule-date-picker" class="border border-gray-300 rounded-lg p-2">
+                        <button id="load-schedule-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center">
+                            <span class="material-symbols-outlined mr-1 text-base">search</span>
+                            โหลด
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Schedule Table -->
+            <div class="bg-white rounded-lg shadow-sm flex-1 overflow-hidden">
+                <div class="p-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-lg font-semibold text-gray-800">ตารางกะรายวัน</h2>
+                        <button id="save-schedule-btn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:bg-gray-400 flex items-center" disabled>
+                            <span class="material-symbols-outlined mr-1 text-base">save</span>
+                            บันทึก
+                        </button>
+                    </div>
+                    <p id="schedule-info" class="text-sm text-gray-600 mt-2">เลือกวันที่เพื่อดูและแก้ไขตารางกะ</p>
+                </div>
+                <div id="schedule-table-container" class="p-4 overflow-y-auto">
+                    <p class="text-center text-gray-500 py-8">เลือกวันที่เพื่อแสดงตารางกะ</p>
+                </div>
+            </div>
+        </main>
+        <footer class="bg-white shadow-t w-full flex-shrink-0 fixed bottom-0 left-0 right-0 z-50">
+            <nav class="flex justify-around border-t border-gray-200 py-2">
+                <a href="#" data-page="home" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]">
+                    <span class="material-symbols-outlined">home</span>
+                    <p class="text-xs font-medium">หน้าหลัก</p>
+                </a>
+                <a href="#" data-page="employee-list" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]">
+                    <span class="material-symbols-outlined">groups</span>
+                    <p class="text-xs font-medium">พนักงาน</p>
+                </a>
+                <a href="#" data-page="attendance" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]">
+                    <span class="material-symbols-outlined">checklist</span>
+                    <p class="text-xs font-medium">เช็คชื่อ</p>
+                </a>
+                <a href="#" id="more-menu-btn" class="nav-link flex flex-col items-center justify-end gap-1 text-[var(--primary-600)] font-semibold cursor-pointer">
+                    <span class="material-symbols-outlined">more_horiz</span>
+                    <p class="text-xs font-medium">เพิ่มเติม</p>
+                </a>
+            </nav>
+        </footer>
     </div>
 
     <!-- Attendance Page -->
@@ -532,6 +700,20 @@
                     </button>
                 </div>
                 <div class="space-y-2">
+                    <a href="#" data-page="shift-management" class="more-menu-item flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <span class="material-symbols-outlined text-[var(--primary-600)] mr-3">schedule_send</span>
+                        <div>
+                            <p class="font-medium text-gray-800">จัดการเข้ากะ</p>
+                            <p class="text-sm text-gray-500">กำหนดกะการทำงานของพนักงาน</p>
+                        </div>
+                    </a>
+                    <a href="#" data-page="shift-schedule" class="more-menu-item flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <span class="material-symbols-outlined text-[var(--primary-600)] mr-3">calendar_view_week</span>
+                        <div>
+                            <p class="font-medium text-gray-800">ตารางกะ</p>
+                            <p class="text-sm text-gray-500">ดูและจัดการตารางกะรายวัน</p>
+                        </div>
+                    </a>
                     <a href="#" data-page="ot-plan" class="more-menu-item flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
                         <span class="material-symbols-outlined text-[var(--primary-600)] mr-3">schedule</span>
                         <div>
@@ -573,6 +755,28 @@
     </div>
 
     <script>
+        // Global utility functions
+        const showMessage = (message, isError = false) => {
+            if (isError) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: message,
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#ef4444'
+                });
+            } else {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'สำเร็จ',
+                    text: message,
+                    timer: 1500,
+                    showConfirmButton: false,
+                    timerProgressBar: true
+                });
+            }
+        };
+
         document.addEventListener('DOMContentLoaded', () => {
             const GAS_URL = 'https://script.google.com/macros/s/AKfycbwCjCZSLwe4n688I24ecEIDauCjlVNsrCqcPHyOf7Bv3wT5unbPwjgWgoADzuMcWP7Axg/exec';
 
@@ -584,6 +788,13 @@
             let currentEditingLeaveEmployeeCard = null;
             let currentPage = 'login'; // Track current page
             let calendarLeaveData = {};
+            
+            // Shift Management Variables
+            let selectedShiftType = null; // 'morning' or 'night'
+            let selectedShiftDate = null;
+            let selectedShiftTime = null;
+            let shiftEmployeeData = [];
+            let currentShiftAssignments = {};
             
             // More Menu Modal Elements
             const moreMenuModal = document.getElementById('more-menu-modal');
@@ -599,12 +810,49 @@
                 home: document.getElementById('home-container'),
                 employeeList: document.getElementById('employee-list-container'),
                 addEmployee: document.getElementById('add-employee-container'),
+                shiftManagement: document.getElementById('shift-management-container'),
+                shiftSchedule: document.getElementById('shift-schedule-container'),
                 otPlan: document.getElementById('ot-plan-container'),
                 attendance: document.getElementById('attendance-container'),
                 calendar: document.getElementById('calendar-container'),
                 reports: document.getElementById('reports-container'), 
                 settings: document.getElementById('settings-container'), 
                 help: document.getElementById('help-container')
+            };
+            
+            const createDepartmentTabs = () => {
+                if (!departmentTabs || availableDepartments.length === 0) return;
+                
+                const tabContainer = departmentTabs.querySelector('.flex');
+                tabContainer.innerHTML = '';
+                
+                // Add "All" tab
+                const allTab = document.createElement('button');
+                allTab.className = `department-tab ${
+                    selectedDepartment === 'all' ? 'active' : ''
+                }`;
+                allTab.textContent = 'ทั้งหมด';
+                allTab.onclick = () => selectDepartment('all');
+                tabContainer.appendChild(allTab);
+                
+                // Add department tabs
+                availableDepartments.forEach(dept => {
+                    const tab = document.createElement('button');
+                    tab.className = `department-tab ${
+                        selectedDepartment === dept ? 'active' : ''
+                    }`;
+                    tab.textContent = dept;
+                    tab.onclick = () => selectDepartment(dept);
+                    tabContainer.appendChild(tab);
+                });
+                
+                departmentTabs.classList.remove('hidden');
+            };
+            
+            const selectDepartment = (dept) => {
+                selectedDepartment = dept;
+                createDepartmentTabs(); // Refresh tab styles
+                renderShiftEmployeeList();
             };
             
             // Forms, Inputs, etc.
@@ -616,10 +864,6 @@
             const employeeListMain = document.getElementById('employee-list-main');
             const employeeFormTitle = document.getElementById('employee-form-title');
             const saveEmployeeButtonSpan = document.getElementById('save-employee-button').querySelector('span');
-            const deleteModal = document.getElementById('delete-modal');
-            const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
-            const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
-            const employeeToDeleteName = document.getElementById('employee-to-delete-name');
             const otDatePicker = document.getElementById('ot-date-picker');
             const attendanceDatePicker = document.getElementById('attendance-date-picker');
             const leaveTypeModal = document.getElementById('leave-type-modal');
@@ -630,29 +874,23 @@
             const otPlanTabs = document.getElementById('ot-plan-tabs');
             const otPlanTabContent = document.getElementById('ot-plan-tab-content');
             
+            // Shift Management Elements
+            const morningShiftBtn = document.getElementById('morning-shift-btn');
+            const nightShiftBtn = document.getElementById('night-shift-btn');
+            const shiftDatePicker = document.getElementById('shift-date-picker');
+            const shiftEmployeeList = document.getElementById('shift-employee-list');
+            const saveShiftAssignmentBtn = document.getElementById('save-shift-btn');
+            const departmentTabs = document.getElementById('department-tabs');
+            
+            // Shift Management Variables
+            let shiftEmployeesByDepartment = {};
+            let selectedDepartment = 'all';
+            let availableDepartments = [];
+            
+
+            
 
             // --- FUNCTIONS ---
-            const showMessage = (message, isError = false) => {
-                 if (isError) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'เกิดข้อผิดพลาด',
-                        text: message,
-                        confirmButtonText: 'ตกลง',
-                        confirmButtonColor: '#ef4444'
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'สำเร็จ',
-                        text: message,
-                        timer: 1500,
-                        showConfirmButton: false,
-                        timerProgressBar: true
-                    });
-                }
-            };
-
             const resetEmployeeForm = () => {
                 isEditMode = false;
                 editingEmployeeId = null;
@@ -1554,7 +1792,9 @@
                     'add-employee': ['addEmployee'],
                     'ot-plan': ['otPlan'], 'attendance': ['attendance'],
                     'calendar': ['calendar'], 'reports': ['reports'], 
-                    'settings': ['settings'], 'help': ['help']
+                    'settings': ['settings'], 'help': ['help'],
+                    'shift-management': ['shiftManagement'],
+                    'shift-schedule': ['shiftSchedule']
                 };
                 if (pageMap[show]) {
                     pageMap[show].forEach(key => {
@@ -1567,7 +1807,7 @@
                 document.querySelectorAll('.nav-link').forEach(link => {
                     const linkPage = link.dataset.page;
                     const isMoreMenuButton = link.id === 'more-menu-btn';
-                    const moreMenuPages = ['ot-plan', 'calendar', 'reports', 'settings', 'help'];
+                    const moreMenuPages = ['ot-plan', 'calendar', 'reports', 'settings', 'help', 'shift-management', 'shift-schedule'];
 
                     if ((isMoreMenuButton && moreMenuPages.includes(show)) || linkPage === show) {
                         link.classList.remove('text-gray-500', 'hover:text-[var(--primary-600)]');
@@ -1582,7 +1822,11 @@
                 if (show === 'ot-plan') { initializeOtPlanPage(); }
                 if (show === 'attendance') { initializeAttendancePage(); }
                 if (show === 'calendar') { initializeCalendarPage(); }
+                if (show === 'shift-management') { loadShiftEmployees(); }
             };
+            
+            // Make toggleView globally accessible
+            window.toggleView = toggleView;
             
             const initializeCalendarPage = async () => {
                 document.getElementById('calendar-grid').innerHTML = '<p class="col-span-7 text-center p-4">กำลังโหลดข้อมูลการลา...</p>';
@@ -1729,14 +1973,232 @@
                     }
                 }, 300);
             };
+            
+            // Shift Management Functions
+            // *** SIMPLIFIED: Improved logic for fetching and parsing employee data ***
+            const loadShiftEmployees = async () => {
+                try {
+                    const response = await fetch(`${GAS_URL}?action=getEmployees`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const result = await response.json();
+                    
+                    if (result.status === 'success' && Array.isArray(result.data)) {
+                        shiftEmployeeData = result.data;
+                    } else {
+                         throw new Error('Invalid data format from API.');
+                    }
+                } catch (error) {
+                    console.error('Error loading employees for shift:', error);
+                    showMessage('ไม่สามารถโหลดข้อมูลพนักงานได้', true);
+                    shiftEmployeeData = []; // Clear data on error
+                }
+
+                // Group employees by department
+                shiftEmployeesByDepartment = {};
+                availableDepartments = [];
+                
+                shiftEmployeeData.forEach(employee => {
+                    const dept = employee.department || 'ไม่ระบุส่วนงาน';
+                    if (!shiftEmployeesByDepartment[dept]) {
+                        shiftEmployeesByDepartment[dept] = [];
+                        availableDepartments.push(dept);
+                    }
+                    shiftEmployeesByDepartment[dept].push(employee);
+                });
+                
+                availableDepartments.sort();
+                createDepartmentTabs();
+                renderShiftEmployeeList();
+            };
+            
+            const renderShiftEmployeeList = () => {
+                if (!shiftEmployeeList) return;
+                
+                shiftEmployeeList.innerHTML = '';
+                
+                let employeesToShow = (selectedDepartment === 'all') ? shiftEmployeeData : (shiftEmployeesByDepartment[selectedDepartment] || []);
+                
+                if (employeesToShow.length === 0) {
+                    shiftEmployeeList.innerHTML = '<p class="text-gray-500 text-center py-4">ไม่มีข้อมูลพนักงานในส่วนงานนี้</p>';
+                    return;
+                }
+                
+                const listFragment = document.createDocumentFragment();
+                employeesToShow.forEach(employee => {
+                    const isAssigned = currentShiftAssignments[employee.employeeId] || false;
+                    const employeeCard = document.createElement('div');
+                    employeeCard.className = `p-3 mb-2 border rounded-lg transition-colors flex items-center justify-between ${
+                        isAssigned ? 'bg-blue-50 border-blue-300' : 'bg-white border-gray-200'
+                    }`;
+                    
+                    employeeCard.innerHTML = `
+                        <div class="flex items-center space-x-3">
+                             <img src="${employee.photoUrl || 'https://placehold.co/40x40/EFEFEF/AAAAAA?text=?'}" alt="${employee.fullName}" class="w-10 h-10 rounded-full object-cover">
+                            <div>
+                                <p class="font-medium text-gray-800">${employee.fullName}</p>
+                                <p class="text-sm text-gray-500">${employee.employeeId}</p>
+                            </div>
+                        </div>
+                        <input type="checkbox" 
+                                data-employee-id="${employee.employeeId}"
+                                class="shift-checkbox w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" 
+                                ${isAssigned ? 'checked' : ''}>
+                    `;
+                    listFragment.appendChild(employeeCard);
+                });
+                shiftEmployeeList.appendChild(listFragment);
+            };
+            
+            shiftEmployeeList.addEventListener('change', (e) => {
+                if (e.target.classList.contains('shift-checkbox')) {
+                    const employeeId = e.target.dataset.employeeId;
+                    if (e.target.checked) {
+                        currentShiftAssignments[employeeId] = true;
+                    } else {
+                        delete currentShiftAssignments[employeeId];
+                    }
+                    // Re-rendering is simple but you could also just toggle the class on the parent for performance
+                    e.target.closest('.p-3').classList.toggle('bg-blue-50');
+                    e.target.closest('.p-3').classList.toggle('border-blue-300');
+                }
+            });
+
+
+            // *** UPDATED: Function to save shift assignments ***
+            const saveShiftAssignment = async () => {
+                const button = document.getElementById('save-shift-btn');
+                if (!selectedShiftType || !selectedShiftDate) {
+                    showMessage('กรุณาเลือกประเภทกะและวันที่', true);
+                    return;
+                }
+                
+                const assignedEmployeeIds = Object.keys(currentShiftAssignments);
+                
+                button.disabled = true;
+                button.innerHTML = `<span class="material-symbols-outlined mr-1 text-base animate-spin">autorenew</span> กำลังบันทึก...`;
+
+                try {
+                    const shiftData = {
+                        date: selectedShiftDate,
+                        shiftType: selectedShiftType,
+                        employeeIds: assignedEmployeeIds,
+                        shiftTime: selectedShiftTime
+                    };
+                    
+                    const response = await fetch(GAS_URL, {
+                        method: 'POST',
+                        // The body needs to be a string
+                        body: JSON.stringify({ action: 'saveShiftAssignment', shiftData })
+                    });
+                    
+                    const result = await response.json();
+                    if (result.success) {
+                        showMessage('บันทึกการจัดเข้ากะเรียบร้อยแล้ว');
+                    } else {
+                        showMessage(result.message || 'เกิดข้อผิดพลาดในการบันทึก', true);
+                    }
+                } catch (error) {
+                    console.error('Error saving shift assignment:', error);
+                    showMessage('เกิดข้อผิดพลาดในการบันทึก', true);
+                } finally {
+                    button.disabled = false;
+                     button.innerHTML = `<span class="material-symbols-outlined mr-1 text-base">save</span> บันทึก`;
+                }
+            };
+            
+            
+            const handleShiftTypeChange = (shiftType, shiftTime) => {
+                selectedShiftType = shiftType;
+                selectedShiftTime = shiftTime;
+                
+                document.querySelectorAll('.shift-type-btn').forEach(btn => btn.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500', 'ring-purple-500'));
+                
+                if (shiftType === 'กะเช้า') {
+                    morningShiftBtn.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
+                } else if (shiftType === 'กะดึก') {
+                    nightShiftBtn.classList.add('ring-2', 'ring-offset-2', 'ring-purple-500');
+                }
+                
+                updateShiftInfo();
+                
+                if (selectedShiftType && selectedShiftDate) {
+                    loadShiftAssignments();
+                }
+            };
+            
+            const updateShiftInfo = () => {
+                const shiftInfoElement = document.getElementById('shift-info');
+                const saveBtn = document.getElementById('save-shift-btn');
+                
+                if (selectedShiftType && selectedShiftDate) {
+                    shiftInfoElement.textContent = `กำลังจัดกะ: ${selectedShiftType} วันที่ ${new Date(selectedShiftDate).toLocaleDateString('th-TH')}`;
+                    if (saveBtn) saveBtn.disabled = false;
+                } else {
+                    shiftInfoElement.textContent = 'เลือกประเภทกะและวันที่เพื่อเริ่มกำหนดกะ';
+                    if (saveBtn) saveBtn.disabled = true;
+                }
+            };
+
+            const handleShiftDateChange = () => {
+                // Add timezone offset to prevent date from shifting
+                const dateVal = shiftDatePicker.valueAsDate;
+                const userTimezoneOffset = dateVal.getTimezoneOffset() * 60000;
+                const adjustedDate = new Date(dateVal.getTime() + userTimezoneOffset);
+                selectedShiftDate = adjustedDate.toISOString().split('T')[0];
+
+                updateShiftInfo();
+                if (selectedShiftType && selectedShiftDate) {
+                    loadShiftAssignments();
+                }
+            };
+            
+            const loadShiftAssignments = async () => {
+                if (!selectedShiftType || !selectedShiftDate) return;
+                
+                shiftEmployeeList.innerHTML = '<p class="text-gray-500 text-center py-4">กำลังโหลดข้อมูลกะ...</p>';
+
+                try {
+                    const response = await fetch(`${GAS_URL}?action=getShiftData&date=${selectedShiftDate}&shiftType=${selectedShiftType}`);
+                    const result = await response.json();
+                    
+                    currentShiftAssignments = {};
+                    if (result.status === 'success' && result.data) {
+                        result.data.forEach(employeeId => {
+                            currentShiftAssignments[employeeId] = true;
+                        });
+                    }
+                    renderShiftEmployeeList();
+                } catch (error) {
+                    console.error('Error loading shift assignments:', error);
+                    showMessage('เกิดข้อผิดพลาดในการโหลดข้อมูลกะ', true);
+                    renderShiftEmployeeList(); // Render empty list on error
+                }
+            };
 
             // --- EVENT LISTENERS ---
+            
+            // Shift Management Event Listeners
+            if (morningShiftBtn) {
+                morningShiftBtn.addEventListener('click', () => handleShiftTypeChange('กะเช้า', '08:00 - 17:00'));
+            }
+            if (nightShiftBtn) {
+                nightShiftBtn.addEventListener('click', () => handleShiftTypeChange('กะดึก', '20:00 - 08:00'));
+            }
+            if (shiftDatePicker) {
+                shiftDatePicker.addEventListener('change', handleShiftDateChange);
+            }
+            if (saveShiftAssignmentBtn) {
+                saveShiftAssignmentBtn.addEventListener('click', saveShiftAssignment);
+            }
+
             document.getElementById('show-login').addEventListener('click', (e) => { e.preventDefault(); toggleView('login'); });
             document.getElementById('show-register').addEventListener('click', (e) => { e.preventDefault(); toggleView('register'); });
             document.getElementById('add-employee-fab').addEventListener('click', () => { resetEmployeeForm(); toggleView('add-employee'); });
             document.getElementById('back-to-list-button').addEventListener('click', () => { resetEmployeeForm(); toggleView('employee-list'); });
             document.querySelectorAll('.nav-link:not(#more-menu-btn)').forEach(link => { link.addEventListener('click', (e) => { e.preventDefault(); toggleView(link.dataset.page); }); });
-            document.querySelectorAll('.logout-button').forEach(button => { button.addEventListener('click', () => { toggleView('login'); showMessage('You have been logged out.'); }); });
+            document.querySelectorAll('.logout-button').forEach(button => { button.addEventListener('click', () => { toggleView('login'); showMessage('คุณออกจากระบบเรียบร้อยแล้ว'); }); });
             
             // More Menu Event Listeners
             document.querySelectorAll('#more-menu-btn').forEach(btn => btn.addEventListener('click', (e) => { e.preventDefault(); showMoreMenu(); }));
@@ -1779,11 +2241,11 @@
                     });
                     const result = await response.json();
                     if (result.status === 'success') {
-                        showMessage('Registration successful! Please login.');
+                        showMessage('ลงทะเบียนสำเร็จ! กรุณาเข้าสู่ระบบ');
                         registerForm.reset();
                         toggleView('login');
                     } else { showMessage(result.message, true); }
-                } catch (error) { showMessage('An error occurred during registration.', true); } 
+                } catch (error) { showMessage('เกิดข้อผิดพลาดระหว่างการลงทะเบียน', true); } 
                 finally { button.disabled = false; button.textContent = 'Register'; }
             });
 
@@ -1798,14 +2260,12 @@
                         body: JSON.stringify({ action: 'login', username: document.getElementById('login-username').value.trim(), password: document.getElementById('login-password').value })
                     });
                     const result = await response.json();
-                    if (result.status === 'success' && result.userData) {
-                        document.getElementById('full-name').value = result.userData.fullName || '';
-                        document.getElementById('position').value = result.userData.position || '';
-                        document.getElementById('department').value = result.userData.department || '';
-                        toggleView('add-employee');
+                    if (result.status === 'success') {
+                        // *** UPDATED: Correct login flow, go to home page ***
+                        toggleView('home'); 
                         loginForm.reset();
                     } else { showMessage(result.message, true); }
-                } catch (error) { showMessage('An error occurred during login.', true); } 
+                } catch (error) { showMessage('เกิดข้อผิดพลาดระหว่างการเข้าสู่ระบบ', true); } 
                 finally { button.disabled = false; button.textContent = 'Login'; }
             });
 
@@ -1847,10 +2307,248 @@
                 finally { button.disabled = false; saveEmployeeButtonSpan.textContent = isEditMode ? 'อัปเดต' : 'บันทึก'; }
             });
 
+            // Initialize shift schedule page when accessed
+            const originalToggleView = toggleView;
+            window.toggleView = function(page) {
+                originalToggleView(page);
+                if (page === 'shift-schedule') {
+                    initializeShiftSchedulePage();
+                }
+            };
+
             toggleView('login');
         });
+        
+        // Shift Schedule Functions
+        const initializeShiftSchedulePage = () => {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('schedule-date-picker').value = today;
+        };
+        
+        const loadShiftSchedule = async (date) => {
+            if (!date) {
+                showMessage('กรุณาเลือกวันที่', true);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${GAS_URL}?action=getShiftSchedule&date=${date}`);
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    renderShiftScheduleTable(result.data, date);
+                    document.getElementById('save-schedule-btn').disabled = false;
+                } else {
+                    showMessage(result.message || 'ไม่สามารถโหลดข้อมูลได้', true);
+                }
+            } catch (error) {
+                showMessage('เกิดข้อผิดพลาดในการโหลดข้อมูล', true);
+            }
+        };
+        
+        const renderShiftScheduleTable = (scheduleData, date) => {
+            const container = document.getElementById('schedule-table-container');
+            const info = document.getElementById('schedule-info');
+            
+            info.textContent = `ตารางกะวันที่ ${new Date(date).toLocaleDateString('th-TH')}`;
+            
+            if (!scheduleData || scheduleData.length === 0) {
+                container.innerHTML = '<p class="text-center text-gray-500 py-8">ไม่มีข้อมูลตารางกะสำหรับวันที่นี้</p>';
+                return;
+            }
+            
+            let tableHTML = `
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse border border-gray-300">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="border border-gray-300 px-4 py-2 text-left">วันที่</th>
+                                <th class="border border-gray-300 px-4 py-2 text-left">ประเภทกะ</th>
+                                <th class="border border-gray-300 px-4 py-2 text-left">รหัสพนักงาน</th>
+                                <th class="border border-gray-300 px-4 py-2 text-left">ชื่อ-สกุล</th>
+                                <th class="border border-gray-300 px-4 py-2 text-left">ส่วนงาน</th>
+                                <th class="border border-gray-300 px-4 py-2 text-center">การดำเนินการ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            scheduleData.forEach((item, index) => {
+                tableHTML += `
+                    <tr class="hover:bg-gray-50">
+                        <td class="border border-gray-300 px-4 py-2">
+                            <input type="date" value="${item.date || date}" 
+                                   class="w-full border-0 bg-transparent" 
+                                   data-row="${index}" data-field="date">
+                        </td>
+                        <td class="border border-gray-300 px-4 py-2">
+                            <select class="w-full border-0 bg-transparent" data-row="${index}" data-field="shiftType">
+                                <option value="กลางวัน" ${item.shiftType === 'กลางวัน' ? 'selected' : ''}>กลางวัน</option>
+                                <option value="กลางคืน" ${item.shiftType === 'กลางคืน' ? 'selected' : ''}>กลางคืน</option>
+                                <option value="เต็มวัน" ${item.shiftType === 'เต็มวัน' ? 'selected' : ''}>เต็มวัน</option>
+                            </select>
+                        </td>
+                        <td class="border border-gray-300 px-4 py-2">
+                            <input type="text" value="${item.employeeId || ''}" 
+                                   class="w-full border-0 bg-transparent" 
+                                   data-row="${index}" data-field="employeeId">
+                        </td>
+                        <td class="border border-gray-300 px-4 py-2">
+                            <input type="text" value="${item.employeeName || ''}" 
+                                   class="w-full border-0 bg-transparent" 
+                                   data-row="${index}" data-field="employeeName">
+                        </td>
+                        <td class="border border-gray-300 px-4 py-2">
+                            <input type="text" value="${item.department || ''}" 
+                                   class="w-full border-0 bg-transparent" 
+                                   data-row="${index}" data-field="department">
+                        </td>
+                        <td class="border border-gray-300 px-4 py-2 text-center">
+                            <button onclick="removeScheduleRow(${index})" 
+                                    class="text-red-600 hover:text-red-800">
+                                <span class="material-symbols-outlined">delete</span>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tableHTML += `
+                        </tbody>
+                    </table>
+                    <div class="mt-4">
+                        <button onclick="addScheduleRow()" 
+                                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center">
+                            <span class="material-symbols-outlined mr-1 text-base">add</span>
+                            เพิ่มแถว
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = tableHTML;
+        };
+        
+        const saveShiftSchedule = async () => {
+            const date = document.getElementById('schedule-date-picker').value;
+            if (!date) {
+                showMessage('กรุณาเลือกวันที่', true);
+                return;
+            }
+            
+            const tableRows = document.querySelectorAll('#schedule-table-container tbody tr');
+            const scheduleData = [];
+            
+            tableRows.forEach(row => {
+                const rowDate = row.querySelector('[data-field="date"]').value.trim();
+                const shiftType = row.querySelector('[data-field="shiftType"]').value;
+                const employeeId = row.querySelector('[data-field="employeeId"]').value.trim();
+                const employeeName = row.querySelector('[data-field="employeeName"]').value.trim();
+                const department = row.querySelector('[data-field="department"]').value.trim();
+                
+                if (employeeId && employeeName) {
+                    scheduleData.push({
+                        date: rowDate || date,
+                        shiftType: shiftType,
+                        employeeId: employeeId,
+                        employeeName: employeeName,
+                        department: department
+                    });
+                }
+            });
+            
+            try {
+                const response = await fetch(GAS_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({
+                        action: 'saveShiftSchedule',
+                        data: scheduleData
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.status === 'success') {
+                    showMessage('บันทึกตารางกะเรียบร้อยแล้ว');
+                } else {
+                    showMessage(result.message || 'เกิดข้อผิดพลาดในการบันทึก', true);
+                }
+            } catch (error) {
+                showMessage('เกิดข้อผิดพลาดในการบันทึกข้อมูล', true);
+            }
+        };
+        
+        // Global functions for schedule management
+        window.addScheduleRow = () => {
+            const tbody = document.querySelector('#schedule-table-container tbody');
+            const newRowIndex = tbody.children.length;
+            const currentDate = document.getElementById('schedule-date-picker').value;
+            const newRow = document.createElement('tr');
+            newRow.className = 'hover:bg-gray-50';
+            newRow.innerHTML = `
+                <td class="border border-gray-300 px-4 py-2">
+                    <input type="date" value="${currentDate}" class="w-full border-0 bg-transparent" 
+                           data-row="${newRowIndex}" data-field="date">
+                </td>
+                <td class="border border-gray-300 px-4 py-2">
+                    <select class="w-full border-0 bg-transparent" data-row="${newRowIndex}" data-field="shiftType">
+                        <option value="กลางวัน">กลางวัน</option>
+                        <option value="กลางคืน">กลางคืน</option>
+                        <option value="เต็มวัน">เต็มวัน</option>
+                    </select>
+                </td>
+                <td class="border border-gray-300 px-4 py-2">
+                    <input type="text" value="" class="w-full border-0 bg-transparent" 
+                           placeholder="รหัสพนักงาน"
+                           data-row="${newRowIndex}" data-field="employeeId">
+                </td>
+                <td class="border border-gray-300 px-4 py-2">
+                    <input type="text" value="" class="w-full border-0 bg-transparent" 
+                           placeholder="ชื่อ-สกุล"
+                           data-row="${newRowIndex}" data-field="employeeName">
+                </td>
+                <td class="border border-gray-300 px-4 py-2">
+                    <input type="text" value="" class="w-full border-0 bg-transparent" 
+                           placeholder="ส่วนงาน"
+                           data-row="${newRowIndex}" data-field="department">
+                </td>
+                <td class="border border-gray-300 px-4 py-2 text-center">
+                    <button onclick="removeScheduleRow(this)" 
+                            class="text-red-600 hover:text-red-800">
+                        <span class="material-symbols-outlined">delete</span>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(newRow);
+        };
+        
+        window.removeScheduleRow = (button) => {
+            button.closest('tr').remove();
+        };
+        
+        // Event listeners for shift schedule page
+        document.addEventListener('DOMContentLoaded', () => {
+            const loadScheduleBtn = document.getElementById('load-schedule-btn');
+            const saveScheduleBtn = document.getElementById('save-schedule-btn');
+            
+            if (loadScheduleBtn) {
+                loadScheduleBtn.addEventListener('click', () => {
+                    const date = document.getElementById('schedule-date-picker').value;
+                    loadShiftSchedule(date);
+                });
+            }
+            
+            if (saveScheduleBtn) {
+                saveScheduleBtn.addEventListener('click', saveShiftSchedule);
+            }
+            
+            if (typeof updateShiftInfo === 'function') {
+                updateShiftInfo();
+            }
+        });
+        
+
     </script>
 
 </body>
 </html>
-
