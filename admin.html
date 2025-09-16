@@ -285,12 +285,30 @@
                                 เลือกแล้ว: <span id="selected-count-number">0</span> คน
                             </div>
                         </div>
-                        <button id="save-shift-btn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:bg-gray-400 flex items-center" disabled>
-                            <span class="material-symbols-outlined mr-1 text-base">save</span>
-                            บันทึก
-                        </button>
+                        <div class="flex items-center space-x-3">
+                            <button id="auto-assign-btn" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                <span class="material-symbols-outlined text-base">auto_awesome</span>
+                                <span>จัดกะอัตโนมัติ</span>
+                            </button>
+                            <button id="save-shift-btn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:bg-gray-400 flex items-center" disabled>
+                                <span class="material-symbols-outlined mr-1 text-base">save</span>
+                                บันทึก
+                            </button>
+                        </div>
                     </div>
                     <p id="shift-info" class="text-sm text-gray-600 mt-2">เลือกประเภทกะและสัปดาห์เพื่อเริ่มกำหนดกะ (สามารถเลือกพนักงานหลายคนต่อสัปดาห์)</p>
+                    <div class="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div class="flex items-start space-x-2">
+                            <span class="material-symbols-outlined text-blue-600 text-sm mt-0.5">info</span>
+                            <div class="text-xs text-blue-800">
+                                <p class="font-medium mb-1">วิธีใช้ฟีเจอร์จัดกะอัตโนมัติ:</p>
+                                <p>1. เลือกประเภทกะและสัปดาห์</p>
+                                <p>2. เลือกพนักงานที่ต้องการเข้ากะที่เลือก</p>
+                                <p>3. กดปุ่ม "จัดกะอัตโนมัติ" เพื่อจัดพนักงานที่เหลือเข้ากะตรงข้ามโดยอัตโนมัติ</p>
+                                <p class="text-orange-700 font-medium mt-1">เช่น: เลือกกะเช้า 6 คน → พนักงานที่เหลือจะเข้ากะดึกอัตโนมัติ</p>
+                            </div>
+                        </div>
+                    </div>
                     
                     <!-- Department Tabs -->
                     <div id="department-tabs" class="mt-4 hidden">
@@ -2217,15 +2235,97 @@
             const updateShiftInfo = () => {
                 const shiftInfoElement = document.getElementById('shift-info');
                 const saveBtn = document.getElementById('save-shift-btn');
+                const autoAssignBtn = document.getElementById('auto-assign-btn');
                 
                 if (selectedShiftType && selectedWeekStart && selectedWeekEnd) {
                     const startDate = new Date(selectedWeekStart).toLocaleDateString('th-TH');
                     const endDate = new Date(selectedWeekEnd).toLocaleDateString('th-TH');
                     shiftInfoElement.textContent = `กำลังจัดกะ: ${selectedShiftType} สัปดาห์ ${startDate} - ${endDate} (1 สัปดาห์ต่อ 1 คน)`;
                     if (saveBtn) saveBtn.disabled = false;
+                    if (autoAssignBtn) autoAssignBtn.disabled = false;
                 } else {
                     shiftInfoElement.textContent = 'เลือกประเภทกะและสัปดาห์เพื่อเริ่มกำหนดกะ (สามารถเลือกพนักงานหลายคนต่อสัปดาห์)';
                     if (saveBtn) saveBtn.disabled = true;
+                    if (autoAssignBtn) autoAssignBtn.disabled = true;
+                }
+            };
+            
+            // ฟังก์ชันจัดกะอัตโนมัติสำหรับพนักงานที่เหลือ
+            const handleAutoAssign = () => {
+                if (!selectedShiftType || !selectedWeekStart || !selectedWeekEnd) {
+                    showMessage('กรุณาเลือกประเภทกะและสัปดาห์ก่อน', true);
+                    return;
+                }
+                
+                // หาพนักงานที่แสดงอยู่ในปัจจุบัน (ตาม department ที่เลือก)
+                let employeesToShow = (selectedDepartment === 'all') ? shiftEmployeeData : (shiftEmployeesByDepartment[selectedDepartment] || []);
+                
+                if (employeesToShow.length === 0) {
+                    showMessage('ไม่มีพนักงานในส่วนงานนี้', true);
+                    return;
+                }
+                
+                // หาพนักงานที่ยังไม่ได้เลือก
+                const unassignedEmployees = employeesToShow.filter(employee => !currentShiftAssignments[employee.employeeId]);
+                
+                if (unassignedEmployees.length === 0) {
+                    showMessage('พนักงานทุกคนได้รับการจัดกะแล้ว', true);
+                    return;
+                }
+                
+                // กำหนดกะตรงข้าม
+                const oppositeShiftType = selectedShiftType === 'กะเช้า' ? 'กะดึก' : 'กะเช้า';
+                const oppositeShiftTime = selectedShiftType === 'กะเช้า' ? '20:00 - 08:00' : '08:00 - 17:00';
+                
+                // แสดง confirmation dialog
+                const confirmMessage = `จะจัดพนักงานที่เหลือ ${unassignedEmployees.length} คน เข้า${oppositeShiftType} โดยอัตโนมัติ\n\nต้องการดำเนินการต่อหรือไม่?`;
+                
+                if (confirm(confirmMessage)) {
+                    // เพิ่มพนักงานที่เหลือเข้าในกะตรงข้าม
+                    unassignedEmployees.forEach(employee => {
+                        currentShiftAssignments[employee.employeeId] = true;
+                    });
+                    
+                    // อัปเดตการแสดงผล
+                    renderShiftEmployeeList();
+                    
+                    // แสดงข้อความยืนยัน
+                    showMessage(`จัดกะอัตโนมัติเรียบร้อย: ${unassignedEmployees.length} คน เข้า${oppositeShiftType}`);
+                    
+                    // บันทึกข้อมูลกะตรงข้ามโดยอัตโนมัติ
+                    saveOppositeShiftAssignment(unassignedEmployees, oppositeShiftType, oppositeShiftTime);
+                }
+            };
+            
+            // ฟังก์ชันบันทึกกะตรงข้ามโดยอัตโนมัติ
+            const saveOppositeShiftAssignment = async (employees, shiftType, shiftTime) => {
+                try {
+                    const employeeIds = employees.map(emp => emp.employeeId);
+                    
+                    const shiftData = {
+                        date: selectedWeekStart,
+                        shiftType: shiftType,
+                        employeeIds: employeeIds,
+                        shiftTime: shiftTime
+                    };
+                    
+                    console.log('Auto-saving opposite shift data:', shiftData);
+                    
+                    const response = await fetch(GAS_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'saveShiftAssignment', shiftData })
+                    });
+                    
+                    const result = await response.json();
+                    if (result.success) {
+                        console.log(`Auto-saved ${employeeIds.length} employees to ${shiftType}`);
+                    } else {
+                        console.error('Error auto-saving opposite shift:', result.message);
+                        showMessage(`เกิดข้อผิดพลาดในการบันทึกกะอัตโนมัติ: ${result.message}`, true);
+                    }
+                } catch (error) {
+                    console.error('Error auto-saving opposite shift assignment:', error);
+                    showMessage('เกิดข้อผิดพลาดในการบันทึกกะอัตโนมัติ', true);
                 }
             };
 
@@ -2301,6 +2401,12 @@
             }
             if (saveShiftAssignmentBtn) {
                 saveShiftAssignmentBtn.addEventListener('click', saveShiftAssignment);
+            }
+            
+            // Auto Assign Button Event Listener
+            const autoAssignBtn = document.getElementById('auto-assign-btn');
+            if (autoAssignBtn) {
+                autoAssignBtn.addEventListener('click', handleAutoAssign);
             }
 
             document.getElementById('show-login').addEventListener('click', (e) => { e.preventDefault(); toggleView('login'); });
