@@ -27,6 +27,10 @@
             --primary-700: #0369a1;
             --primary-800: #075985;
             --primary-900: #0c4a6e;
+            --orange-light: #fed7aa;
+            --orange-50: #fff7ed;
+            --orange-100: #ffedd5;
+            --orange-200: #fed7aa;
         }
         body {
             font-family: 'Inter', sans-serif;
@@ -77,6 +81,33 @@
             background-color: var(--primary-600);
             color: white;
             border-color: var(--primary-600);
+        }
+        
+        /* Week display styles */
+        #week-display {
+            background: linear-gradient(135deg, var(--primary-50) 0%, var(--primary-100) 100%);
+            border: 2px solid var(--primary-200);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        #week-display.hidden {
+            display: none;
+        }
+        
+        #week-range {
+            font-weight: 600;
+            color: var(--primary-700);
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        
+        .week-note {
+            color: var(--primary-600);
+            font-size: 14px;
+            font-style: italic;
         }
     </style>
 </head>
@@ -152,14 +183,14 @@
     
     <!-- Home Page -->
     <div id="home-container" class="page-container hidden flex flex-col h-screen w-full bg-gray-50">
-        <header class="flex items-center justify-between p-4 bg-white shadow-sm w-full flex-shrink-0"><div class="w-10"></div><h1 class="text-xl font-bold text-gray-800">หน้าหลัก</h1><button class="logout-button flex items-center justify-center p-2 rounded-full hover:bg-gray-100" title="Logout"><span class="material-symbols-outlined text-gray-700">logout</span></button></header>
+        <header class="flex items-center justify-between p-4 shadow-sm w-full flex-shrink-0" style="background-color: var(--orange-200);"><div class="w-10"></div><h1 class="text-xl font-bold text-gray-800">หน้าหลัก</h1><button class="logout-button flex items-center justify-center p-2 rounded-full hover:bg-gray-100" title="Logout"><span class="material-symbols-outlined text-gray-700">logout</span></button></header>
         <main class="flex-1 p-6 pb-20 flex justify-center items-center"><h2 class="text-2xl text-gray-600">ยินดีต้อนรับสู่หน้าหลัก</h2></main>
         <footer class="bg-white shadow-t w-full flex-shrink-0 fixed bottom-0 left-0 right-0 z-50"><nav class="flex justify-around border-t border-gray-200 py-2"><a href="#" data-page="home" class="nav-link flex flex-col items-center justify-end gap-1 text-[var(--primary-600)] font-semibold"><span class="material-symbols-outlined">home</span><p class="text-xs font-medium">หน้าหลัก</p></a><a href="#" data-page="employee-list" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]"><span class="material-symbols-outlined">groups</span><p class="text-xs font-medium">พนักงาน</p></a><a href="#" data-page="attendance" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]"><span class="material-symbols-outlined">checklist</span><p class="text-xs font-medium">เช็คชื่อ</p></a><a href="#" id="more-menu-btn" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)] cursor-pointer"><span class="material-symbols-outlined">more_horiz</span><p class="text-xs font-medium">เพิ่มเติม</p></a></nav></footer>
     </div>
     
     <!-- Employee List Page -->
     <div id="employee-list-container" class="page-container hidden flex flex-col h-screen w-full bg-gray-50">
-        <header class="flex items-center justify-between p-4 bg-white shadow-sm w-full flex-shrink-0"><div class="w-10"></div><h1 class="text-xl font-bold text-gray-800">รายชื่อพนักงาน wh1</h1><button class="logout-button flex items-center justify-center p-2 rounded-full hover:bg-gray-100" title="Logout"><span class="material-symbols-outlined text-gray-700">logout</span></button></header>
+        <header class="flex items-center justify-between p-4 shadow-sm w-full flex-shrink-0" style="background-color: var(--orange-200);"><div class="w-10"></div><h1 class="text-xl font-bold text-gray-800">รายชื่อพนักงาน wh1</h1><button class="logout-button flex items-center justify-center p-2 rounded-full hover:bg-gray-100" title="Logout"><span class="material-symbols-outlined text-gray-700">logout</span></button></header>
         <main id="employee-list-main" class="flex-1 p-4 md:p-6 pb-20 overflow-y-auto"></main>
          <button id="add-employee-fab" class="fixed bottom-20 right-6 bg-[var(--primary-600)] text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-[var(--primary-700)] transition-transform transform hover:scale-110"><span class="material-symbols-outlined">add</span></button>
         <footer class="bg-white shadow-t w-full flex-shrink-0 fixed bottom-0 left-0 right-0 z-50"><nav class="flex justify-around border-t border-gray-200 py-2"><a href="#" data-page="home" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]"><span class="material-symbols-outlined">home</span><p class="text-xs font-medium">หน้าหลัก</p></a><a href="#" data-page="employee-list" class="nav-link flex flex-col items-center justify-end gap-1 text-[var(--primary-600)] font-semibold"><span class="material-symbols-outlined">groups</span><p class="text-xs font-medium">พนักงาน</p></a><a href="#" data-page="attendance" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]"><span class="material-symbols-outlined">checklist</span><p class="text-xs font-medium">เช็คชื่อ</p></a><a href="#" id="more-menu-btn" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)] cursor-pointer"><span class="material-symbols-outlined">more_horiz</span><p class="text-xs font-medium">เพิ่มเติม</p></a></nav></footer>
@@ -167,7 +198,7 @@
 
     <!-- Add/Edit Employee Page -->
     <div id="add-employee-container" class="page-container hidden flex flex-col h-screen w-full bg-gray-50">
-        <header class="flex items-center justify-start p-4 bg-white shadow-sm w-full flex-shrink-0"><button id="back-to-list-button" class="flex items-center justify-center p-2 rounded-full hover:bg-gray-100"><span class="material-symbols-outlined text-gray-700">arrow_back_ios_new</span></button><h1 id="employee-form-title" class="text-xl font-bold text-gray-800 flex-1 text-center">เพิ่มข้อมูลพนักงาน</h1><div class="w-10"></div></header>
+        <header class="flex items-center justify-start p-4 shadow-sm w-full flex-shrink-0" style="background-color: var(--orange-200);"><button id="back-to-list-button" class="flex items-center justify-center p-2 rounded-full hover:bg-gray-100"><span class="material-symbols-outlined text-gray-700">arrow_back_ios_new</span></button><h1 id="employee-form-title" class="text-xl font-bold text-gray-800 flex-1 text-center">เพิ่มข้อมูลพนักงาน</h1><div class="w-10"></div></header>
         <main class="flex-1 p-6 pb-20 space-y-6 overflow-y-auto">
             <div class="flex flex-col items-center space-y-4">
                 <div class="relative w-32 h-32"><img alt="Employee Photo" id="photo-preview" class="w-full h-full rounded-full object-cover" src="https://placehold.co/128x128/EFEFEF/AAAAAA?text=Photo"><label class="absolute bottom-0 right-0 flex items-center justify-center w-10 h-10 bg-[var(--primary-600)] rounded-full cursor-pointer hover:bg-[var(--primary-700)]" for="photo-upload"><span class="material-symbols-outlined text-white">photo_camera</span><input class="hidden" id="photo-upload" type="file" accept="image/*"></label></div>
@@ -193,7 +224,7 @@
 
     <!-- Shift Management Page -->
     <div id="shift-management-container" class="page-container hidden flex flex-col h-screen w-full bg-gray-50">
-        <header class="flex items-center justify-between p-4 bg-white shadow-sm w-full flex-shrink-0">
+        <header class="flex items-center justify-between p-4 shadow-sm w-full flex-shrink-0" style="background-color: var(--orange-200);">
             <div class="w-10"></div>
             <h1 class="text-xl font-bold text-gray-800">จัดการเข้ากะ</h1>
             <button class="logout-button flex items-center justify-center p-2 rounded-full hover:bg-gray-100" title="Logout">
@@ -222,11 +253,24 @@
                 </div>
             </div>
             
-            <!-- Date Selection -->
+            <!-- Week Selection -->
             <div class="bg-white p-4 rounded-lg shadow-sm mb-4 flex-shrink-0">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-lg font-semibold text-gray-800">เลือกวันที่</h2>
-                    <input type="date" id="shift-date-picker" class="border border-gray-300 rounded-lg p-2">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">เลือกสัปดาห์</h2>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="text-sm font-medium text-gray-700">สัปดาห์ที่เริ่มต้น:</label>
+                        <input type="date" id="week-start-picker" class="border border-gray-300 rounded-lg p-2">
+                    </div>
+                    <div id="week-display" class="bg-gray-50 p-3 rounded-lg hidden">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-medium text-gray-700">สัปดาห์ที่เลือก:</span>
+                            <span id="week-range" class="text-sm text-blue-600 font-medium"></span>
+                        </div>
+                        <div class="mt-2 text-xs text-gray-500">
+                            <span class="material-symbols-outlined text-sm mr-1">info</span>
+                            1 สัปดาห์ต่อ 1 คน (จันทร์ - อาทิตย์)
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -234,13 +278,18 @@
             <div class="bg-white rounded-lg shadow-sm flex-1 overflow-hidden">
                 <div class="p-4 border-b border-gray-200">
                     <div class="flex items-center justify-between">
-                        <h2 class="text-lg font-semibold text-gray-800">กำหนดกะพนักงาน</h2>
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-800">กำหนดกะพนักงาน</h2>
+                            <div id="selected-count" class="text-sm text-blue-600 font-medium mt-1 hidden">
+                                เลือกแล้ว: <span id="selected-count-number">0</span> คน
+                            </div>
+                        </div>
                         <button id="save-shift-btn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:bg-gray-400 flex items-center" disabled>
                             <span class="material-symbols-outlined mr-1 text-base">save</span>
                             บันทึก
                         </button>
                     </div>
-                    <p id="shift-info" class="text-sm text-gray-600 mt-2">เลือกประเภทกะและวันที่เพื่อเริ่มกำหนดกะ</p>
+                    <p id="shift-info" class="text-sm text-gray-600 mt-2">เลือกประเภทกะและสัปดาห์เพื่อเริ่มกำหนดกะ (สามารถเลือกพนักงานหลายคนต่อสัปดาห์)</p>
                     
                     <!-- Department Tabs -->
                     <div id="department-tabs" class="mt-4 hidden">
@@ -250,7 +299,7 @@
                     </div>
                 </div>
                 <div id="shift-employee-list" class="p-4 overflow-y-auto">
-                    <p class="text-center text-gray-500 py-8">เลือกประเภทกะและวันที่เพื่อแสดงรายชื่อพนักงาน</p>
+                    <p class="text-center text-gray-500 py-8">เลือกประเภทกะและสัปดาห์เพื่อแสดงรายชื่อพนักงาน</p>
                 </div>
             </div>
         </main>
@@ -278,7 +327,7 @@
 
     <!-- Shift Schedule Page -->
     <div id="shift-schedule-container" class="page-container hidden flex flex-col h-screen w-full bg-gray-50">
-        <header class="flex items-center justify-between p-4 bg-white shadow-sm w-full flex-shrink-0">
+        <header class="flex items-center justify-between p-4 shadow-sm w-full flex-shrink-0" style="background-color: var(--orange-200);">
             <div class="w-10"></div>
             <h1 class="text-xl font-bold text-gray-800">ตารางกะ</h1>
             <button class="logout-button flex items-center justify-center p-2 rounded-full hover:bg-gray-100" title="Logout">
@@ -341,7 +390,7 @@
 
     <!-- Attendance Page -->
     <div id="attendance-container" class="page-container hidden flex flex-col h-screen w-full bg-gray-50">
-        <header class="flex items-center justify-between p-4 bg-white shadow-sm w-full flex-shrink-0"><div class="w-10"></div><h1 class="text-xl font-bold text-gray-800">เช็คชื่อพนักงาน</h1><button class="logout-button flex items-center justify-center p-2 rounded-full hover:bg-gray-100" title="Logout"><span class="material-symbols-outlined text-gray-700">logout</span></button></header>
+        <header class="flex items-center justify-between p-4 shadow-sm w-full flex-shrink-0" style="background-color: var(--orange-200);"><div class="w-10"></div><h1 class="text-xl font-bold text-gray-800">เช็คชื่อพนักงาน</h1><button class="logout-button flex items-center justify-center p-2 rounded-full hover:bg-gray-100" title="Logout"><span class="material-symbols-outlined text-gray-700">logout</span></button></header>
         <main id="attendance-main" class="flex-1 p-4 md:p-6 pb-20 flex flex-col">
             <div class="bg-white p-4 rounded-lg shadow-sm mb-4 flex-shrink-0">
                 <div class="flex items-center justify-between">
@@ -357,7 +406,7 @@
     
     <!-- OT Plan Page -->
     <div id="ot-plan-container" class="page-container hidden flex flex-col h-screen w-full bg-gray-50">
-        <header class="flex items-center justify-between p-4 bg-white shadow-sm w-full flex-shrink-0"><div class="w-10"></div><h1 class="text-xl font-bold text-gray-800">วางแผน OT</h1><button class="logout-button flex items-center justify-center p-2 rounded-full hover:bg-gray-100" title="Logout"><span class="material-symbols-outlined text-gray-700">logout</span></button></header>
+        <header class="flex items-center justify-between p-4 shadow-sm w-full flex-shrink-0" style="background-color: var(--orange-200);"><div class="w-10"></div><h1 class="text-xl font-bold text-gray-800">วางแผน OT</h1><button class="logout-button flex items-center justify-center p-2 rounded-full hover:bg-gray-100" title="Logout"><span class="material-symbols-outlined text-gray-700">logout</span></button></header>
         <main id="ot-plan-main" class="flex-1 p-4 md:p-6 pb-20 flex flex-col">
             <div class="bg-white p-4 rounded-lg shadow-sm mb-4 flex-shrink-0">
                 <div class="flex items-center justify-between mb-4">
@@ -383,7 +432,7 @@
 
     <!-- Reports Container -->
     <div id="reports-container" class="page-container hidden flex flex-col h-screen w-full bg-gray-50">
-        <header class="flex items-center justify-between p-4 bg-white shadow-sm w-full flex-shrink-0">
+        <header class="flex items-center justify-between p-4 shadow-sm w-full flex-shrink-0" style="background-color: var(--orange-200);">
             <div class="w-10"></div>
             <h1 class="text-xl font-bold text-gray-800">รายงาน</h1>
             <button class="logout-button flex items-center justify-center p-2 rounded-full hover:bg-gray-100" title="Logout">
@@ -442,7 +491,7 @@
 
     <!-- Settings Container -->
     <div id="settings-container" class="page-container hidden flex flex-col h-screen w-full bg-gray-50">
-        <header class="flex items-center justify-between p-4 bg-white shadow-sm w-full flex-shrink-0">
+        <header class="flex items-center justify-between p-4 shadow-sm w-full flex-shrink-0" style="background-color: var(--orange-200);">
             <div class="w-10"></div>
             <h1 class="text-xl font-bold text-gray-800">การตั้งค่า</h1>
             <button class="logout-button flex items-center justify-center p-2 rounded-full hover:bg-gray-100" title="Logout">
@@ -516,7 +565,7 @@
 
     <!-- Help Container -->
     <div id="help-container" class="page-container hidden flex flex-col h-screen w-full bg-gray-50">
-        <header class="flex items-center justify-between p-4 bg-white shadow-sm w-full flex-shrink-0">
+        <header class="flex items-center justify-between p-4 shadow-sm w-full flex-shrink-0" style="background-color: var(--orange-200);">
             <div class="w-10"></div>
             <h1 class="text-xl font-bold text-gray-800">ช่วยเหลือ</h1>
             <button class="logout-button flex items-center justify-center p-2 rounded-full hover:bg-gray-100" title="Logout">
@@ -594,7 +643,7 @@
 
     <!-- Calendar Page -->
     <div id="calendar-container" class="page-container hidden flex flex-col h-screen w-full bg-gray-50">
-        <header class="flex items-center justify-between p-4 bg-white shadow-sm w-full flex-shrink-0">
+        <header class="flex items-center justify-between p-4 shadow-sm w-full flex-shrink-0" style="background-color: var(--orange-200);">
             <div class="w-10"></div>
             <h1 class="text-xl font-bold text-gray-800">ปฏิทินการลางาน</h1>
             <button class="logout-button flex items-center justify-center p-2 rounded-full hover:bg-gray-100" title="Logout">
@@ -791,7 +840,7 @@
             
             // Shift Management Variables
             let selectedShiftType = null; // 'morning' or 'night'
-            let selectedShiftDate = null;
+            let selectedShiftWeek = null;
             let selectedShiftTime = null;
             let shiftEmployeeData = [];
             let currentShiftAssignments = {};
@@ -877,7 +926,9 @@
             // Shift Management Elements
             const morningShiftBtn = document.getElementById('morning-shift-btn');
             const nightShiftBtn = document.getElementById('night-shift-btn');
-            const shiftDatePicker = document.getElementById('shift-date-picker');
+            const weekStartPicker = document.getElementById('week-start-picker');
+            const weekDisplay = document.getElementById('week-display');
+            const weekRange = document.getElementById('week-range');
             const shiftEmployeeList = document.getElementById('shift-employee-list');
             const saveShiftAssignmentBtn = document.getElementById('save-shift-btn');
             const departmentTabs = document.getElementById('department-tabs');
@@ -886,6 +937,8 @@
             let shiftEmployeesByDepartment = {};
             let selectedDepartment = 'all';
             let availableDepartments = [];
+            let selectedWeekStart = null;
+            let selectedWeekEnd = null;
             
 
             
@@ -2049,8 +2102,25 @@
                     listFragment.appendChild(employeeCard);
                 });
                 shiftEmployeeList.appendChild(listFragment);
+                
+                // Update selected count display after rendering
+                updateSelectedCount();
             };
             
+            // Function to update selected employee count display
+            const updateSelectedCount = () => {
+                const selectedCount = Object.keys(currentShiftAssignments).length;
+                const countElement = document.getElementById('selected-count');
+                const countNumberElement = document.getElementById('selected-count-number');
+                
+                if (selectedCount > 0) {
+                    countElement.classList.remove('hidden');
+                    countNumberElement.textContent = selectedCount;
+                } else {
+                    countElement.classList.add('hidden');
+                }
+            };
+
             shiftEmployeeList.addEventListener('change', (e) => {
                 if (e.target.classList.contains('shift-checkbox')) {
                     const employeeId = e.target.dataset.employeeId;
@@ -2062,40 +2132,55 @@
                     // Re-rendering is simple but you could also just toggle the class on the parent for performance
                     e.target.closest('.p-3').classList.toggle('bg-blue-50');
                     e.target.closest('.p-3').classList.toggle('border-blue-300');
+                    
+                    // Update selected count display
+                    updateSelectedCount();
                 }
             });
 
 
-            // *** UPDATED: Function to save shift assignments ***
+            // *** UPDATED: Function to save weekly shift assignments ***
             const saveShiftAssignment = async () => {
                 const button = document.getElementById('save-shift-btn');
-                if (!selectedShiftType || !selectedShiftDate) {
-                    showMessage('กรุณาเลือกประเภทกะและวันที่', true);
+                if (!selectedShiftType || !selectedWeekStart || !selectedWeekEnd) {
+                    showMessage('กรุณาเลือกประเภทกะและสัปดาห์', true);
                     return;
                 }
                 
                 const assignedEmployeeIds = Object.keys(currentShiftAssignments);
                 
+                if (assignedEmployeeIds.length === 0) {
+                    showMessage('กรุณาเลือกพนักงานอย่างน้อย 1 คน', true);
+                    return;
+                }
+                
                 button.disabled = true;
                 button.innerHTML = `<span class="material-symbols-outlined mr-1 text-base animate-spin">autorenew</span> กำลังบันทึก...`;
 
                 try {
+                    console.log('Debug values:');
+                    console.log('selectedWeekStart:', selectedWeekStart);
+                    console.log('selectedShiftType:', selectedShiftType);
+                    console.log('assignedEmployeeIds:', assignedEmployeeIds);
+                    console.log('selectedShiftTime:', selectedShiftTime);
+
                     const shiftData = {
-                        date: selectedShiftDate,
+                        date: selectedWeekStart,
                         shiftType: selectedShiftType,
-                        employeeIds: assignedEmployeeIds,
+                        employeeIds: assignedEmployeeIds, // Support multiple employees per week
                         shiftTime: selectedShiftTime
                     };
                     
+                    console.log('Sending shift data:', shiftData);
+                    
                     const response = await fetch(GAS_URL, {
                         method: 'POST',
-                        // The body needs to be a string
                         body: JSON.stringify({ action: 'saveShiftAssignment', shiftData })
                     });
                     
                     const result = await response.json();
                     if (result.success) {
-                        showMessage('บันทึกการจัดเข้ากะเรียบร้อยแล้ว');
+                        showMessage(`บันทึกการจัดเข้ากะเรียบร้อยแล้ว (${assignedEmployeeIds.length} คน)`);
                     } else {
                         showMessage(result.message || 'เกิดข้อผิดพลาดในการบันทึก', true);
                     }
@@ -2123,7 +2208,7 @@
                 
                 updateShiftInfo();
                 
-                if (selectedShiftType && selectedShiftDate) {
+                if (selectedShiftType && selectedWeekStart) {
                     loadShiftAssignments();
                 }
             };
@@ -2132,41 +2217,65 @@
                 const shiftInfoElement = document.getElementById('shift-info');
                 const saveBtn = document.getElementById('save-shift-btn');
                 
-                if (selectedShiftType && selectedShiftDate) {
-                    shiftInfoElement.textContent = `กำลังจัดกะ: ${selectedShiftType} วันที่ ${new Date(selectedShiftDate).toLocaleDateString('th-TH')}`;
+                if (selectedShiftType && selectedWeekStart && selectedWeekEnd) {
+                    const startDate = new Date(selectedWeekStart).toLocaleDateString('th-TH');
+                    const endDate = new Date(selectedWeekEnd).toLocaleDateString('th-TH');
+                    shiftInfoElement.textContent = `กำลังจัดกะ: ${selectedShiftType} สัปดาห์ ${startDate} - ${endDate} (1 สัปดาห์ต่อ 1 คน)`;
                     if (saveBtn) saveBtn.disabled = false;
                 } else {
-                    shiftInfoElement.textContent = 'เลือกประเภทกะและวันที่เพื่อเริ่มกำหนดกะ';
+                    shiftInfoElement.textContent = 'เลือกประเภทกะและสัปดาห์เพื่อเริ่มกำหนดกะ (สามารถเลือกพนักงานหลายคนต่อสัปดาห์)';
                     if (saveBtn) saveBtn.disabled = true;
                 }
             };
 
-            const handleShiftDateChange = () => {
-                // Add timezone offset to prevent date from shifting
-                const dateVal = shiftDatePicker.valueAsDate;
-                const userTimezoneOffset = dateVal.getTimezoneOffset() * 60000;
-                const adjustedDate = new Date(dateVal.getTime() + userTimezoneOffset);
-                selectedShiftDate = adjustedDate.toISOString().split('T')[0];
+            const handleWeekChange = () => {
+                if (!weekStartPicker.value) {
+                    weekDisplay.classList.add('hidden');
+                    selectedWeekStart = null;
+                    selectedWeekEnd = null;
+                    updateShiftInfo();
+                    return;
+                }
 
+                // Calculate week start (Monday) and end (Sunday)
+                const selectedDate = new Date(weekStartPicker.value);
+                const dayOfWeek = selectedDate.getDay();
+                const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // If Sunday (0), go back 6 days
+                
+                const weekStart = new Date(selectedDate);
+                weekStart.setDate(selectedDate.getDate() + mondayOffset);
+                
+                const weekEnd = new Date(weekStart);
+                weekEnd.setDate(weekStart.getDate() + 6);
+                
+                selectedWeekStart = weekStart.toISOString().split('T')[0];
+                selectedWeekEnd = weekEnd.toISOString().split('T')[0];
+                
+                // Display week range
+                const startStr = weekStart.toLocaleDateString('th-TH');
+                const endStr = weekEnd.toLocaleDateString('th-TH');
+                weekRange.textContent = `${startStr} - ${endStr}`;
+                weekDisplay.classList.remove('hidden');
+                
                 updateShiftInfo();
-                if (selectedShiftType && selectedShiftDate) {
+                if (selectedShiftType && selectedWeekStart) {
                     loadShiftAssignments();
                 }
             };
             
             const loadShiftAssignments = async () => {
-                if (!selectedShiftType || !selectedShiftDate) return;
+                if (!selectedShiftType || !selectedWeekStart) return;
                 
                 shiftEmployeeList.innerHTML = '<p class="text-gray-500 text-center py-4">กำลังโหลดข้อมูลกะ...</p>';
 
                 try {
-                    const response = await fetch(`${GAS_URL}?action=getShiftData&date=${selectedShiftDate}&shiftType=${selectedShiftType}`);
+                    const response = await fetch(`${GAS_URL}?action=getShiftAssignments&date=${selectedWeekStart}&shiftType=${selectedShiftType}`);
                     const result = await response.json();
                     
                     currentShiftAssignments = {};
-                    if (result.status === 'success' && result.data) {
-                        result.data.forEach(employeeId => {
-                            currentShiftAssignments[employeeId] = true;
+                    if (result.success && result.assignments) {
+                        result.assignments.forEach(assignment => {
+                            currentShiftAssignments[assignment.employeeId] = true;
                         });
                     }
                     renderShiftEmployeeList();
@@ -2186,8 +2295,8 @@
             if (nightShiftBtn) {
                 nightShiftBtn.addEventListener('click', () => handleShiftTypeChange('กะดึก', '20:00 - 08:00'));
             }
-            if (shiftDatePicker) {
-                shiftDatePicker.addEventListener('change', handleShiftDateChange);
+            if (weekStartPicker) {
+                weekStartPicker.addEventListener('change', handleWeekChange);
             }
             if (saveShiftAssignmentBtn) {
                 saveShiftAssignmentBtn.addEventListener('click', saveShiftAssignment);
