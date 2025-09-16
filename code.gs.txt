@@ -79,8 +79,8 @@ function doPost(e) {
             if (action === 'register') return handleRegistration(accountSheet, data);
             
             const employeeSheet = ss.getSheetByName(EMPLOYEE_SHEET_NAME);
-            const { username, password } = data;
-            return handleLogin(accountSheet, employeeSheet, username, password);
+            const { loginIdentifier, password } = data;
+            return handleLogin(accountSheet, employeeSheet, loginIdentifier, password);
         }
         case 'addEmployee': {
             let sheet = ss.getSheetByName(EMPLOYEE_SHEET_NAME);
@@ -673,59 +673,77 @@ function handleRegistration(sheet, data) {
 }
 
 function handleLogin(accountSheet, employeeSheet, loginIdentifier, password) {
+    console.log('Login attempt:', loginIdentifier); // Debug log
+    
     if (!loginIdentifier || !password) {
         return createJsonResponse({ status: 'error', message: 'กรุณากรอกชื่อผู้ใช้/รหัส และรหัสผ่าน' });
     }
+    
     const accountUsers = accountSheet.getDataRange().getValues();
+    console.log('Account users data:', accountUsers.length); // Debug log
+    
+    // First, try to find by username in Account sheet
     for (let i = 1; i < accountUsers.length; i++) {
         const userRow = accountUsers[i];
         const username = userRow[0];
-        if (username.toString() === loginIdentifier) {
+        if (username && username.toString().trim() === loginIdentifier.toString().trim()) {
             const correctPassword = userRow[1];
-            if (correctPassword.toString() == password) {
+            if (correctPassword && correctPassword.toString().trim() === password.toString().trim()) {
                 const userData = {
                     fullName: userRow[2] || '',
                     position: userRow[3] || '',
                     department: userRow[4] || ''
                 };
+                console.log('Login successful by username:', loginIdentifier); // Debug log
                 return createJsonResponse({ status: 'success', message: 'Login successful.', userData: userData });
             } else {
+                console.log('Wrong password for username:', loginIdentifier); // Debug log
                 return createJsonResponse({ status: 'error', message: 'รหัสผ่านไม่ถูกต้อง' });
             }
         }
     }
+    
+    // If not found by username, try to find by employee ID
     if (!employeeSheet) {
         return createJsonResponse({ status: 'error', message: 'ไม่พบชื่อผู้ใช้' });
     }
+    
     const employeeData = employeeSheet.getDataRange().getValues();
     let foundFullName = null;
+    
     for (let i = 1; i < employeeData.length; i++) {
         const employeeRow = employeeData[i];
         const employeeId = employeeRow[1];
-        if (employeeId && employeeId.toString() == loginIdentifier) {
+        if (employeeId && employeeId.toString().trim() === loginIdentifier.toString().trim()) {
             foundFullName = employeeRow[0];
             break;
         }
     }
+    
     if (foundFullName) {
+        // Find the account by full name
         for (let i = 1; i < accountUsers.length; i++) {
             const userRow = accountUsers[i];
             const fullNameInAccount = userRow[2];
-            if (fullNameInAccount === foundFullName) {
+            if (fullNameInAccount && fullNameInAccount.toString().trim() === foundFullName.toString().trim()) {
                 const correctPassword = userRow[1];
-                if (correctPassword.toString() == password) {
+                if (correctPassword && correctPassword.toString().trim() === password.toString().trim()) {
                     const userData = {
                         fullName: userRow[2] || '',
                         position: userRow[3] || '',
                         department: userRow[4] || '' 
                     };
+                    console.log('Login successful by employee ID:', loginIdentifier); // Debug log
                     return createJsonResponse({ status: 'success', message: 'Login successful.', userData: userData });
                 } else {
+                    console.log('Wrong password for employee ID:', loginIdentifier); // Debug log
                     return createJsonResponse({ status: 'error', message: 'รหัสผ่านไม่ถูกต้อง' });
                 }
             }
         }
     }
+    
+    console.log('User not found:', loginIdentifier); // Debug log
     return createJsonResponse({ status: 'error', message: 'ไม่พบชื่อผู้ใช้หรือรหัสพนักงาน' });
 }
 
