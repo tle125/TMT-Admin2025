@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบลงทะเบียนและเข้าสู่ระบบ</title>
+    <link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
     <!-- Google Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -474,7 +475,7 @@
                         <h3 class="text-lg font-semibold text-gray-800">รายงาน OT</h3>
                     </div>
                     <p class="text-gray-600 mb-4">สรุปชั่วโมงทำงานล่วงเวลาของพนักงาน</p>
-                    <button class="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700">ดูรายงาน</button>
+                    <button id="ot-report-btn" class="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700">ดูรายงาน</button>
                 </div>
                 <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
                     <div class="flex items-center mb-4">
@@ -483,6 +484,145 @@
                     </div>
                     <p class="text-gray-600 mb-4">รายงานสรุปประจำเดือนและประจำปี</p>
                     <button class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700">ดูรายงาน</button>
+                </div>
+            </div>
+        </main>
+        <footer class="bg-white shadow-t w-full flex-shrink-0 fixed bottom-0 left-0 right-0 z-50">
+            <nav class="flex justify-around border-t border-gray-200 py-2">
+                <a href="#" data-page="home" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]">
+                    <span class="material-symbols-outlined">home</span>
+                    <p class="text-xs font-medium">หน้าหลัก</p>
+                </a>
+                <a href="#" data-page="employee-list" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]">
+                    <span class="material-symbols-outlined">groups</span>
+                    <p class="text-xs font-medium">พนักงาน</p>
+                </a>
+                <a href="#" data-page="attendance" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]">
+                    <span class="material-symbols-outlined">checklist</span>
+                    <p class="text-xs font-medium">เช็คชื่อ</p>
+                </a>
+                <a href="#" id="more-menu-btn" class="nav-link flex flex-col items-center justify-end gap-1 text-[var(--primary-600)] font-semibold cursor-pointer">
+                    <span class="material-symbols-outlined">more_horiz</span>
+                    <p class="text-xs font-medium">เพิ่มเติม</p>
+                </a>
+            </nav>
+        </footer>
+    </div>
+
+    <!-- Leave Report Container -->
+    <div id="leave-report-container" class="page-container hidden flex flex-col h-screen w-full bg-gray-50">
+        <header class="flex items-center justify-between p-4 shadow-sm w-full flex-shrink-0" style="background-color: var(--orange-200);">
+            <button id="back-to-reports-from-ot-btn" class="flex items-center justify-center p-2 rounded-full hover:bg-gray-100" title="กลับ">
+                <span class="material-symbols-outlined text-gray-700">arrow_back</span>
+            </button>
+            <h1 class="text-xl font-bold text-gray-800">รายงาน OT</h1>
+            <button class="logout-button flex items-center justify-center p-2 rounded-full hover:bg-gray-100" title="Logout">
+                <span class="material-symbols-outlined text-gray-700">logout</span>
+            </button>
+        </header>
+        <main class="flex-1 p-4 md:p-6 pb-20 overflow-y-auto">
+            <!-- Filters Section -->
+            <div class="bg-white p-4 rounded-lg shadow-sm mb-4">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">ตัวกรองข้อมูล</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">วันที่เริ่มต้น</label>
+                        <input type="date" id="ot-start-date" class="w-full border border-gray-300 rounded-lg p-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">วันที่สิ้นสุด</label>
+                        <input type="date" id="ot-end-date" class="w-full border border-gray-300 rounded-lg p-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">แผนก</label>
+                        <select id="ot-department-filter" class="w-full border border-gray-300 rounded-lg p-2">
+                            <option value="">ทุกแผนก</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">รหัสพนักงาน</label>
+                        <input type="text" id="ot-employee-id-filter" placeholder="ค้นหารหัสพนักงาน" class="w-full border border-gray-300 rounded-lg p-2">
+                    </div>
+                </div>
+                <div class="flex gap-2 mt-4">
+                    <button id="search-ot-report-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                        <span class="material-symbols-outlined mr-2">search</span>ค้นหา
+                    </button>
+                    <button id="clear-ot-filters-btn" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">
+                        <span class="material-symbols-outlined mr-2">clear</span>ล้างตัวกรอง
+                    </button>
+                </div>
+            </div>
+
+            <!-- Summary Section -->
+            <div id="ot-summary-section" class="bg-white p-4 rounded-lg shadow-sm mb-4 hidden">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">สรุปข้อมูล OT</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-blue-600">จำนวนพนักงาน</p>
+                                <p id="total-employees-count" class="text-2xl font-bold text-blue-800">0</p>
+                            </div>
+                            <span class="material-symbols-outlined text-blue-600 text-3xl">groups</span>
+                        </div>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-green-600">รวมชั่วโมง OT</p>
+                                <p id="total-ot-hours" class="text-2xl font-bold text-green-800">0.0</p>
+                            </div>
+                            <span class="material-symbols-outlined text-green-600 text-3xl">schedule</span>
+                        </div>
+                    </div>
+                    <div class="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-orange-600">ค่าเฉลี่ยต่อคน</p>
+                                <p id="average-ot-hours" class="text-2xl font-bold text-orange-800">0.0</p>
+                            </div>
+                            <span class="material-symbols-outlined text-orange-600 text-3xl">trending_up</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Table Section -->
+            <div class="bg-white rounded-lg shadow-sm">
+                <div class="p-4 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-lg font-semibold text-gray-800">รายละเอียดข้อมูล OT</h2>
+                        <div class="flex gap-2">
+                            <button id="export-ot-excel-btn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center">
+                                <span class="material-symbols-outlined mr-2">download</span>Excel
+                            </button>
+                            <button id="print-ot-report-btn" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 flex items-center">
+                                <span class="material-symbols-outlined mr-2">print</span>พิมพ์
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table id="ot-report-table" class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">วันที่</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">รหัสพนักงาน</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่อ-นามสกุล</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">แผนก</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">ชั่วโมง OT</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">หมายเหตุ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ot-report-tbody" class="bg-white divide-y divide-gray-200">
+                            <!-- Data will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="ot-no-data" class="p-8 text-center text-gray-500 hidden">
+                    <span class="material-symbols-outlined text-4xl mb-2">search_off</span>
+                    <p>ไม่พบข้อมูล OT ในช่วงเวลาที่เลือก</p>
                 </div>
             </div>
         </main>
@@ -566,6 +706,134 @@
                 <div class="text-center py-8 text-gray-500">
                     <span class="material-symbols-outlined text-4xl mb-2 block">description</span>
                     <p>เลือกวันที่และกดโหลดรายงานเพื่อดูข้อมูลการลา</p>
+                </div>
+            </div>
+        </main>
+        <footer class="bg-white shadow-t w-full flex-shrink-0 fixed bottom-0 left-0 right-0 z-50">
+            <nav class="flex justify-around border-t border-gray-200 py-2">
+                <a href="#" data-page="home" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]">
+                    <span class="material-symbols-outlined">home</span>
+                    <p class="text-xs font-medium">หน้าหลัก</p>
+                </a>
+                <a href="#" data-page="employee-list" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]">
+                    <span class="material-symbols-outlined">groups</span>
+                    <p class="text-xs font-medium">พนักงาน</p>
+                </a>
+                <a href="#" data-page="attendance" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]">
+                    <span class="material-symbols-outlined">checklist</span>
+                    <p class="text-xs font-medium">เช็คชื่อ</p>
+                </a>
+                <a href="#" id="more-menu-btn" class="nav-link flex flex-col items-center justify-end gap-1 text-[var(--primary-600)] font-semibold cursor-pointer">
+                    <span class="material-symbols-outlined">more_horiz</span>
+                    <p class="text-xs font-medium">เพิ่มเติม</p>
+                </a>
+            </nav>
+        </footer>
+    </div>
+
+    <!-- OT Report Container -->
+    <div id="ot-report-container" class="page-container hidden flex flex-col h-screen w-full bg-gray-50">
+        <header class="flex items-center justify-between p-4 shadow-sm w-full flex-shrink-0" style="background-color: var(--orange-200);">
+            <button id="back-to-reports-from-ot-btn" class="flex items-center justify-center p-2 rounded-full hover:bg-gray-100" title="กลับ">
+                <span class="material-symbols-outlined text-gray-700">arrow_back</span>
+            </button>
+            <h1 class="text-xl font-bold text-gray-800">รายงาน OT</h1>
+            <button class="logout-button flex items-center justify-center p-2 rounded-full hover:bg-gray-100" title="Logout">
+                <span class="material-symbols-outlined text-gray-700">logout</span>
+            </button>
+        </header>
+        <main class="flex-1 p-4 md:p-6 pb-20 overflow-y-auto">
+            <!-- Filter Section -->
+            <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-4">
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="material-symbols-outlined text-green-600">filter_alt</span>
+                    <h3 class="text-lg font-semibold text-gray-800">ตัวกรองข้อมูล</h3>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Date Range -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">วันที่เริ่มต้น</label>
+                        <input type="date" id="ot-start-date" class="w-full border border-gray-300 rounded-lg p-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">วันที่สิ้นสุด</label>
+                        <input type="date" id="ot-end-date" class="w-full border border-gray-300 rounded-lg p-2">
+                    </div>
+                    <!-- Department Filter -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">แผนก</label>
+                        <select id="ot-department-filter" class="w-full border border-gray-300 rounded-lg p-2">
+                            <option value="">ทุกแผนก</option>
+                            <option value="Warehouse Manager">Warehouse Manager</option>
+                            <option value="A&I">A&I</option>
+                            <option value="Production">Production</option>
+                            <option value="Quality">Quality</option>
+                            <option value="Maintenance">Maintenance</option>
+                        </select>
+                    </div>
+                    <!-- Employee Filter -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">พนักงาน</label>
+                        <select id="ot-employee-filter" class="w-full border border-gray-300 rounded-lg p-2">
+                            <option value="">ทุกคน</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-2 mt-4">
+                    <button id="load-ot-report-btn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2">
+                        <span class="material-symbols-outlined">search</span>
+                        โหลดรายงาน
+                    </button>
+                    <button id="export-ot-excel-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2">
+                        <span class="material-symbols-outlined">download</span>
+                        ส่งออก Excel
+                    </button>
+                    <button id="print-ot-report-btn" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 flex items-center gap-2">
+                        <span class="material-symbols-outlined">print</span>
+                        พิมพ์รายงาน
+                    </button>
+                </div>
+            </div>
+
+            <!-- OT Summary -->
+            <div id="ot-summary" class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-4 hidden">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="material-symbols-outlined text-green-600">summarize</span>
+                    <h3 class="text-lg font-semibold text-gray-800">สรุป OT</h3>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div class="text-center p-3 bg-green-50 rounded-lg">
+                        <div class="text-2xl font-bold text-green-600" id="total-ot-hours">0</div>
+                        <div class="text-sm text-gray-600">ชั่วโมง OT รวม</div>
+                    </div>
+                    <div class="text-center p-3 bg-blue-50 rounded-lg">
+                        <div class="text-2xl font-bold text-blue-600" id="total-ot-employees">0</div>
+                        <div class="text-sm text-gray-600">จำนวนพนักงาน</div>
+                    </div>
+                    <div class="text-center p-3 bg-yellow-50 rounded-lg">
+                        <div class="text-2xl font-bold text-yellow-600" id="avg-ot-hours">0</div>
+                        <div class="text-sm text-gray-600">เฉลี่ย OT/คน</div>
+                    </div>
+                    <div class="text-center p-3 bg-purple-50 rounded-lg">
+                        <div class="text-2xl font-bold text-purple-600" id="total-ot-days">0</div>
+                        <div class="text-sm text-gray-600">วัน OT รวม</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OT Report Table -->
+            <div id="ot-report-content" class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="p-4 border-b border-gray-200">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-green-600">schedule</span>
+                        <h3 class="text-lg font-semibold text-gray-800">รายละเอียด OT</h3>
+                    </div>
+                </div>
+                <div id="ot-table-container" class="overflow-x-auto">
+                    <div class="text-center py-8 text-gray-500">
+                        <span class="material-symbols-outlined text-4xl mb-2 block">schedule</span>
+                        <p>เลือกช่วงวันที่และกดโหลดรายงานเพื่อดูข้อมูล OT</p>
+                    </div>
                 </div>
             </div>
         </main>
@@ -886,6 +1154,13 @@
                             <p class="text-sm text-gray-500">ดูรายงานต่างๆ</p>
                         </div>
                     </a>
+                    <a href="#" data-page="ot-report" class="more-menu-item flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <span class="material-symbols-outlined text-[var(--primary-600)] mr-3">schedule</span>
+                        <div>
+                            <p class="font-medium text-gray-800">รายงาน OT</p>
+                            <p class="text-sm text-gray-500">สรุปชั่วโมงทำงานล่วงเวลาของพนักงาน</p>
+                        </div>
+                    </a>
                     <a href="#" data-page="settings" class="more-menu-item flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
                         <span class="material-symbols-outlined text-[var(--primary-600)] mr-3">settings</span>
                         <div>
@@ -928,8 +1203,20 @@
             }
         };
 
+        // Global configuration
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbwCjCZSLwe4n688I24ecEIDauCjlVNsrCqcPHyOf7Bv3wT5unbPwjgWgoADzuMcWP7Axg/exec';
+
+        const formatDate = (dateString) => {
+            if (!dateString) return '';
+            const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+            // Use UTC to prevent timezone shift issues
+            const date = new Date(dateString);
+            const userTimezoneOffset = date.getTimezoneOffset() * 60000;
+            return new Date(date.getTime() + userTimezoneOffset).toLocaleDateString('th-TH', options);
+        };
+
+
         document.addEventListener('DOMContentLoaded', () => {
-            const GAS_URL = 'https://script.google.com/macros/s/AKfycbwCjCZSLwe4n688I24ecEIDauCjlVNsrCqcPHyOf7Bv3wT5unbPwjgWgoADzuMcWP7Axg/exec';
 
             // State variables
             let isEditMode = false;
@@ -939,6 +1226,28 @@
             let currentEditingLeaveEmployeeCard = null;
             let currentPage = 'login'; // Track current page
             let calendarLeaveData = {};
+            
+            // Data Caching System
+            let dataCache = {
+                employees: null,
+                employeesTimestamp: null,
+                attendance: {},
+                otPlan: {},
+                shiftAssignments: {},
+                calendarData: null,
+                calendarTimestamp: null
+            };
+            const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
+            
+            // Page initialization tracking for lazy loading
+            const pageInitialized = {
+                'employee-list': false,
+                'ot-plan': false,
+                'attendance': false,
+                'calendar': false,
+                'shift-management': false,
+                'ot-report': false
+            };
             
             // Shift Management Variables
             let selectedShiftType = null; // 'morning' or 'night'
@@ -968,6 +1277,8 @@
                 calendar: document.getElementById('calendar-container'),
                 reports: document.getElementById('reports-container'), 
                 attendanceReport: document.getElementById('attendance-report-container'),
+                leaveReport: document.getElementById('leave-report-container'),
+                otReport: document.getElementById('ot-report-container'),
                 settings: document.getElementById('settings-container'), 
                 help: document.getElementById('help-container')
             };
@@ -1057,6 +1368,150 @@
                 photoBase64 = null;
                 photoUploadInput.value = '';
                 saveEmployeeButtonSpan.textContent = 'บันทึก';
+            };
+
+            // Data Caching Helper Functions
+            const isCacheValid = (timestamp) => {
+                return timestamp && (Date.now() - timestamp) < CACHE_DURATION;
+            };
+
+            // Debug function to clear cache and reload data
+            window.clearCacheAndReload = () => {
+                invalidateCache('all');
+                console.log('Cache cleared. Reloading current page data...');
+                if (currentPage === 'employee-list') {
+                    fetchAndDisplayEmployees();
+                } else if (currentPage === 'shift-management') {
+                    loadShiftEmployees();
+                }
+            };
+
+            // Fix Google Drive URL to avoid CORB errors
+            const fixGoogleDriveUrl = (url) => {
+                // Temporarily disabled - keeping original URLs that work
+                return url;
+                
+                /* Original conversion code - disabled for now
+                if (!url) return url;
+                
+                // Convert old googleusercontent.com URLs to drive.google.com format
+                const googleUserContentMatch = url.match(/https:\/\/lh3\.googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/);
+                if (googleUserContentMatch) {
+                    const fileId = googleUserContentMatch[1];
+                    return `https://drive.google.com/uc?export=view&id=${fileId}`;
+                }
+                
+                return url;
+                */
+            };
+
+            const getCachedEmployees = async () => {
+                if (dataCache.employees && isCacheValid(dataCache.employeesTimestamp)) {
+                    // Fix Google Drive URLs in cached data too
+                    const fixedData = dataCache.employees.map(emp => ({
+                        ...emp,
+                        photoUrl: fixGoogleDriveUrl(emp.photoUrl)
+                    }));
+                    return { status: 'success', data: fixedData, fromCache: true };
+                }
+                
+                try {
+                    const response = await fetch(`${GAS_URL}?action=getEmployees`);
+                    const result = await response.json();
+                    
+                    if (result.status === 'success') {
+                        // Fix Google Drive URLs to avoid CORB errors
+                        result.data = result.data.map(emp => ({
+                            ...emp,
+                            photoUrl: fixGoogleDriveUrl(emp.photoUrl)
+                        }));
+                        
+                        dataCache.employees = result.data;
+                        dataCache.employeesTimestamp = Date.now();
+                    }
+                    
+                    return result;
+                } catch (error) {
+                    console.error('Error fetching employees:', error);
+                    return { status: 'error', message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ' };
+                }
+            };
+
+            const getCachedAttendance = async (date) => {
+                const cacheKey = date;
+                if (dataCache.attendance[cacheKey] && isCacheValid(dataCache.attendance[cacheKey].timestamp)) {
+                    return { status: 'success', data: dataCache.attendance[cacheKey].data, fromCache: true };
+                }
+                
+                try {
+                    const response = await fetch(`${GAS_URL}?action=getAttendance&date=${date}`);
+                    const result = await response.json();
+                    
+                    if (result.status === 'success') {
+                        dataCache.attendance[cacheKey] = {
+                            data: result.data,
+                            timestamp: Date.now()
+                        };
+                    }
+                    
+                    return result;
+                } catch (error) {
+                    console.error('Error fetching attendance:', error);
+                    return { status: 'error', message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ' };
+                }
+            };
+
+            const getCachedOtPlan = async (date) => {
+                const cacheKey = date;
+                if (dataCache.otPlan[cacheKey] && isCacheValid(dataCache.otPlan[cacheKey].timestamp)) {
+                    return { status: 'success', data: dataCache.otPlan[cacheKey].data, fromCache: true };
+                }
+                
+                try {
+                    const response = await fetch(`${GAS_URL}?action=getOtPlan&date=${date}`);
+                    const result = await response.json();
+                    
+                    if (result.status === 'success') {
+                        dataCache.otPlan[cacheKey] = {
+                            data: result.data,
+                            timestamp: Date.now()
+                        };
+                    }
+                    
+                    return result;
+                } catch (error) {
+                    console.error('Error fetching OT plan:', error);
+                    return { status: 'error', message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ' };
+                }
+            };
+
+            const invalidateCache = (type = 'all') => {
+                if (type === 'all' || type === 'employees') {
+                    dataCache.employees = null;
+                    dataCache.employeesTimestamp = null;
+                    // Also invalidate related pages
+                    pageInitialized['employee-list'] = false;
+                    pageInitialized['shift-management'] = false;
+                }
+                if (type === 'all' || type === 'attendance') {
+                    dataCache.attendance = {};
+                    pageInitialized['attendance'] = false;
+                }
+                if (type === 'all' || type === 'otPlan') {
+                    dataCache.otPlan = {};
+                    pageInitialized['ot-plan'] = false;
+                }
+                if (type === 'all' || type === 'calendar') {
+                    dataCache.calendarData = null;
+                    dataCache.calendarTimestamp = null;
+                    pageInitialized['calendar'] = false;
+                }
+                if (type === 'all') {
+                    // Reset all page initialization flags
+                    Object.keys(pageInitialized).forEach(key => {
+                        pageInitialized[key] = false;
+                    });
+                }
             };
 
             const openEditEmployeeForm = (emp) => {
@@ -1210,10 +1665,12 @@
             const fetchAndDisplayEmployees = async () => {
                 employeeListMain.innerHTML = `<p class="text-center text-gray-500 mt-8">กำลังโหลดข้อมูล...</p>`;
                 try {
-                    const response = await fetch(`${GAS_URL}?action=getEmployees`);
-                    const result = await response.json();
+                    const result = await getCachedEmployees();
                     if (result.status === 'success') {
                         renderEmployeeList(result.data);
+                        if (result.fromCache) {
+                            console.log('Employee data loaded from cache');
+                        }
                     } else {
                         showMessage(result.message, true);
                         employeeListMain.innerHTML = `<p class="text-center text-red-500 mt-8">ไม่สามารถโหลดข้อมูลได้</p>`;
@@ -1251,15 +1708,18 @@
                 attendanceTabs.innerHTML = `<p class="p-4 text-gray-500">กำลังโหลด...</p>`;
                 attendanceTabContent.innerHTML = '';
                 try {
-                    const empResponse = await fetch(`${GAS_URL}?action=getEmployees`);
-                    const empResult = await empResponse.json();
-
-                    const attendanceResponse = await fetch(`${GAS_URL}?action=getAttendance&date=${date}`);
-                    const attendanceResult = await attendanceResponse.json();
+                    const [empResult, attendanceResult] = await Promise.all([
+                        getCachedEmployees(),
+                        getCachedAttendance(date)
+                    ]);
 
                     if (empResult.status === 'success') {
                         const existingRecords = attendanceResult.status === 'success' ? attendanceResult.data : [];
                         renderAttendanceList(empResult.data, existingRecords);
+                        
+                        if (empResult.fromCache || attendanceResult.fromCache) {
+                            console.log('Attendance data loaded from cache');
+                        }
                     } else {
                         showMessage(empResult.message, true);
                         attendanceTabs.innerHTML = `<p class="p-4 text-red-500">ไม่สามารถโหลดข้อมูลพนักงานได้</p>`;
@@ -1766,20 +2226,20 @@
                  otPlanTabs.innerHTML = `<p class="p-4 text-gray-500">กำลังโหลด...</p>`;
                  otPlanTabContent.innerHTML = '';
                 try {
-                    const [empResponse, planResponse, attendanceResponse] = await Promise.all([
-                        fetch(`${GAS_URL}?action=getEmployees`),
-                        fetch(`${GAS_URL}?action=getOtPlan&date=${date}`),
-                        fetch(`${GAS_URL}?action=getAttendance&date=${date}`)
+                    const [empResult, planResult, attendanceResult] = await Promise.all([
+                        getCachedEmployees(),
+                        getCachedOtPlan(date),
+                        getCachedAttendance(date)
                     ]);
-
-                    const empResult = await empResponse.json();
-                    const planResult = await planResponse.json();
-                    const attendanceResult = await attendanceResponse.json();
 
                     if (empResult.status === 'success') {
                         const existingPlan = planResult.status === 'success' ? planResult.data : [];
                         const existingAttendance = attendanceResult.status === 'success' ? attendanceResult.data : [];
                         renderOtPlanList(empResult.data, existingPlan, existingAttendance);
+                        
+                        if (empResult.fromCache || planResult.fromCache || attendanceResult.fromCache) {
+                            console.log('OT Plan data loaded from cache');
+                        }
                     } else {
                         showMessage(empResult.message, true);
                         otPlanTabs.innerHTML = `<p class="p-4 text-red-500">ไม่สามารถโหลดข้อมูลพนักงานได้</p>`;
@@ -2194,6 +2654,7 @@
                     'ot-plan': ['otPlan'], 'attendance': ['attendance'],
                     'calendar': ['calendar'], 'reports': ['reports'], 
                     'attendance-report': ['attendanceReport'],
+                    'ot-report': ['otReport'],
                     'settings': ['settings'], 'help': ['help'],
                     'shift-management': ['shiftManagement'],
                     'shift-schedule': ['shiftSchedule']
@@ -2220,11 +2681,31 @@
                     }
                 });
                 
-                if (show === 'employee-list') { fetchAndDisplayEmployees(); }
-                if (show === 'ot-plan') { initializeOtPlanPage(); }
-                if (show === 'attendance') { initializeAttendancePage(); }
-                if (show === 'calendar') { initializeCalendarPage(); }
-                if (show === 'shift-management') { loadShiftEmployees(); }
+                // Lazy loading - only load data if page hasn't been initialized
+                if (show === 'employee-list' && !pageInitialized['employee-list']) { 
+                    fetchAndDisplayEmployees(); 
+                    pageInitialized['employee-list'] = true;
+                }
+                if (show === 'ot-plan' && !pageInitialized['ot-plan']) { 
+                    initializeOtPlanPage(); 
+                    pageInitialized['ot-plan'] = true;
+                }
+                if (show === 'ot-report' && !pageInitialized['ot-report']) { 
+                    initializeOtReportPage(); 
+                    pageInitialized['ot-report'] = true;
+                }
+                if (show === 'attendance' && !pageInitialized['attendance']) { 
+                    initializeAttendancePage(); 
+                    pageInitialized['attendance'] = true;
+                }
+                if (show === 'calendar' && !pageInitialized['calendar']) { 
+                    initializeCalendarPage(); 
+                    pageInitialized['calendar'] = true;
+                }
+                if (show === 'shift-management' && !pageInitialized['shift-management']) { 
+                    loadShiftEmployees(); 
+                    pageInitialized['shift-management'] = true;
+                }
             };
             
             // Make toggleView globally accessible
@@ -2380,14 +2861,14 @@
             // *** SIMPLIFIED: Improved logic for fetching and parsing employee data ***
             const loadShiftEmployees = async () => {
                 try {
-                    const response = await fetch(`${GAS_URL}?action=getEmployees`);
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    const result = await response.json();
+                    const result = await getCachedEmployees();
                     
                     if (result.status === 'success' && Array.isArray(result.data)) {
                         shiftEmployeeData = result.data;
+                        
+                        if (result.fromCache) {
+                            console.log('Shift employees data loaded from cache');
+                        }
                     } else {
                          throw new Error('Invalid data format from API.');
                     }
@@ -2750,6 +3231,13 @@
                 initializeAttendanceReport();
             });
             document.getElementById('back-to-reports-btn').addEventListener('click', () => toggleView('reports'));
+            
+            // OT Report Event Listeners
+            document.getElementById('ot-report-btn').addEventListener('click', () => {
+                toggleView('ot-report');
+                initializeOtReportPage();
+            });
+            document.getElementById('back-to-reports-from-ot-btn').addEventListener('click', () => toggleView('reports'));
             document.getElementById('load-report-btn').addEventListener('click', loadAttendanceReport);
             document.querySelectorAll('.nav-link:not(#more-menu-btn)').forEach(link => { link.addEventListener('click', (e) => { e.preventDefault(); toggleView(link.dataset.page); }); });
             document.querySelectorAll('.logout-button').forEach(button => { button.addEventListener('click', () => { toggleView('login'); showMessage('คุณออกจากระบบเรียบร้อยแล้ว'); }); });
@@ -3100,9 +3588,354 @@
                 updateShiftInfo();
             }
         });
+
+        // --- OT Report Functions ---
+        const initializeOtReportPage = async () => {
+            // Set default date range (current month)
+            const today = new Date();
+            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+            const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+            
+            document.getElementById('ot-start-date').value = firstDay.toISOString().split('T')[0];
+            document.getElementById('ot-end-date').value = lastDay.toISOString().split('T')[0];
+            
+            // Load departments and employees for filters
+            await loadOtReportFilters();
+        };
+
+        const loadOtReportFilters = async () => {
+            try {
+                // Load employees for department and employee filters
+                const response = await fetch(`${GAS_URL}?action=getEmployees`);
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    const employees = result.data;
+                    
+                    // Populate department filter
+                    const deptFilter = document.getElementById('ot-department-filter');
+                    const empFilter = document.getElementById('ot-employee-filter');
+                    
+                    // Get unique departments
+                    const departments = [...new Set(employees.map(emp => emp.department).filter(dept => dept))];
+                    
+                    deptFilter.innerHTML = '<option value="">ทุกแผนก</option>';
+                    departments.forEach(dept => {
+                        deptFilter.innerHTML += `<option value="${dept}">${dept}</option>`;
+                    });
+                    
+                    // Populate employee filter
+                    empFilter.innerHTML = '<option value="">พนักงานทั้งหมด</option>';
+                    employees.forEach(emp => {
+                        empFilter.innerHTML += `<option value="${emp.employeeId}">${emp.fullName} (${emp.employeeId})</option>`;
+                    });
+                    
+                    // Add department filter change event
+                    deptFilter.addEventListener('change', () => {
+                        const selectedDept = deptFilter.value;
+                        empFilter.innerHTML = '<option value="">พนักงานทั้งหมด</option>';
+                        
+                        const filteredEmployees = selectedDept ? 
+                            employees.filter(emp => emp.department === selectedDept) : 
+                            employees;
+                            
+                        filteredEmployees.forEach(emp => {
+                            empFilter.innerHTML += `<option value="${emp.employeeId}">${emp.fullName} (${emp.employeeId})</option>`;
+                        });
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading OT report filters:', error);
+                showMessage('เกิดข้อผิดพลาดในการโหลดตัวกรองข้อมูล', true);
+            }
+        };
+
+        const loadOtReport = async () => {
+            const startDate = document.getElementById('ot-start-date').value;
+            const endDate = document.getElementById('ot-end-date').value;
+            const department = document.getElementById('ot-department-filter').value;
+            const employeeId = document.getElementById('ot-employee-filter').value;
+            
+            if (!startDate || !endDate) {
+                showMessage('กรุณาเลือกช่วงวันที่', true);
+                return;
+            }
+            
+            const loadBtn = document.getElementById('load-ot-report-btn');
+            const originalText = loadBtn.textContent;
+            loadBtn.disabled = true;
+            loadBtn.textContent = 'กำลังโหลด...';
+            
+            try {
+                const params = new URLSearchParams({
+                    action: 'getOtReport',
+                    startDate: startDate,
+                    endDate: endDate
+                });
+                
+                if (department) params.append('department', department);
+                if (employeeId) params.append('employeeId', employeeId);
+                
+                const response = await fetch(`${GAS_URL}?${params}`);
+                const result = await response.json();
+                
+                console.log('OT Report API Response:', result);
+                console.log('OT Report Data:', result.data);
+                
+                if (result.status === 'success') {
+                    renderOtReport(result.data);
+                    showOtSummary(result.data);
+                } else {
+                    showMessage(result.message, true);
+                    renderOtReport([]); // Clear table on error
+                    showOtSummary([]);
+                }
+            } catch (error) {
+                console.error('Error loading OT report:', error);
+                showMessage('เกิดข้อผิดพลาดในการโหลดรายงาน OT', true);
+            } finally {
+                loadBtn.disabled = false;
+                loadBtn.innerHTML = `<span class="material-symbols-outlined mr-2">search</span>ค้นหา`;
+            }
+        };
+
+        const renderOtReport = (data) => {
+            const tableContainer = document.getElementById('ot-table-container');
+
+            if (!data || data.length === 0) {
+                tableContainer.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <span class="material-symbols-outlined text-4xl mb-2">search_off</span>
+                        <p>ไม่พบข้อมูล OT ในช่วงเวลาที่เลือก</p>
+                    </div>`;
+                return;
+            }
+            
+            let tableHTML = `
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">วันที่</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">รหัสพนักงาน</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่อ-นามสกุล</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">แผนก</th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">ชั่วโมง OT</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">หมายเหตุ</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+            `;
+
+            data.forEach(record => {
+                const startTime = record.startTime || '';
+                const endTime = record.endTime || '';
+                let otHours = 0;
+
+                console.log('Processing record:', {
+                    employeeId: record.employeeId,
+                    employeeName: record.employeeName,
+                    startTime: startTime,
+                    endTime: endTime,
+                    otHours: record.otHours,
+                    rawRecord: record
+                });
+
+                // Use pre-calculated OT hours from sheet if available
+                if (record.otHours !== undefined && record.otHours !== null && record.otHours !== '') {
+                    otHours = parseFloat(record.otHours) || 0;
+                    console.log('Using pre-calculated OT hours:', otHours);
+                } else if (startTime && endTime) {
+                    // Fallback to calculation if OT hours not available
+                    const [startHour, startMin] = startTime.split(':').map(Number);
+                    const [endHour, endMin] = endTime.split(':').map(Number);
+                    let startMinutes = startHour * 60 + startMin;
+                    let endMinutes = endHour * 60 + endMin;
+
+                    console.log('Time calculation (fallback):', {
+                        startTime, endTime,
+                        startHour, startMin, endHour, endMin,
+                        startMinutes, endMinutes
+                    });
+
+                    if (endMinutes < startMinutes) { // Handle overnight OT
+                        endMinutes += 24 * 60;
+                        console.log('Overnight OT detected, adjusted endMinutes:', endMinutes);
+                    }
+                    const diffMinutes = endMinutes - startMinutes;
+                    if (diffMinutes > 0) {
+                       otHours = diffMinutes / 60;
+                    }
+                    
+                    console.log('Final calculation:', {
+                        diffMinutes, otHours
+                    });
+                } else {
+                    console.log('No OT hours data and missing time data:', { startTime, endTime, otHours: record.otHours });
+                }
+                
+                tableHTML += `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3 text-sm text-gray-500">${formatDate(record.date)}</td>
+                        <td class="px-4 py-3 text-sm text-gray-500">${record.employeeId || ''}</td>
+                        <td class="px-4 py-3 text-sm font-medium text-gray-900">${record.employeeName || ''}</td>
+                        <td class="px-4 py-3 text-sm text-gray-500">${record.department || ''}</td>
+                        <td class="px-4 py-3 text-sm text-gray-900 font-semibold text-center">${otHours.toFixed(1)}</td>
+                        <td class="px-4 py-3 text-sm text-gray-500">${record.notes || ''}</td>
+                    </tr>
+                `;
+            });
+            
+            tableHTML += `</tbody></table>`;
+            tableContainer.innerHTML = tableHTML;
+        };
+
+        const showOtSummary = (data) => {
+            const summarySection = document.getElementById('ot-summary');
+            const totalOtHoursEl = document.getElementById('total-ot-hours');
+            const totalOtEmployeesEl = document.getElementById('total-ot-employees');
+            const avgOtHoursEl = document.getElementById('avg-ot-hours');
+            const totalOtDaysEl = document.getElementById('total-ot-days');
+
+            let totalHours = 0;
+            const employeeSet = new Set();
+            const otDaysSet = new Set();
+            
+            if (data && data.length > 0) {
+                 data.forEach(record => {
+                    let hours = 0;
+                    
+                    // Use pre-calculated OT hours from sheet if available
+                    if (record.otHours !== undefined && record.otHours !== null && record.otHours !== '') {
+                        hours = parseFloat(record.otHours) || 0;
+                    } else {
+                        // Fallback to calculation
+                        const startTime = record.startTime || '';
+                        const endTime = record.endTime || '';
+                        if (startTime && endTime) {
+                            const [startHour, startMin] = startTime.split(':').map(Number);
+                            const [endHour, endMin] = endTime.split(':').map(Number);
+                            let startMinutes = startHour * 60 + startMin;
+                            let endMinutes = endHour * 60 + endMin;
+
+                            if (endMinutes < startMinutes) {
+                                endMinutes += 24 * 60;
+                            }
+                            const diffMinutes = endMinutes - startMinutes;
+                            if (diffMinutes > 0) {
+                               hours = diffMinutes / 60;
+                            }
+                        }
+                    }
+                    
+                    if (hours > 0) {
+                        totalHours += hours;
+                        employeeSet.add(record.employeeId);
+                        otDaysSet.add(record.date);
+                    }
+                });
+            }
+
+            const employeeCount = employeeSet.size;
+            if (employeeCount > 0) {
+                totalOtHoursEl.textContent = totalHours.toFixed(1);
+                totalOtEmployeesEl.textContent = employeeCount;
+                avgOtHoursEl.textContent = (totalHours / employeeCount).toFixed(1);
+                totalOtDaysEl.textContent = otDaysSet.size;
+                summarySection.classList.remove('hidden');
+            } else {
+                summarySection.classList.add('hidden');
+            }
+        };
+
+        const exportOtToExcel = () => {
+            const table = document.querySelector('#ot-table-container table');
+            if (!table) {
+                showMessage('ไม่มีข้อมูลสำหรับส่งออก', true);
+                return;
+            }
+            
+            const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim());
+            let csvContent = headers.join(',') + '\n';
+            
+            Array.from(table.querySelectorAll('tbody tr')).forEach(row => {
+                const cells = Array.from(row.children).map(cell => `"${cell.textContent.trim()}"`);
+                csvContent += cells.join(',') + '\n';
+            });
+            
+            const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `OT_Report_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showMessage('ส่งออกข้อมูลเป็นไฟล์ Excel (CSV) เรียบร้อยแล้ว');
+        };
+
+        const printOtReport = () => {
+            const table = document.querySelector('#ot-table-container table');
+            if (!table) {
+                showMessage('ไม่มีข้อมูลสำหรับพิมพ์', true);
+                return;
+            }
+            
+            const printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write('<html><head><title>รายงาน OT</title>');
+            printWindow.document.write('<style>body { font-family: "Noto Sans Thai", sans-serif; } table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid #ddd; padding: 8px; } th { background-color: #f2f2f2; } </style>');
+            printWindow.document.write('</head><body>');
+            printWindow.document.write(`<h2>รายงาน OT (${document.getElementById('ot-start-date').value} - ${document.getElementById('ot-end-date').value})</h2>`);
+            printWindow.document.write(table.outerHTML);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+        };
+
+        const clearOtFilters = () => {
+            const today = new Date();
+            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+            const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+            
+            document.getElementById('ot-start-date').value = firstDay.toISOString().split('T')[0];
+            document.getElementById('ot-end-date').value = lastDay.toISOString().split('T')[0];
+            document.getElementById('ot-department-filter').value = '';
+            document.getElementById('ot-employee-id-filter').value = '';
+            
+            // Clear table and summary
+            const tableBody = document.getElementById('ot-report-tbody');
+            if (tableBody) {
+                tableBody.innerHTML = '';
+            }
+            document.getElementById('ot-summary-section').classList.add('hidden');
+            document.getElementById('ot-no-data').classList.add('hidden');
+        };
+
+        // Event listeners for OT Report
+        document.addEventListener('DOMContentLoaded', () => {
+            const loadOtReportBtn = document.getElementById('load-ot-report-btn');
+            const exportOtExcelBtn = document.getElementById('export-ot-excel-btn');
+            const printOtReportBtn = document.getElementById('print-ot-report-btn');
+            
+            if (loadOtReportBtn) {
+                loadOtReportBtn.addEventListener('click', loadOtReport);
+            }
+            
+            if (exportOtExcelBtn) {
+                exportOtExcelBtn.addEventListener('click', exportOtToExcel);
+            }
+            
+            if (printOtReportBtn) {
+                printOtReportBtn.addEventListener('click', printOtReport);
+            }
+        });
         
 
     </script>
 
 </body>
 </html>
+
+

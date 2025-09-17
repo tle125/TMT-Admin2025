@@ -48,6 +48,11 @@ function doGet(e) {
         if(!sheet) return createJsonResponse({ success: true, assignments: [] });
         return handleGetShiftAssignments(sheet, e.parameter.date, e.parameter.shiftType);
       }
+      case 'getOtReport': {
+        const sheet = ss.getSheetByName(OT_PLAN_SHEET_NAME);
+        if (!sheet) return createJsonResponse({ status: 'error', message: 'Sheet "Plan ot" not found.' });
+        return handleGetOtReport(sheet, e.parameter.startDate, e.parameter.endDate, e.parameter.department, e.parameter.employeeId);
+      }
       default:
         return createJsonResponse({ status: 'error', message: 'Invalid GET action.' });
     }
@@ -487,6 +492,26 @@ function handleSaveOtPlan(sheet, data) {
         .filter(plan => (plan.startTime && plan.endTime) || plan.notes) // Only add rows that have OT or a leave note
         .map(plan => {
             const emp = employeeMap[plan.employeeId] || { fullName: 'Unknown', department: department };
+            
+            // Calculate OT hours automatically
+            let otHours = 0;
+            if (plan.startTime && plan.endTime) {
+                const [startHour, startMin] = plan.startTime.split(':').map(Number);
+                const [endHour, endMin] = plan.endTime.split(':').map(Number);
+                let startMinutes = startHour * 60 + startMin;
+                let endMinutes = endHour * 60 + endMin;
+                
+                // Handle overnight OT
+                if (endMinutes < startMinutes) {
+                    endMinutes += 24 * 60;
+                }
+                
+                const diffMinutes = endMinutes - startMinutes;
+                if (diffMinutes > 0) {
+                    otHours = diffMinutes / 60;
+                }
+            }
+            
             return [
                 date,
                 plan.employeeId,
@@ -494,7 +519,8 @@ function handleSaveOtPlan(sheet, data) {
                 emp.department,
                 plan.startTime,
                 plan.endTime,
-                plan.notes
+                plan.notes,
+                otHours // Add OT hours to column H
             ];
     });
 
@@ -503,7 +529,7 @@ function handleSaveOtPlan(sheet, data) {
     }
     
     if (headers.length === 0 || headers.join('').trim() === '') {
-        sheet.getRange(1, 1, 1, 7).setValues([['วันที่',	'รหัสพนักงาน',	'ชื่อ-สกุล',	'ส่วนงาน',	'เวลาเริ่ม',	'เวลาสิ้นสุด',	'หมายเหตุ / งาน']]);
+        sheet.getRange(1, 1, 1, 8).setValues([['วันที่',	'รหัสพนักงาน',	'ชื่อ-สกุล',	'ส่วนงาน',	'เวลาเริ่ม',	'เวลาสิ้นสุด',	'หมายเหตุ / งาน',	'ชั่วโมง OT']]);
     }
 
     return createJsonResponse({ status: 'success', message: 'OT Plan saved successfully.' });
@@ -756,7 +782,94 @@ function saveImageToDrive(base64Data, fileName, mimeType) {
     const file = folder.createFile(blob);
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
     const fileId = file.getId();
-    return `https://lh3.googleusercontent.com/d/${fileId}`;
+    return `https://drive.google.com/uc?export=view&id=${fileId}`;
+}
+
+function handleGetOtReport(sheet, startDate, endDate, department, employeeId) {
+    if (!startDate || !endDate) {
+        return createJsonResponse({ status: 'error', message: 'Start date and end date parameters are required.' });
+    }
+    
+    const data = sheet.getDataRange().getValues();
+    if (data.length < 2) {
+        return createJsonResponse({ status: 'success', data: [] });
+    }
+
+    const headers = data[0].map(h => h.toString().trim());
+    console.log('Headers found:', headers);
+    
+    const dateCol = headers.indexOf('วันที่');
+    const empIdCol = headers.indexOf('รหัสพนักงาน');
+    const nameCol = headers.indexOf('ชื่อ-สกุล');
+    const deptCol = headers.indexOf('ส่วนงาน');
+    
+    // Try multiple variations for start time column
+    let startTimeCol = headers.indexOf('เวลาเริ่ม');
+    if (startTimeCol === -1) startTimeCol = headers.indexOf('เวลา เริ่ม');
+    if (startTimeCol === -1) startTimeCol = headers.indexOf('เวลาเริ่มต้น');
+    if (startTimeCol === -1) startTimeCol = headers.indexOf('เวลาเข้า');
+    
+    // Try multiple variations for end time column  
+    let endTimeCol = headers.indexOf('เวลาสิ้นสุด');
+    if (endTimeCol === -1) endTimeCol = headers.indexOf('เวลา สิ้นสุด');
+    if (endTimeCol === -1) endTimeCol = headers.indexOf('เวลาออก');
+    if (endTimeCol === -1) endTimeCol = headers.indexOf('เวลาเลิก');
+    
+    // Try to find OT hours column
+    let otHoursCol = headers.indexOf('ชั่วโมง OT');
+    if (otHoursCol === -1) otHoursCol = headers.indexOf('ชั่วโมงOT');
+    if (otHoursCol === -1) otHoursCol = headers.indexOf('OT Hours');
+    if (otHoursCol === -1) otHoursCol = headers.indexOf('ชั่วโมง');
+    
+    // Try different variations for notes column
+    let notesCol = headers.indexOf('หมายเหตุ / งาน');
+    if (notesCol === -1) notesCol = headers.indexOf('หมายเหตุ/งาน');
+    if (notesCol === -1) notesCol = headers.indexOf('หมายเหตุ เวลา / งาน');
+    if (notesCol === -1) notesCol = headers.indexOf('หมายเหตุเวลา/งาน');
+    
+    console.log('Column indices:', {
+        dateCol, empIdCol, nameCol, deptCol, startTimeCol, endTimeCol, otHoursCol, notesCol
+    });
+    
+    console.log('Start time column found:', startTimeCol > -1 ? headers[startTimeCol] : 'NOT FOUND');
+    console.log('End time column found:', endTimeCol > -1 ? headers[endTimeCol] : 'NOT FOUND');
+    console.log('OT hours column found:', otHoursCol > -1 ? headers[otHoursCol] : 'NOT FOUND');
+
+    if (dateCol === -1 || empIdCol === -1) {
+        return createJsonResponse({ status: 'error', message: 'Required columns (วันที่, รหัสพนักงาน) not found in Plan ot sheet.' });
+    }
+
+    const startDateObj = new Date(startDate);
+    const endDateObj = new Date(endDate);
+    
+    const records = data.slice(1)
+        .filter(row => {
+            if (!row[dateCol]) return false;
+            const rowDate = new Date(row[dateCol]);
+            
+            // Date range filter
+            if (rowDate < startDateObj || rowDate > endDateObj) return false;
+            
+            // Department filter
+            if (department && deptCol > -1 && row[deptCol] !== department) return false;
+            
+            // Employee ID filter
+            if (employeeId && row[empIdCol] !== employeeId) return false;
+            
+            return true;
+        })
+        .map(row => ({
+            date: row[dateCol],
+            employeeId: row[empIdCol],
+            employeeName: nameCol > -1 ? row[nameCol] : '',
+            department: deptCol > -1 ? row[deptCol] : '',
+            startTime: startTimeCol > -1 ? row[startTimeCol] : '',
+            endTime: endTimeCol > -1 ? row[endTimeCol] : '',
+            otHours: otHoursCol > -1 ? row[otHoursCol] : '',
+            notes: notesCol > -1 ? row[notesCol] : ''
+        }));
+
+    return createJsonResponse({ status: 'success', data: records });
 }
 
 function createJsonResponse(data) {
