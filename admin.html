@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบลงทะเบียนและเข้าสู่ระบบ</title>
+    <title>ระบบจัดการาคลังสินค้า WH1</title>
     <link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
     <!-- Google Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -171,7 +171,7 @@
         <!-- Login Form -->
         <div id="login-container">
             <div class="text-center mb-10">
-                <h1 class="text-4xl font-bold text-gray-800 tracking-tighter">Welcome Back!</h1>
+                <h1 class="text-4xl font-bold text-gray-800 tracking-tighter">เข้าสู่ระบบ Admin WH 1</h1>
                 <p class="text-gray-500 mt-2">Please login to your account.</p>
             </div>
             <form id="login-form" class="space-y-6">
@@ -186,14 +186,14 @@
     <!-- Home Page -->
     <div id="home-container" class="page-container hidden flex flex-col h-screen w-full bg-gray-50">
         <header class="flex items-center justify-between p-4 shadow-sm w-full flex-shrink-0" style="background-color: var(--orange-200);"><div class="w-10"></div><h1 class="text-xl font-bold text-gray-800">หน้าหลัก</h1><button class="logout-button flex items-center justify-center p-2 rounded-full hover:bg-gray-100" title="Logout"><span class="material-symbols-outlined text-gray-700">logout</span></button></header>
-        <main class="flex-1 p-6 pb-20 flex justify-center items-center"><h2 class="text-2xl text-gray-600">ยินดีต้อนรับสู่หน้าหลัก</h2></main>
+        <main class="flex-1 p-6 pb-28 flex justify-center items-center"><h2 class="text-2xl text-gray-600">ยินดีต้อนรับสู่หน้าหลัก</h2></main>
         <footer class="bg-white shadow-t w-full flex-shrink-0 fixed bottom-0 left-0 right-0 z-50"><nav class="flex justify-around border-t border-gray-200 py-2"><a href="#" data-page="home" class="nav-link flex flex-col items-center justify-end gap-1 text-[var(--primary-600)] font-semibold"><span class="material-symbols-outlined">home</span><p class="text-xs font-medium">หน้าหลัก</p></a><a href="#" data-page="employee-list" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]"><span class="material-symbols-outlined">groups</span><p class="text-xs font-medium">พนักงาน</p></a><a href="#" data-page="attendance" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]"><span class="material-symbols-outlined">checklist</span><p class="text-xs font-medium">เช็คชื่อ</p></a><a href="#" id="more-menu-btn" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)] cursor-pointer"><span class="material-symbols-outlined">more_horiz</span><p class="text-xs font-medium">เพิ่มเติม</p></a></nav></footer>
     </div>
     
     <!-- Employee List Page -->
     <div id="employee-list-container" class="page-container hidden flex flex-col h-screen w-full bg-gray-50">
         <header class="flex items-center justify-between p-4 shadow-sm w-full flex-shrink-0" style="background-color: var(--orange-200);"><div class="w-10"></div><h1 class="text-xl font-bold text-gray-800">รายชื่อพนักงาน wh1</h1><button class="logout-button flex items-center justify-center p-2 rounded-full hover:bg-gray-100" title="Logout"><span class="material-symbols-outlined text-gray-700">logout</span></button></header>
-        <main id="employee-list-main" class="flex-1 p-4 md:p-6 pb-20 overflow-y-auto"></main>
+        <main id="employee-list-main" class="flex-1 p-4 md:p-6 pb-28 overflow-y-auto"></main>
          <button id="add-employee-fab" class="fixed bottom-20 right-6 bg-[var(--primary-600)] text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-[var(--primary-700)] transition-transform transform hover:scale-110"><span class="material-symbols-outlined">add</span></button>
         <footer class="bg-white shadow-t w-full flex-shrink-0 fixed bottom-0 left-0 right-0 z-50"><nav class="flex justify-around border-t border-gray-200 py-2"><a href="#" data-page="home" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]"><span class="material-symbols-outlined">home</span><p class="text-xs font-medium">หน้าหลัก</p></a><a href="#" data-page="employee-list" class="nav-link flex flex-col items-center justify-end gap-1 text-[var(--primary-600)] font-semibold"><span class="material-symbols-outlined">groups</span><p class="text-xs font-medium">พนักงาน</p></a><a href="#" data-page="attendance" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]"><span class="material-symbols-outlined">checklist</span><p class="text-xs font-medium">เช็คชื่อ</p></a><a href="#" id="more-menu-btn" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)] cursor-pointer"><span class="material-symbols-outlined">more_horiz</span><p class="text-xs font-medium">เพิ่มเติม</p></a></nav></footer>
     </div>
@@ -201,7 +201,7 @@
     <!-- Add/Edit Employee Page -->
     <div id="add-employee-container" class="page-container hidden flex flex-col h-screen w-full bg-gray-50">
         <header class="flex items-center justify-start p-4 shadow-sm w-full flex-shrink-0" style="background-color: var(--orange-200);"><button id="back-to-list-button" class="flex items-center justify-center p-2 rounded-full hover:bg-gray-100"><span class="material-symbols-outlined text-gray-700">arrow_back_ios_new</span></button><h1 id="employee-form-title" class="text-xl font-bold text-gray-800 flex-1 text-center">เพิ่มข้อมูลพนักงาน</h1><div class="w-10"></div></header>
-        <main class="flex-1 p-6 pb-20 space-y-6 overflow-y-auto">
+        <main class="flex-1 p-6 pb-28 space-y-6 overflow-y-auto">
             <div class="flex flex-col items-center space-y-4">
                 <div class="relative w-32 h-32"><img alt="Employee Photo" id="photo-preview" class="w-full h-full rounded-full object-cover" src="https://placehold.co/128x128/EFEFEF/AAAAAA?text=Photo"><label class="absolute bottom-0 right-0 flex items-center justify-center w-10 h-10 bg-[var(--primary-600)] rounded-full cursor-pointer hover:bg-[var(--primary-700)]" for="photo-upload"><span class="material-symbols-outlined text-white">photo_camera</span><input class="hidden" id="photo-upload" type="file" accept="image/*"></label></div>
                 <p class="text-gray-500 text-sm">อัปโหลดรูปถ่ายพนักงาน</p>
@@ -233,7 +233,7 @@
                 <span class="material-symbols-outlined text-gray-700">logout</span>
             </button>
         </header>
-        <main id="shift-management-main" class="flex-1 p-4 md:p-6 pb-20 flex flex-col">
+        <main id="shift-management-main" class="flex-1 p-4 md:p-6 pb-28 flex flex-col">
             <!-- Shift Type Selection -->
             <div class="bg-white p-4 rounded-lg shadow-sm mb-4 flex-shrink-0">
                 <h2 class="text-lg font-semibold text-gray-800 mb-4">เลือกประเภทกะ</h2>
@@ -354,7 +354,7 @@
                 <span class="material-symbols-outlined text-gray-700">logout</span>
             </button>
         </header>
-        <main id="shift-schedule-main" class="flex-1 p-4 md:p-6 pb-20 flex flex-col">
+        <main id="shift-schedule-main" class="flex-1 p-4 md:p-6 pb-28 flex flex-col">
             <!-- Date Selection -->
             <div class="bg-white p-4 rounded-lg shadow-sm mb-4 flex-shrink-0">
                 <div class="flex items-center justify-between">
@@ -411,7 +411,7 @@
     <!-- Attendance Page -->
     <div id="attendance-container" class="page-container hidden flex flex-col h-screen w-full bg-gray-50">
         <header class="flex items-center justify-between p-4 shadow-sm w-full flex-shrink-0" style="background-color: var(--orange-200);"><div class="w-10"></div><h1 class="text-xl font-bold text-gray-800">เช็คชื่อพนักงาน</h1><button class="logout-button flex items-center justify-center p-2 rounded-full hover:bg-gray-100" title="Logout"><span class="material-symbols-outlined text-gray-700">logout</span></button></header>
-        <main id="attendance-main" class="flex-1 p-4 md:p-6 pb-20 flex flex-col">
+        <main id="attendance-main" class="flex-1 p-4 md:p-6 pb-28 flex flex-col">
             <div class="bg-white p-4 rounded-lg shadow-sm mb-4 flex-shrink-0">
                 <div class="flex items-center justify-between">
                      <h2 class="text-lg font-semibold text-gray-800">เลือกวันที่</h2>
@@ -419,7 +419,7 @@
                 </div>
             </div>
             <div id="attendance-tabs" class="flex border-b border-gray-200 bg-white rounded-t-lg overflow-x-auto flex-shrink-0"></div>
-            <div id="attendance-tab-content" class="overflow-y-auto flex-grow"></div>
+            <div id="attendance-tab-content" class="overflow-y-auto flex-grow pb-28"></div>
         </main>
         <footer class="bg-white shadow-t w-full flex-shrink-0 fixed bottom-0 left-0 right-0 z-50"><nav class="flex justify-around border-t border-gray-200 py-2"><a href="#" data-page="home" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]"><span class="material-symbols-outlined">home</span><p class="text-xs font-medium">หน้าหลัก</p></a><a href="#" data-page="employee-list" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]"><span class="material-symbols-outlined">groups</span><p class="text-xs font-medium">พนักงาน</p></a><a href="#" data-page="attendance" class="nav-link flex flex-col items-center justify-end gap-1 text-[var(--primary-600)] font-semibold"><span class="material-symbols-outlined">checklist</span><p class="text-xs font-medium">เช็คชื่อ</p></a><a href="#" id="more-menu-btn" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)] cursor-pointer"><span class="material-symbols-outlined">more_horiz</span><p class="text-xs font-medium">เพิ่มเติม</p></a></nav></footer>
     </div>
@@ -427,7 +427,7 @@
     <!-- OT Plan Page -->
     <div id="ot-plan-container" class="page-container hidden flex flex-col h-screen w-full bg-gray-50">
         <header class="flex items-center justify-between p-4 shadow-sm w-full flex-shrink-0" style="background-color: var(--orange-200);"><div class="w-10"></div><h1 class="text-xl font-bold text-gray-800">วางแผน OT</h1><button class="logout-button flex items-center justify-center p-2 rounded-full hover:bg-gray-100" title="Logout"><span class="material-symbols-outlined text-gray-700">logout</span></button></header>
-        <main id="ot-plan-main" class="flex-1 p-4 md:p-6 pb-20 flex flex-col">
+        <main id="ot-plan-main" class="flex-1 p-4 md:p-6 pb-28 flex flex-col">
             <div class="bg-white p-4 rounded-lg shadow-sm mb-4 flex-shrink-0">
                 <div class="flex items-center justify-between mb-4">
                      <h2 class="text-lg font-semibold text-gray-800">เลือกวันที่</h2>
@@ -445,7 +445,7 @@
                 </div>
             </div>
              <div id="ot-plan-tabs" class="flex border-b border-gray-200 bg-white rounded-t-lg overflow-x-auto flex-shrink-0"></div>
-            <div id="ot-plan-tab-content" class="overflow-y-auto flex-grow"></div>
+            <div id="ot-plan-tab-content" class="overflow-y-auto flex-grow pb-28"></div>
         </main>
         <footer class="bg-white shadow-t w-full flex-shrink-0 fixed bottom-0 left-0 right-0 z-50"><nav class="flex justify-around border-t border-gray-200 py-2"><a href="#" data-page="home" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]"><span class="material-symbols-outlined">home</span><p class="text-xs font-medium">หน้าหลัก</p></a><a href="#" data-page="employee-list" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]"><span class="material-symbols-outlined">groups</span><p class="text-xs font-medium">พนักงาน</p></a><a href="#" data-page="attendance" class="nav-link flex flex-col items-center justify-end gap-1 text-gray-500 hover:text-[var(--primary-600)]"><span class="material-symbols-outlined">checklist</span><p class="text-xs font-medium">เช็คชื่อ</p></a><a href="#" id="more-menu-btn" class="nav-link flex flex-col items-center justify-end gap-1 text-[var(--primary-600)] font-semibold cursor-pointer"><span class="material-symbols-outlined">more_horiz</span><p class="text-xs font-medium">เพิ่มเติม</p></a></nav></footer>
     </div>
@@ -459,7 +459,7 @@
                 <span class="material-symbols-outlined text-gray-700">logout</span>
             </button>
         </header>
-        <main class="flex-1 p-4 md:p-6 pb-20">
+        <main class="flex-1 p-4 md:p-6 pb-28">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
                     <div class="flex items-center mb-4">
@@ -520,7 +520,7 @@
                 <span class="material-symbols-outlined text-gray-700">logout</span>
             </button>
         </header>
-        <main class="flex-1 p-4 md:p-6 pb-20 overflow-y-auto">
+        <main class="flex-1 p-4 md:p-6 pb-28 overflow-y-auto">
             <!-- Filters Section -->
             <div class="bg-white p-4 rounded-lg shadow-sm mb-4">
                 <h2 class="text-lg font-semibold text-gray-800 mb-4">ตัวกรองข้อมูล</h2>
@@ -659,7 +659,7 @@
                 <span class="material-symbols-outlined text-gray-700">logout</span>
             </button>
         </header>
-        <main class="flex-1 p-4 md:p-6 pb-20 overflow-y-auto">
+        <main class="flex-1 p-4 md:p-6 pb-28 overflow-y-auto">
             <!-- Date Selection -->
             <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-4">
                 <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
@@ -742,7 +742,7 @@
                 <span class="material-symbols-outlined text-gray-700">logout</span>
             </button>
         </header>
-        <main class="flex-1 p-4 md:p-6 pb-20 overflow-y-auto">
+        <main class="flex-1 p-4 md:p-6 pb-28 overflow-y-auto">
             <!-- Filter Section -->
             <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-4">
                 <div class="flex items-center gap-2 mb-4">
@@ -868,7 +868,7 @@
                 <span class="material-symbols-outlined text-gray-700">logout</span>
             </button>
         </header>
-        <main class="flex-1 p-4 md:p-6 pb-20">
+        <main class="flex-1 p-4 md:p-6 pb-28">
             <div class="space-y-4">
                 <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">การตั้งค่าทั่วไป</h3>
@@ -942,7 +942,7 @@
                 <span class="material-symbols-outlined text-gray-700">logout</span>
             </button>
         </header>
-        <main class="flex-1 p-4 md:p-6 pb-20">
+        <main class="flex-1 p-4 md:p-6 pb-28">
             <div class="space-y-4">
                 <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">คำถามที่พบบ่อย</h3>
@@ -1020,7 +1020,7 @@
                 <span class="material-symbols-outlined text-gray-700">logout</span>
             </button>
         </header>
-        <main class="flex-1 p-4 md:p-6 pb-20 overflow-y-auto">
+        <main class="flex-1 p-4 md:p-6 pb-28 overflow-y-auto">
             <!-- Calendar Header -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-4">
                 <div class="flex items-center justify-between p-4 border-b border-gray-200">
