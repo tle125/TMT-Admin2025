@@ -53,6 +53,11 @@ function doGet(e) {
         if (!sheet) return createJsonResponse({ status: 'error', message: 'Sheet "Plan ot" not found.' });
         return handleGetOtReport(sheet, e.parameter.startDate, e.parameter.endDate, e.parameter.department, e.parameter.employeeId);
       }
+      case 'getShiftSummary': {
+        const shiftSheet = ss.getSheetByName(SHIFT_MANAGEMENT_SHEET_NAME);
+        if (!shiftSheet) return createJsonResponse({ success: false, message: 'Shift management sheet not found.' });
+        return handleGetShiftSummary(shiftSheet, e.parameter.startDate, e.parameter.endDate);
+      }
       default:
         return createJsonResponse({ status: 'error', message: 'Invalid GET action.' });
     }
@@ -156,6 +161,96 @@ function handleGetShiftData(sheet, date, shiftType) {
     return createJsonResponse({ status: 'success', data: records });
 }
 
+function handleGetShiftSummary(shiftSheet, startDate, endDate) {
+    try {
+        // Get shift data
+        const shiftData = shiftSheet.getDataRange().getValues();
+        if (shiftData.length <= 1) {
+            return createJsonResponse({ success: true, summaryData: [] });
+        }
+
+        const shiftHeaders = shiftData[0];
+        const dateCol = shiftHeaders.indexOf('วันที่');
+        const shiftTypeCol = shiftHeaders.indexOf('ประเภทกะ');
+        const employeeIdCol = shiftHeaders.indexOf('รหัสพนักงาน');
+        const departmentCol = shiftHeaders.indexOf('ส่วนงาน');
+        const employeeNameCol = shiftHeaders.indexOf('ชื่อ-สกุล');
+
+        if (dateCol === -1 || shiftTypeCol === -1 || employeeIdCol === -1 || departmentCol === -1) {
+            return createJsonResponse({ success: false, message: 'Required columns (วันที่, ประเภทกะ, รหัสพนักงาน, ส่วนงาน) not found in shift data.' });
+        }
+
+        const startDateObj = new Date(startDate);
+        const endDateObj = new Date(endDate);
+        
+        // Group data by week and department
+        const summaryMap = {};
+        
+        shiftData.slice(1).forEach(row => {
+            if (!row[dateCol] || !row[shiftTypeCol] || !row[employeeIdCol] || !row[departmentCol]) return;
+            
+            const rowDate = new Date(row[dateCol]);
+            if (rowDate < startDateObj || rowDate > endDateObj) return;
+            
+            const employeeId = row[employeeIdCol];
+            const department = row[departmentCol];
+            const shiftType = row[shiftTypeCol];
+            const employeeName = employeeNameCol !== -1 ? row[employeeNameCol] : employeeId;
+            
+            // Calculate week start (Monday)
+            const weekStart = new Date(rowDate);
+            const dayOfWeek = weekStart.getDay();
+            const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+            weekStart.setDate(weekStart.getDate() - daysToMonday);
+            weekStart.setHours(0, 0, 0, 0);
+            
+            // Calculate week end (Sunday)
+            const weekEnd = new Date(weekStart);
+            weekEnd.setDate(weekEnd.getDate() + 6);
+            weekEnd.setHours(23, 59, 59, 999);
+            
+            const weekKey = weekStart.toISOString().split('T')[0];
+            
+            const key = `${weekKey}_${department}_${shiftType}`;
+            
+            if (!summaryMap[key]) {
+                summaryMap[key] = {
+                    weekStart: weekKey,
+                    weekEnd: weekEnd.toISOString().split('T')[0],
+                    department: department,
+                    shiftType: shiftType,
+                    employees: new Map(),
+                    count: 0
+                };
+            }
+            
+            summaryMap[key].employees.set(employeeId, employeeName);
+        });
+        
+        // Convert to array and calculate final counts with employee details
+        const summaryData = Object.values(summaryMap).map(item => {
+            const employeeList = Array.from(item.employees.entries()).map(([id, name]) => ({
+                id: id,
+                name: name
+            }));
+            
+            return {
+                weekStart: item.weekStart,
+                weekEnd: item.weekEnd,
+                department: item.department,
+                shiftType: item.shiftType,
+                count: item.employees.size,
+                employees: employeeList
+            };
+        });
+        
+        return createJsonResponse({ success: true, summaryData: summaryData });
+        
+    } catch (error) {
+        return createJsonResponse({ success: false, message: 'Error processing shift summary: ' + error.toString() });
+    }
+}
+
 // *** RENAMED FUNCTION and UPDATED PARAMETERS to match frontend call ***
 function handleSaveShiftAssignment(sheet, data) {
     const { date, shiftType, employeeIds } = data;
@@ -187,19 +282,32 @@ function handleSaveShiftAssignment(sheet, data) {
 
     const requestedDate = new Date(date);
     
-    // This logic correctly deletes existing rows for the same date and shift type before adding new ones.
+    // Get departments of employees being assigned to determine which departments to update
+    const departmentsToUpdate = new Set();
+    employeeIds.forEach(id => {
+        const emp = employeeMap[id.toString()];
+        if (emp && emp.department) {
+            departmentsToUpdate.add(emp.department);
+        }
+    });
+    
+    // Only delete existing rows for the same date, shift type, AND departments being updated
     let rowsToDelete = [];
     if (sheetData.length > 1) {
+        const departmentColIdx = headers.indexOf('ส่วนงาน');
         for (let i = sheetData.length - 1; i >= 1; i--) {
             const row = sheetData[i];
             if (!row[dateColIdx]) continue;
             const rowDate = new Date(row[dateColIdx]);
             const rowShiftType = row[shiftTypeColIdx];
+            const rowDepartment = departmentColIdx !== -1 ? row[departmentColIdx] : '';
+            
             if (rowDate.getFullYear() === requestedDate.getFullYear() &&
                 rowDate.getMonth() === requestedDate.getMonth() &&
                 rowDate.getDate() === requestedDate.getDate() &&
-                rowShiftType === shiftType) {
-                // Since we are replacing all assignments for this shift, we can delete any existing ones.
+                rowShiftType === shiftType &&
+                departmentsToUpdate.has(rowDepartment)) {
+                // Only delete rows for departments that are being updated
                 rowsToDelete.push(i + 1);
             }
         }
