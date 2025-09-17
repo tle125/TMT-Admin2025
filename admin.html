@@ -2034,6 +2034,18 @@
                     return 0;
                 }
                 
+                // Special case: Saturday off (00:00 to 00:00) should be 0 hours
+                if (startTime === '00:00' && endTime === '00:00') {
+                    hoursDisplay.textContent = '0.0';
+                    return 0;
+                }
+                
+                // Special case: OT off (17:00 to 17:00) should be 0 hours
+                if (startTime === '17:00' && endTime === '17:00') {
+                    hoursDisplay.textContent = '0.0';
+                    return 0;
+                }
+                
                 // Convert time to minutes for calculation
                 const [startHour, startMin] = startTime.split(':').map(Number);
                 const [endHour, endMin] = endTime.split(':').map(Number);
