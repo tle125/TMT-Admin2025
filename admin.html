@@ -265,7 +265,7 @@
                         <div class="text-center">
                             <span class="material-symbols-outlined text-2xl mb-2 block">nights_stay</span>
                             <h3 class="font-semibold">กะดึก</h3>
-                            <p class="text-sm">20:00 - 08:00</p>
+                            <p class="text-sm">20:00 - 05:00</p>
                         </div>
                     </button>
                 </div>
@@ -1499,6 +1499,58 @@
                 }
             };
 
+            // ฟังก์ชันดึงข้อมูลกะของพนักงาน
+            const getEmployeeShiftInfo = (employeeId, date) => {
+                try {
+                    // ดึงข้อมูลการจัดกะจาก localStorage
+                    const shiftData = localStorage.getItem('shiftAssignments');
+                    if (!shiftData) return null;
+                    
+                    const assignments = JSON.parse(shiftData);
+                    const targetDate = new Date(date);
+                    
+                    // ค้นหาการจัดกะที่ตรงกับวันที่
+                    for (const assignment of assignments) {
+                        const startDate = new Date(assignment.weekStart);
+                        const endDate = new Date(startDate);
+                        endDate.setDate(startDate.getDate() + 6); // สัปดาห์ 7 วัน
+                        
+                        if (targetDate >= startDate && targetDate <= endDate) {
+                            // หาวันในสัปดาห์ (0 = อาทิตย์, 1 = จันทร์, ...)
+                            const dayOfWeek = targetDate.getDay();
+                            const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+                            const dayKey = dayNames[dayOfWeek];
+                            
+                            // ตรวจสอบว่าพนักงานคนนี้อยู่ในรายการของวันนั้นหรือไม่
+                            if (assignment.assignments && assignment.assignments[dayKey]) {
+                                const dayAssignment = assignment.assignments[dayKey];
+                                
+                                // ตรวจสอบกะเช้า
+                                if (dayAssignment.morning && dayAssignment.morning.includes(employeeId)) {
+                                    return {
+                                        type: 'กะเช้า',
+                                        time: '08:00 - 17:00'
+                                    };
+                                }
+                                
+                                // ตรวจสอบกะดึก
+                                if (dayAssignment.night && dayAssignment.night.includes(employeeId)) {
+                                    return {
+                                        type: 'กะดึก',
+                                        time: '20:00 - 05:00'
+                                    };
+                                }
+                            }
+                        }
+                    }
+                    
+                    return null; // ไม่พบการจัดกะ
+                } catch (error) {
+                    console.error('Error getting shift info:', error);
+                    return null;
+                }
+            };
+
             const getCachedAttendance = async (date) => {
                 const cacheKey = date;
                 if (dataCache.attendance[cacheKey] && isCacheValid(dataCache.attendance[cacheKey].timestamp)) {
@@ -1746,7 +1798,7 @@
             // --- Attendance Functions ---
              const openLeaveModal = (card) => {
                 currentEditingLeaveEmployeeCard = card;
-                const leaveTypes = ['ลาป่วย', 'ลากิจ', 'ลาพักร้อน', 'ลงบวช', 'ลาแต่งงาน'];
+                const leaveTypes = ['ลาป่วย', 'ลากิจ', 'ลาพักร้อน', 'ลงบวช', 'ลาแต่งงาน', 'ลาอุปสมบท', 'ลาไปประกอบพิธีฮัจย์', 'เจ็บในงาน', 'พักงานไม่ได้รับค่าจ้าง', 'ลาฌาปนกิจพ่อแม่ คู่สมรส บุตร', 'ลาวันคล้ายวันเกิด', 'อุบัติเหตุในงาน'];
                 leaveOptionsContainer.innerHTML = leaveTypes.map(lt => 
                     `<button type="button" data-leave-type="${lt}" class="leave-option-btn w-full p-3 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">${lt}</button>`
                 ).join('');
@@ -1812,7 +1864,7 @@
                     return acc;
                 }, {});
                 
-                const leaveTypes = ['ลาป่วย', 'ลากิจ', 'ลาพักร้อน', 'ลงบวช', 'ลาแต่งงาน'];
+                const leaveTypes = ['ลาป่วย', 'ลากิจ', 'ลาพักร้อน', 'ลงบวช', 'ลาแต่งงาน', 'ลาอุปสมบท', 'ลาไปประกอบพิธีฮัจย์', 'เจ็บในงาน', 'พักงานไม่ได้รับค่าจ้าง', 'ลาฌาปนกิจพ่อแม่ คู่สมรส บุตร', 'ลาวันคล้ายวันเกิด', 'อุบัติเหตุในงาน'];
                 let isFirstTab = true;
 
                 for (const dept in groupedByDept) {
@@ -1873,12 +1925,22 @@
                             return `<button type="button" data-main-status="${s}" class="status-btn px-2 py-1 text-xs rounded transition-colors ${isActive ? 'active' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">${text}</button>`
                         }).join('');
 
+                        // ดึงข้อมูลกะของพนักงานในวันนั้น
+                        const shiftInfo = getEmployeeShiftInfo(emp.employeeId, attendanceDatePicker.value);
+                        const shiftDisplay = shiftInfo ? `
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="material-symbols-outlined text-sm ${shiftInfo.type === 'กะเช้า' ? 'text-orange-600' : 'text-purple-600'}">${shiftInfo.type === 'กะเช้า' ? 'wb_sunny' : 'nights_stay'}</span>
+                                <span class="text-xs font-medium ${shiftInfo.type === 'กะเช้า' ? 'text-orange-600' : 'text-purple-600'}">${shiftInfo.type} (${shiftInfo.time})</span>
+                            </div>
+                        ` : '';
+
                         card.innerHTML = `
                             <div class="flex items-start space-x-4">
                                <img src="${emp.photoUrl || 'https://placehold.co/48x48/EFEFEF/AAAAAA?text=No+Img'}" alt="${emp.fullName}" class="w-12 h-12 rounded-full object-cover bg-gray-200" onerror="this.src='https://placehold.co/48x48/EFEFEF/AAAAAA?text=Error'">
                                 <div class="flex-1">
                                     <p class="font-bold text-gray-800">${emp.fullName}</p>
                                     <p class="text-sm text-gray-500">${emp.employeeId}</p>
+                                    ${shiftDisplay}
                                 </div>
                             </div>
                             <div class="attendance-details pl-16 mt-2 space-y-2">
@@ -2262,6 +2324,13 @@
                     'ลาพักร้อน': 'bg-green-100 text-green-800',
                     'ลงบวช': 'bg-purple-100 text-purple-800',
                     'ลาแต่งงาน': 'bg-pink-100 text-pink-800',
+                    'ลาอุปสมบท': 'bg-orange-100 text-orange-800',
+                    'ลาไปประกอบพิธีฮัจย์': 'bg-teal-100 text-teal-800',
+                    'เจ็บในงาน': 'bg-red-100 text-red-800',
+                    'พักงานไม่ได้รับค่าจ้าง': 'bg-gray-100 text-gray-800',
+                    'ลาฌาปนกิจพ่อแม่ คู่สมรส บุตร': 'bg-indigo-100 text-indigo-800',
+                    'ลาวันคล้ายวันเกิด': 'bg-cyan-100 text-cyan-800',
+                    'อุบัติเหตุในงาน': 'bg-rose-100 text-rose-800',
                     'ขาดงาน': 'bg-red-100 text-red-800',
                     'ลาออก': 'bg-gray-100 text-gray-800'
                 };
@@ -3515,7 +3584,7 @@
                                         <div class="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center">
                                             <span class="material-symbols-outlined text-indigo-600 text-sm">nights_stay</span>
                                         </div>
-                                        <span>กะดึก (20:00-08:00)</span>
+                                        <span>กะดึก (20:00-05:00)</span>
                                     </div>
                                 </div>
                             </div>
@@ -3581,7 +3650,7 @@
                 morningShiftBtn.addEventListener('click', () => handleShiftTypeChange('กะเช้า', '08:00 - 17:00'));
             }
             if (nightShiftBtn) {
-                nightShiftBtn.addEventListener('click', () => handleShiftTypeChange('กะดึก', '20:00 - 08:00'));
+                nightShiftBtn.addEventListener('click', () => handleShiftTypeChange('กะดึก', '20:00 - 05:00'));
             }
             if (weekStartPicker) {
                 weekStartPicker.addEventListener('change', handleWeekChange);
