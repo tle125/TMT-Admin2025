@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -3193,7 +3194,7 @@
             };
             
             // ฟังก์ชันจัดกะอัตโนมัติสำหรับพนักงานที่เหลือ
-            const handleAutoAssign = () => {
+            const handleAutoAssign = async () => {
                 if (!selectedShiftType || !selectedWeekStart || !selectedWeekEnd) {
                     showMessage('กรุณาเลือกประเภทกะและสัปดาห์ก่อน', true);
                     return;
@@ -3207,8 +3208,17 @@
                     return;
                 }
                 
-                // หาพนักงานที่ยังไม่ได้เลือก
-                const unassignedEmployees = employeesToShow.filter(employee => !currentShiftAssignments[employee.employeeId]);
+                // แยกพนักงานที่ถูกเลือกและไม่ถูกเลือก
+                const assignedEmployees = [];
+                const unassignedEmployees = [];
+                
+                employeesToShow.forEach(employee => {
+                    if (currentShiftAssignments[employee.employeeId]) {
+                        assignedEmployees.push(employee);
+                    } else {
+                        unassignedEmployees.push(employee);
+                    }
+                });
                 
                 if (unassignedEmployees.length === 0) {
                     showMessage('พนักงานทุกคนได้รับการจัดกะแล้ว', true);
@@ -3223,19 +3233,45 @@
                 const confirmMessage = `จะจัดพนักงานที่เหลือ ${unassignedEmployees.length} คน เข้า${oppositeShiftType} โดยอัตโนมัติ\n\nต้องการดำเนินการต่อหรือไม่?`;
                 
                 if (confirm(confirmMessage)) {
-                    // เพิ่มพนักงานที่เหลือเข้าในกะตรงข้าม
-                    unassignedEmployees.forEach(employee => {
-                        currentShiftAssignments[employee.employeeId] = true;
-                    });
-                    
-                    // อัปเดตการแสดงผล
-                    renderShiftEmployeeList();
-                    
-                    // แสดงข้อความยืนยัน
-                    showMessage(`จัดกะอัตโนมัติเรียบร้อย: ${unassignedEmployees.length} คน เข้า${oppositeShiftType}`);
-                    
-                    // บันทึกข้อมูลกะตรงข้ามโดยอัตโนมัติ
-                    saveOppositeShiftAssignment(unassignedEmployees, oppositeShiftType, oppositeShiftTime);
+                    try {
+                        // บันทึกพนักงานที่ถูกเลือกเข้า shift ปัจจุบัน
+                        if (assignedEmployees.length > 0) {
+                            const assignedShiftData = {
+                                date: selectedWeekStart,
+                                shiftType: selectedShiftType,
+                                employeeIds: assignedEmployees.map(emp => emp.employeeId),
+                                shiftTime: selectedShiftType === 'กะเช้า' ? '08:00 - 17:00' : '20:00 - 08:00'
+                            };
+                            
+                            const response = await fetch(GAS_URL, {
+                                method: 'POST',
+                                body: JSON.stringify({ action: 'saveShiftAssignment', shiftData: assignedShiftData })
+                            });
+                            
+                            const result = await response.json();
+                            if (!result.success) {
+                                console.error('Error saving assigned shift:', result.message);
+                            }
+                        }
+                        
+                        // เพิ่มพนักงานที่เหลือเข้าในกะตรงข้าม
+                        unassignedEmployees.forEach(employee => {
+                            currentShiftAssignments[employee.employeeId] = true;
+                        });
+                        
+                        // อัปเดตการแสดงผล
+                        renderShiftEmployeeList();
+                        
+                        // แสดงข้อความยืนยัน
+                        showMessage(`จัดกะอัตโนมัติเรียบร้อย: ${unassignedEmployees.length} คน เข้า${oppositeShiftType}`);
+                        
+                        // บันทึกข้อมูลกะตรงข้ามโดยอัตโนมัติ
+                        await saveOppositeShiftAssignment(unassignedEmployees, oppositeShiftType, oppositeShiftTime);
+                        
+                    } catch (error) {
+                        console.error('Error in auto assign:', error);
+                        showMessage('เกิดข้อผิดพลาดในการจัดกะอัตโนมัติ', true);
+                    }
                 }
             };
             

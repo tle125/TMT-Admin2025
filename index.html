@@ -3,28 +3,288 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin System - Redirecting...</title>
-    <script>
-        // Redirect to admin.html immediately
-        window.location.href = './admin.html';
-    </script>
+    <title>ระบบจัดการคลังสินค้า WH1 - TMT Steel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 50px;
-            background-color: #f5f5f5;
+        :root {
+            --primary-color: #135bec;
+            --primary-50: #f0f9ff;
+            --primary-100: #e0f2fe;
+            --primary-600: #0284c7;
+            --primary-700: #0369a1;
+            --orange-200: #fed7aa;
+            --gradient-start: #667eea;
+            --gradient-end: #764ba2;
         }
-        .loading {
-            font-size: 18px;
-            color: #666;
+        
+        body {
+            font-family: 'Noto Sans Thai', 'Inter', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .feature-card {
+            transition: all 0.3s ease;
+            transform: translateY(0);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .animate-pulse-slow {
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        .hero-icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
     </style>
 </head>
-<body>
-    <div class="loading">
-        <h2>กำลังเปลี่ยนเส้นทางไปยังระบบ Admin...</h2>
-        <p>หากไม่ได้เปลี่ยนเส้นทางอัตโนมัติ <a href="./admin.html">คลิกที่นี่</a></p>
+<body class="min-h-screen gradient-bg">
+    <!-- Navigation -->
+    <nav class="glass-effect">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+                        <span class="material-symbols-outlined text-blue-600 text-2xl">warehouse</span>
+                    </div>
+                    <div>
+                        <h1 class="text-white font-bold text-lg">TMT Steel</h1>
+                        <p class="text-blue-100 text-sm">Warehouse Management</p>
+                    </div>
+                </div>
+                <button onclick="window.location.href='./admin.html'" class="bg-white text-blue-600 px-6 py-2 rounded-lg font-medium hover:bg-blue-50 transition-colors">
+                    เข้าสู่ระบบ
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div class="text-center">
+            <div class="animate-float mb-8">
+                <span class="material-symbols-outlined hero-icon text-8xl">inventory_2</span>
+            </div>
+            <h1 class="text-5xl md:text-6xl font-bold text-white mb-6">
+                ระบบจัดการ
+                <span class="bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
+                    คลังสินค้า WH1
+                </span>
+            </h1>
+            <p class="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
+                ระบบบริหารจัดการคลังสินค้าที่ทันสมัย ครบครัน และใช้งานง่าย สำหรับ TMT Steel Public Company Limited
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button onclick="window.location.href='./admin.html'" class="bg-white text-blue-600 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-blue-50 transition-all transform hover:scale-105 shadow-lg">
+                    <span class="material-symbols-outlined inline mr-2">login</span>
+                    เข้าสู่ระบบ Admin
+                </button>
+                <button class="glass-effect text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white hover:bg-opacity-20 transition-all">
+                    <span class="material-symbols-outlined inline mr-2">info</span>
+                    เรียนรู้เพิ่มเติม
+                </button>
+            </div>
+        </div>
     </div>
+
+    <!-- Features Section -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-bold text-white mb-4">ฟีเจอร์หลัก</h2>
+            <p class="text-xl text-blue-100">ระบบที่ออกแบบมาเพื่อความสะดวกและประสิทธิภาพสูงสุด</p>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Feature 1 -->
+            <div class="feature-card bg-white rounded-2xl p-8 shadow-xl">
+                <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-6">
+                    <span class="material-symbols-outlined text-blue-600 text-3xl">groups</span>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">จัดการพนักงาน</h3>
+                <p class="text-gray-600 mb-6">ระบบบริหารจัดการข้อมูลพนักงาน ตำแหน่งงาน และแผนกต่างๆ อย่างครบถ้วน</p>
+                <ul class="text-sm text-gray-500 space-y-2">
+                    <li>• ลงทะเบียนพนักงานใหม่</li>
+                    <li>• จัดการข้อมูลส่วนบุคคล</li>
+                    <li>• กำหนดสิทธิ์การเข้าถึง</li>
+                </ul>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="feature-card bg-white rounded-2xl p-8 shadow-xl">
+                <div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mb-6">
+                    <span class="material-symbols-outlined text-green-600 text-3xl">checklist</span>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">ระบบเช็คชื่อ</h3>
+                <p class="text-gray-600 mb-6">ติดตามการเข้า-ออกงานของพนักงาน พร้อมรายงานสถิติที่แม่นยำ</p>
+                <ul class="text-sm text-gray-500 space-y-2">
+                    <li>• เช็คชื่อแบบ Real-time</li>
+                    <li>• รายงานการเข้างาน</li>
+                    <li>• สถิติการทำงาน</li>
+                </ul>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="feature-card bg-white rounded-2xl p-8 shadow-xl">
+                <div class="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mb-6">
+                    <span class="material-symbols-outlined text-purple-600 text-3xl">warehouse</span>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">จัดการคลังสินค้า</h3>
+                <p class="text-gray-600 mb-6">ระบบบริหารจัดการสินค้าในคลัง ติดตามสต็อก และการเคลื่อนไหว</p>
+                <ul class="text-sm text-gray-500 space-y-2">
+                    <li>• ติดตามสต็อกสินค้า</li>
+                    <li>• จัดการการรับ-จ่ายสินค้า</li>
+                    <li>• รายงานสถานะคลัง</li>
+                </ul>
+            </div>
+
+            <!-- Feature 4 -->
+            <div class="feature-card bg-white rounded-2xl p-8 shadow-xl">
+                <div class="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center mb-6">
+                    <span class="material-symbols-outlined text-orange-600 text-3xl">analytics</span>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">รายงานและสถิติ</h3>
+                <p class="text-gray-600 mb-6">ดูข้อมูลสถิติและรายงานต่างๆ ในรูปแบบที่เข้าใจง่าย</p>
+                <ul class="text-sm text-gray-500 space-y-2">
+                    <li>• Dashboard แบบ Real-time</li>
+                    <li>• รายงานประจำวัน/เดือน</li>
+                    <li>• กราฟและชาร์ต</li>
+                </ul>
+            </div>
+
+            <!-- Feature 5 -->
+            <div class="feature-card bg-white rounded-2xl p-8 shadow-xl">
+                <div class="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mb-6">
+                    <span class="material-symbols-outlined text-red-600 text-3xl">security</span>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">ความปลอดภัย</h3>
+                <p class="text-gray-600 mb-6">ระบบรักษาความปลอดภัยข้อมูลระดับสูง พร้อมการควบคุมสิทธิ์</p>
+                <ul class="text-sm text-gray-500 space-y-2">
+                    <li>• การยืนยันตัวตนแบบปลอดภัย</li>
+                    <li>• ควบคุมสิทธิ์การเข้าถึง</li>
+                    <li>• บันทึกการใช้งาน</li>
+                </ul>
+            </div>
+
+            <!-- Feature 6 -->
+            <div class="feature-card bg-white rounded-2xl p-8 shadow-xl">
+                <div class="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center mb-6">
+                    <span class="material-symbols-outlined text-indigo-600 text-3xl">devices</span>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">รองรับทุกอุปกรณ์</h3>
+                <p class="text-gray-600 mb-6">ใช้งานได้บนทุกอุปกรณ์ ทั้งคอมพิวเตอร์ แท็บเล็ต และมือถือ</p>
+                <ul class="text-sm text-gray-500 space-y-2">
+                    <li>• Responsive Design</li>
+                    <li>• ใช้งานผ่าน Web Browser</li>
+                    <li>• ไม่ต้องติดตั้งแอพ</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div class="glass-effect rounded-3xl p-12">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-white mb-4">ประสิทธิภาพที่เชื่อถือได้</h2>
+                <p class="text-xl text-blue-100">ตัวเลขที่พิสูจน์ความสำเร็จของระบบ</p>
+            </div>
+            
+            <div class="grid md:grid-cols-4 gap-8">
+                <div class="text-center">
+                    <div class="text-5xl font-bold text-white mb-2 animate-pulse-slow">99.9%</div>
+                    <div class="text-blue-100 font-medium">Uptime</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-5xl font-bold text-white mb-2 animate-pulse-slow">500+</div>
+                    <div class="text-blue-100 font-medium">พนักงานในระบบ</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-5xl font-bold text-white mb-2 animate-pulse-slow">24/7</div>
+                    <div class="text-blue-100 font-medium">การให้บริการ</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-5xl font-bold text-white mb-2 animate-pulse-slow">100%</div>
+                    <div class="text-blue-100 font-medium">ความปลอดภัย</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div class="text-center">
+            <h2 class="text-4xl font-bold text-white mb-6">พร้อมเริ่มต้นใช้งานแล้วหรือยัง?</h2>
+            <p class="text-xl text-blue-100 mb-8">เข้าสู่ระบบและสัมผัสประสบการณ์การจัดการคลังสินค้าที่ไม่เหมือนใคร</p>
+            <button onclick="window.location.href='./admin.html'" class="bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-800 px-12 py-4 rounded-xl font-bold text-xl hover:from-yellow-300 hover:to-orange-300 transition-all transform hover:scale-105 shadow-2xl">
+                <span class="material-symbols-outlined inline mr-2">rocket_launch</span>
+                เริ่มใช้งานตอนนี้
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="glass-effect mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid md:grid-cols-3 gap-8">
+                <div>
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+                            <span class="material-symbols-outlined text-blue-600 text-2xl">warehouse</span>
+                        </div>
+                        <div>
+                            <h3 class="text-white font-bold text-lg">TMT Steel</h3>
+                            <p class="text-blue-100 text-sm">Warehouse Management</p>
+                        </div>
+                    </div>
+                    <p class="text-blue-100">ระบบจัดการคลังสินค้าที่ทันสมัยและมีประสิทธิภาพสูงสุด</p>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">ลิงก์ด่วน</h4>
+                    <ul class="space-y-2 text-blue-100">
+                        <li><a href="./admin.html" class="hover:text-white transition-colors">เข้าสู่ระบบ</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">คู่มือการใช้งาน</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">ติดต่อสนับสนุน</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">ติดต่อเรา</h4>
+                    <div class="space-y-2 text-blue-100">
+                        <p>TMT Steel Public Company Limited</p>
+                        <p>Warehouse 1 Management System</p>
+                        <p>© 2024 All rights reserved</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
