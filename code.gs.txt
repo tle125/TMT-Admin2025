@@ -43,6 +43,11 @@ function doGet(e) {
         if(!sheet) return createJsonResponse({ status: 'success', data: [] });
         return handleGetShiftData(sheet, e.parameter.date, e.parameter.shiftType);
       }
+      case 'getShiftSchedule': {
+        const sheet = ss.getSheetByName(SHIFT_SHEET_NAME);
+        if(!sheet) return createJsonResponse({ status: 'success', data: [] });
+        return handleGetShiftSchedule(sheet, e.parameter.date);
+      }
       case 'getShiftAssignments': {
         const sheet = ss.getSheetByName(SHIFT_MANAGEMENT_SHEET_NAME);
         if(!sheet) return createJsonResponse({ success: true, assignments: [] });
@@ -157,6 +162,47 @@ function handleGetShiftData(sheet, date, shiftType) {
                    rowShiftType === shiftType;
         })
         .map(row => row[empIdCol]); // Return only employee IDs
+
+    return createJsonResponse({ status: 'success', data: records });
+}
+
+function handleGetShiftSchedule(sheet, date) {
+    if (!date) {
+        return createJsonResponse({ status: 'error', message: 'Date parameter is required.' });
+    }
+    
+    const data = sheet.getDataRange().getValues();
+    if (data.length < 2) {
+        return createJsonResponse({ status: 'success', data: [] });
+    }
+
+    const headers = data[0].map(h => h.trim());
+    const dateCol = headers.indexOf('วันที่');
+    const shiftTypeCol = headers.indexOf('ประเภทกะ');
+    const empIdCol = headers.indexOf('รหัสพนักงาน');
+    const empNameCol = headers.indexOf('ชื่อ-สกุล');
+    const departmentCol = headers.indexOf('ส่วนงาน');
+
+    if (dateCol === -1 || shiftTypeCol === -1 || empIdCol === -1) {
+        return createJsonResponse({ status: 'error', message: 'Required columns not found in ตารางกะ sheet.' });
+    }
+    
+    const requestedDate = new Date(date);
+    const records = data.slice(1)
+        .filter(row => {
+            if (!row[dateCol]) return false;
+            const rowDate = new Date(row[dateCol]);
+            return rowDate.getFullYear() === requestedDate.getFullYear() &&
+                   rowDate.getMonth() === requestedDate.getMonth() &&
+                   rowDate.getDate() === requestedDate.getDate();
+        })
+        .map(row => ({
+            date: row[dateCol],
+            shiftType: row[shiftTypeCol],
+            employeeId: String(row[empIdCol]),
+            employeeName: empNameCol !== -1 ? row[empNameCol] : '',
+            department: departmentCol !== -1 ? row[departmentCol] : ''
+        }));
 
     return createJsonResponse({ status: 'success', data: records });
 }
@@ -866,7 +912,8 @@ function handleGetShiftAssignments(sheet, date, shiftType) {
             const rowDate = row[0] ? new Date(row[0]).toISOString().split('T')[0] : '';
             const rowShiftType = row[1];
             
-            if (rowDate === date && rowShiftType === shiftType) {
+            // ถ้าไม่ระบุ shiftType ให้ดึงข้อมูลทั้งหมดของวันนั้น
+            if (rowDate === date && (!shiftType || rowShiftType === shiftType)) {
                 assignments.push({
                     date: rowDate,
                     shiftType: rowShiftType,

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ทดสอบการแสดงข้อมูลกะ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-2xl font-bold mb-6">ทดสอบการแสดงข้อมูลกะพนักงาน</h1>
+        
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-lg font-semibold mb-4">ข้อมูลกะจากชีต "ตารางกะ"</h2>
+            <div id="shift-results" class="space-y-4"></div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-lg font-semibold mb-4">ทดสอบฟังก์ชัน</h2>
+            <button id="test-btn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                ทดสอบการดึงข้อมูลกะ
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ข้อมูลพนักงานตัวอย่าง
+        const employees = [
+            { employeeId: '64090007', fullName: 'นางสาวฐิติรัตน์ อุ้ยหา' },
+            { employeeId: '48070418', fullName: 'นางสาวสุ ศรีชนม์' },
+            { employeeId: '48090451', fullName: 'นางสาวองใจ สุมงค์' },
+            { employeeId: '61110022', fullName: 'นางสาวกมลมาลา สุมสีดา' }
+        ];
+
+        // ฟังก์ชัน fallback สำหรับข้อมูลกะ
+        const getFallbackShiftData = (employeeId) => {
+            const knownShiftData = {
+                '64090007': { type: 'กะเช้า', time: '08:00 - 17:00' },
+                '48070418': { type: 'กะเช้า', time: '08:00 - 17:00' },
+                '48090451': { type: 'กะเช้า', time: '08:00 - 17:00' },
+                '61110022': { type: 'กะเช้า', time: '08:00 - 17:00' }
+            };
+            
+            const shiftInfo = knownShiftData[String(employeeId)];
+            if (shiftInfo) {
+                return {
+                    ...shiftInfo,
+                    sourceDate: 'fallback'
+                };
+            }
+            return null;
+        };
+
+        // ฟังก์ชันแสดงผลข้อมูลกะ
+        const displayShiftInfo = (employee, shiftInfo) => {
+            let iconClass = 'wb_sunny';
+            let colorClass = 'text-orange-600';
+            
+            if (shiftInfo && shiftInfo.type === 'กะดึก') {
+                iconClass = 'nights_stay';
+                colorClass = 'text-purple-600';
+            } else if (shiftInfo && shiftInfo.type === 'เต็มวัน') {
+                iconClass = 'schedule';
+                colorClass = 'text-blue-600';
+            }
+
+            return `
+                <div class="border rounded-lg p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="font-medium">${employee.fullName}</h3>
+                            <p class="text-sm text-gray-600">รหัส: ${employee.employeeId}</p>
+                        </div>
+                        <div class="text-right">
+                            ${shiftInfo ? `
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-sm ${colorClass}">${iconClass}</span>
+                                    <span class="text-sm font-medium ${colorClass}">${shiftInfo.type} (${shiftInfo.time})</span>
+                                </div>
+                                <p class="text-xs text-gray-400 mt-1">ข้อมูลจาก: ${shiftInfo.sourceDate}</p>
+                            ` : `
+                                <span class="text-sm text-gray-400">ไม่มีข้อมูลกะ</span>
+                            `}
+                        </div>
+                    </div>
+                </div>
+            `;
+        };
+
+        // ทดสอบการทำงาน
+        const testShiftData = () => {
+            const resultsContainer = document.getElementById('shift-results');
+            let html = '';
+
+            employees.forEach(employee => {
+                const shiftInfo = getFallbackShiftData(employee.employeeId);
+                html += displayShiftInfo(employee, shiftInfo);
+            });
+
+            resultsContainer.innerHTML = html;
+        };
+
+        // เรียกใช้ทดสอบเมื่อโหลดหน้า
+        document.addEventListener('DOMContentLoaded', testShiftData);
+        
+        // เรียกใช้ทดสอบเมื่อกดปุ่ม
+        document.getElementById('test-btn').addEventListener('click', testShiftData);
+    </script>
+</body>
+</html>
