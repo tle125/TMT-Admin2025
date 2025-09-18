@@ -3387,7 +3387,10 @@
                     const response = await fetch(`${GAS_URL}?action=getShiftSummary&startDate=${startDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}`);
                     const result = await response.json();
                     
+                    console.log('Shift Summary API Response:', result);
+                    
                     if (result.success && result.summaryData) {
+                        console.log('Summary Data:', result.summaryData);
                         renderShiftSummaryTable(result.summaryData);
                         exportBtn.disabled = false;
                     } else {
@@ -3411,11 +3414,14 @@
             const renderShiftSummaryTable = (summaryData) => {
                 const summaryContent = document.getElementById('shift-summary-content');
                 
+                console.log('renderShiftSummaryTable received data:', summaryData);
+                
                 // Group data by week and department
                 const weeklyData = {};
                 const departments = ['Warehouse Manager', 'Assistant Warehouse Manager', 'A&I', 'MH', 'SSRM', 'COIL', 'FILM'];
                 
                 summaryData.forEach(record => {
+                    console.log('Processing record:', record);
                     const weekKey = record.weekStart;
                     if (!weeklyData[weekKey]) {
                         weeklyData[weekKey] = {
@@ -3530,10 +3536,12 @@
                         };
                         
                         // Format employee names for morning shift
+                        console.log('Morning employees for', dept, ':', deptData.morning.employees);
                         const morningNames = deptData.morning.employees.map(emp => emp.name).join(', ');
                         const morningTooltip = morningNames ? `title="${morningNames}"` : '';
                         
                         // Format employee names for night shift
+                        console.log('Night employees for', dept, ':', deptData.night.employees);
                         const nightNames = deptData.night.employees.map(emp => emp.name).join(', ');
                         const nightTooltip = nightNames ? `title="${nightNames}"` : '';
                         
