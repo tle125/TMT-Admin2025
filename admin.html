@@ -308,10 +308,11 @@
                                 <span class="material-symbols-outlined text-base">auto_awesome</span>
                                 <span>จัดกะอัตโนมัติ</span>
                             </button>
-                            <button id="save-shift-btn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:bg-gray-400 flex items-center" disabled>
+                            <!-- ปุ่มบันทึกถูกปิดการใช้งานเนื่องจากใช้ปุ่มจัดการอัตโนมัติแทน -->
+                            <!-- <button id="save-shift-btn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:bg-gray-400 flex items-center" disabled>
                                 <span class="material-symbols-outlined mr-1 text-base">save</span>
                                 บันทึก
-                            </button>
+                            </button> -->
                         </div>
                     </div>
                     <p id="shift-info" class="text-sm text-gray-600 mt-2">เลือกประเภทกะและสัปดาห์เพื่อเริ่มกำหนดกะ (สามารถเลือกพนักงานหลายคนต่อสัปดาห์)</p>
@@ -428,10 +429,11 @@
                 <div class="p-4 border-b border-gray-200">
                     <div class="flex items-center justify-between">
                         <h2 class="text-lg font-semibold text-gray-800">ตารางกะรายวัน</h2>
-                        <button id="save-schedule-btn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:bg-gray-400 flex items-center" disabled>
+                        <!-- ปุ่มบันทึกถูกปิดการใช้งานเนื่องจากใช้ปุ่มจัดการอัตโนมัติแทน -->
+                        <!-- <button id="save-schedule-btn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:bg-gray-400 flex items-center" disabled>
                             <span class="material-symbols-outlined mr-1 text-base">save</span>
                             บันทึก
-                        </button>
+                        </button> -->
                     </div>
                     <p id="schedule-info" class="text-sm text-gray-600 mt-2">เลือกวันที่เพื่อดูและแก้ไขตารางกะ</p>
                 </div>
@@ -1407,7 +1409,8 @@
             const weekDisplay = document.getElementById('week-display');
             const weekRange = document.getElementById('week-range');
             const shiftEmployeeList = document.getElementById('shift-employee-list');
-            const saveShiftAssignmentBtn = document.getElementById('save-shift-btn');
+            // ปิดการใช้งานปุ่มบันทึกเนื่องจากใช้ปุ่มจัดการอัตโนมัติแทน
+            // const saveShiftAssignmentBtn = document.getElementById('save-shift-btn');
             const departmentTabs = document.getElementById('department-tabs');
             
             // Shift Management Variables
@@ -3177,18 +3180,19 @@
             
             const updateShiftInfo = () => {
                 const shiftInfoElement = document.getElementById('shift-info');
-                const saveBtn = document.getElementById('save-shift-btn');
+                // ปิดการใช้งานปุ่มบันทึกเนื่องจากใช้ปุ่มจัดการอัตโนมัติแทน
+                // const saveBtn = document.getElementById('save-shift-btn');
                 const autoAssignBtn = document.getElementById('auto-assign-btn');
                 
                 if (selectedShiftType && selectedWeekStart && selectedWeekEnd) {
                     const startDate = new Date(selectedWeekStart).toLocaleDateString('th-TH');
                     const endDate = new Date(selectedWeekEnd).toLocaleDateString('th-TH');
                     shiftInfoElement.textContent = `กำลังจัดกะ: ${selectedShiftType} สัปดาห์ ${startDate} - ${endDate} (1 สัปดาห์ต่อ 1 คน)`;
-                    if (saveBtn) saveBtn.disabled = false;
+                    // if (saveBtn) saveBtn.disabled = false;
                     if (autoAssignBtn) autoAssignBtn.disabled = false;
                 } else {
                     shiftInfoElement.textContent = 'เลือกประเภทกะและสัปดาห์เพื่อเริ่มกำหนดกะ (สามารถเลือกพนักงานหลายคนต่อสัปดาห์)';
-                    if (saveBtn) saveBtn.disabled = true;
+                    // if (saveBtn) saveBtn.disabled = true;
                     if (autoAssignBtn) autoAssignBtn.disabled = true;
                 }
             };
@@ -3691,9 +3695,10 @@
             if (weekStartPicker) {
                 weekStartPicker.addEventListener('change', handleWeekChange);
             }
-            if (saveShiftAssignmentBtn) {
-                saveShiftAssignmentBtn.addEventListener('click', saveShiftAssignment);
-            }
+            // ปิดการใช้งานปุ่มบันทึกเนื่องจากใช้ปุ่มจัดการอัตโนมัติแทน
+            // if (saveShiftAssignmentBtn) {
+            //     saveShiftAssignmentBtn.addEventListener('click', saveShiftAssignment);
+            // }
             
             // Auto Assign Button Event Listener
             const autoAssignBtn = document.getElementById('auto-assign-btn');
@@ -3870,7 +3875,8 @@
                 
                 if (result.status === 'success') {
                     renderShiftScheduleTable(result.data, date);
-                    document.getElementById('save-schedule-btn').disabled = false;
+                    // ปิดการใช้งานปุ่มบันทึกเนื่องจากใช้ปุ่มจัดการอัตโนมัติแทน
+                    // document.getElementById('save-schedule-btn').disabled = false;
                 } else {
                     showMessage(result.message || 'ไม่สามารถโหลดข้อมูลได้', true);
                 }
@@ -4071,9 +4077,10 @@
                 });
             }
             
-            if (saveScheduleBtn) {
-                saveScheduleBtn.addEventListener('click', saveShiftSchedule);
-            }
+            // ปิดการใช้งานปุ่มบันทึกเนื่องจากใช้ปุ่มจัดการอัตโนมัติแทน
+            // if (saveScheduleBtn) {
+            //     saveScheduleBtn.addEventListener('click', saveShiftSchedule);
+            // }
             
             if (typeof updateShiftInfo === 'function') {
                 updateShiftInfo();
