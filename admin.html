@@ -1510,9 +1510,8 @@
                     return result;
                 } catch (error) {
                     console.error('Error fetching employees:', error);
-                    console.log('Using fallback employee data');
-                    const fallbackData = getFallbackEmployeeData();
-                    return { status: 'success', data: fallbackData, fromFallback: true };
+                    // ไม่ใช้ fallback data แล้ว ให้ return error เพื่อให้ระบบจัดการ
+                    return { status: 'error', message: 'ไม่สามารถเชื่อมต่อกับฐานข้อมูลได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต', data: [] };
                 }
             };
 
@@ -1520,86 +1519,51 @@
             const getEmployeeShiftInfo = async (employeeId, date) => {
                 console.log(`Getting shift info for employee ${employeeId} on date ${date}`);
                 
-                // ใช้ fallback data ทันทีเพื่อให้ระบบทำงานได้
-                // ในสภาพแวดล้อมจริงจะเชื่อมต่อกับ Google Sheets
-                return getFallbackShiftData(employeeId);
+                try {
+                    const response = await fetch(GAS_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ 
+                            action: 'getShiftByDate', 
+                            date: date 
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.status === 'success' && Array.isArray(result.data)) {
+                        // ค้นหาข้อมูลกะของพนักงานคนนี้ในวันที่ระบุ
+                        const employeeShift = result.data.find(record => 
+                            String(record.employeeId) === String(employeeId)
+                        );
+                        
+                        if (employeeShift) {
+                            console.log(`Found shift data for employee ${employeeId}:`, employeeShift);
+                            
+                            // แปลงข้อมูลให้อยู่ในรูปแบบที่ระบบต้องการ
+                            const shiftTime = employeeShift.shiftType === 'กะเช้า' ? '08:00 - 17:00' : '20:00 - 08:00';
+                            
+                            return {
+                                type: employeeShift.shiftType,
+                                time: shiftTime,
+                                sourceDate: date,
+                                employeeName: employeeShift.employeeName || '',
+                                department: employeeShift.department || ''
+                            };
+                        } else {
+                            console.log(`No shift data found for employee ${employeeId} on date ${date}`);
+                            return null;
+                        }
+                    } else {
+                        console.error('Failed to fetch shift data:', result);
+                        throw new Error(result.message || 'Failed to fetch shift data');
+                    }
+                } catch (error) {
+                    console.error('Error fetching employee shift info:', error);
+                    throw error; // ไม่ใช้ fallback data แล้ว ให้ error ผ่านไป
+                }
             };
-            
-            // ฟังก์ชัน fallback สำหรับข้อมูลกะเมื่อไม่สามารถเชื่อมต่อ Google Sheets ได้
-             const getFallbackShiftData = (employeeId) => {
-                 // ข้อมูลจำลองจากชีต "ตารางกะ" ที่ผู้ใช้แสดงให้เห็น
-                 const knownShiftData = {
-                     '55053156': { type: 'กะเช้า', time: '08:00 - 17:00' },  // นายกฤษฎา เก็ดเสม
-                     '48070418': { type: 'กะเช้า', time: '08:00 - 17:00' },  // นางพลอย ศรีวิบูลย์
-                     '64090007': { type: 'กะดึก', time: '20:00 - 08:00' },   // พนักงานคนอื่น
-                     '48090451': { type: 'กะเช้า', time: '08:00 - 17:00' },
-                     '61110022': { type: 'กะดึก', time: '20:00 - 08:00' },
-                     '55053157': { type: 'กะดึก', time: '20:00 - 08:00' },
-                     '48070419': { type: 'กะเช้า', time: '08:00 - 17:00' },
-                     '64090008': { type: 'กะดึก', time: '20:00 - 08:00' },
-                     '48090452': { type: 'กะเช้า', time: '08:00 - 17:00' },
-                     '61110023': { type: 'กะดึก', time: '20:00 - 08:00' }
-                 };
-                 
-                 const shiftInfo = knownShiftData[String(employeeId)];
-                 if (shiftInfo) {
-                     console.log(`Using fallback shift data for employee ${employeeId}:`, shiftInfo);
-                     return {
-                         ...shiftInfo,
-                         sourceDate: 'fallback'
-                     };
-                 }
-                 
-                 // สำหรับพนักงานที่ไม่มีข้อมูลจำลอง ให้สุ่มกะตามรหัสพนักงาน
-                 const employeeIdNum = parseInt(employeeId) || 0;
-                 const isNightShift = employeeIdNum % 3 === 0; // ทุก 3 คนจะเป็นกะดึก
-                 
-                 const shiftType = isNightShift ? 'กะดึก' : 'กะเช้า';
-                 const shiftTime = isNightShift ? '20:00 - 08:00' : '08:00 - 17:00';
-                 
-                 console.log(`Using generated shift data for employee ${employeeId}: ${shiftType}`);
-                 return {
-                     type: shiftType,
-                     time: shiftTime,
-                     sourceDate: 'generated'
-                 };
-             };
-             
-             // ฟังก์ชัน fallback สำหรับข้อมูลพนักงานเมื่อไม่สามารถเชื่อมต่อ Google Sheets ได้
-             const getFallbackEmployeeData = () => {
-                 return [
-                     {
-                         employeeId: '55053156',
-                         fullName: 'นายกฤษฎา เก็ดเสม',
-                         department: 'A&I',
-                         photoUrl: 'https://placehold.co/48x48/EFEFEF/AAAAAA?text=KR'
-                     },
-                     {
-                         employeeId: '64090007',
-                         fullName: 'นางสาวฐิติรัตน์ อุ้ยหา',
-                         department: 'A&I',
-                         photoUrl: 'https://placehold.co/48x48/EFEFEF/AAAAAA?text=TH'
-                     },
-                     {
-                         employeeId: '48070418',
-                         fullName: 'นางสาวสุ ศรีชนม์',
-                         department: 'A&I',
-                         photoUrl: 'https://placehold.co/48x48/EFEFEF/AAAAAA?text=SU'
-                     },
-                     {
-                         employeeId: '48090451',
-                         fullName: 'นางสาวองใจ สุมงค์',
-                         department: 'A&I',
-                         photoUrl: 'https://placehold.co/48x48/EFEFEF/AAAAAA?text=ON'
-                     },
-                     {
-                         employeeId: '61110022',
-                         fullName: 'นางสาวกมลมาลา สุมสีดา',
-                         department: 'A&I',
-                         photoUrl: 'https://placehold.co/48x48/EFEFEF/AAAAAA?text=KA'
-                     }
-                 ];
-             };
+
+
 
             const getCachedAttendance = async (date) => {
                 const cacheKey = date;
