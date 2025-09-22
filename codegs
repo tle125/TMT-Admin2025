@@ -912,8 +912,7 @@ function handleGetShiftAssignments(sheet, date, shiftType) {
             const rowDate = row[0] ? new Date(row[0]).toISOString().split('T')[0] : '';
             const rowShiftType = row[1];
             
-            // ถ้าไม่ระบุ shiftType ให้ดึงข้อมูลทั้งหมดของวันนั้น
-            if (rowDate === date && (!shiftType || rowShiftType === shiftType)) {
+            if (rowDate === date && rowShiftType === shiftType) {
                 assignments.push({
                     date: rowDate,
                     shiftType: rowShiftType,
