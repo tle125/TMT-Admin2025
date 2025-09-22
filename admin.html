@@ -2,6 +2,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -469,9 +470,17 @@
         <header class="flex items-center justify-between p-4 shadow-sm w-full flex-shrink-0" style="background-color: var(--orange-200);"><div class="w-10"></div><h1 class="text-xl font-bold text-gray-800">เช็คชื่อพนักงาน</h1><button class="logout-button flex items-center justify-center p-2 rounded-full hover:bg-gray-100" title="Logout"><span class="material-symbols-outlined text-gray-700">logout</span></button></header>
         <main id="attendance-main" class="flex-1 p-4 md:p-6 pb-28 flex flex-col">
             <div class="bg-white p-4 rounded-lg shadow-sm mb-4 flex-shrink-0">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between mb-4">
                      <h2 class="text-lg font-semibold text-gray-800">เลือกวันที่</h2>
                     <input type="date" id="attendance-date-picker" class="border border-gray-300 rounded-lg p-2">
+                </div>
+                <div class="flex items-center justify-between">
+                    <h3 class="text-md font-semibold text-gray-700">กรองตามกะ</h3>
+                    <div class="flex gap-2">
+                        <button id="shift-filter-all" class="shift-filter-btn px-4 py-2 rounded-lg text-sm font-medium bg-blue-500 text-white hover:bg-blue-600 transition-colors" data-shift="all">ทั้งหมด</button>
+                        <button id="shift-filter-morning" class="shift-filter-btn px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors" data-shift="morning">กะเช้า</button>
+                        <button id="shift-filter-night" class="shift-filter-btn px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors" data-shift="night">กะดึก</button>
+                    </div>
                 </div>
             </div>
             <div id="attendance-tabs" class="flex border-b border-gray-200 bg-white rounded-t-lg overflow-x-auto flex-shrink-0"></div>
@@ -1402,6 +1411,9 @@
             const otPlanTabs = document.getElementById('ot-plan-tabs');
             const otPlanTabContent = document.getElementById('ot-plan-tab-content');
             
+            // Shift filter state
+            let currentShiftFilter = 'all';
+            
             // Shift Management Elements
             const morningShiftBtn = document.getElementById('morning-shift-btn');
             const nightShiftBtn = document.getElementById('night-shift-btn');
@@ -1922,6 +1934,27 @@
                 const today = new Date().toISOString().split('T')[0];
                 attendanceDatePicker.value = today;
                 fetchDataForAttendance(today);
+                
+                // เพิ่ม event listeners สำหรับปุ่มกรองกะ
+                document.querySelectorAll('.shift-filter-btn').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const selectedShift = e.target.dataset.shift;
+                        
+                        // อัปเดตสถานะปุ่ม
+                        document.querySelectorAll('.shift-filter-btn').forEach(b => {
+                            b.classList.remove('bg-blue-500', 'text-white');
+                            b.classList.add('bg-gray-200', 'text-gray-700');
+                        });
+                        e.target.classList.remove('bg-gray-200', 'text-gray-700');
+                        e.target.classList.add('bg-blue-500', 'text-white');
+                        
+                        // อัปเดตตัวแปรกรองกะ
+                        currentShiftFilter = selectedShift;
+                        
+                        // โหลดข้อมูลใหม่ด้วยการกรองกะ
+                        await fetchDataForAttendance(attendanceDatePicker.value);
+                    });
+                });
             };
 
             const fetchDataForAttendance = async (date) => {
@@ -1950,11 +1983,51 @@
                 }
             };
             
-            const renderAttendanceList = (employees, existingRecords) => {
+            // ฟังก์ชันสำหรับกรองพนักงานตามกะ
+            const filterEmployeesByShift = async (employees, shiftFilter) => {
+                if (shiftFilter === 'all') {
+                    return employees;
+                }
+                
+                const filteredEmployees = [];
+                
+                for (const emp of employees) {
+                    try {
+                        const shiftInfo = await getEmployeeShiftInfo(emp.employeeId, attendanceDatePicker.value);
+                        if (shiftInfo) {
+                            const isMatchingShift = 
+                                (shiftFilter === 'morning' && shiftInfo.type === 'กะเช้า') ||
+                                (shiftFilter === 'night' && shiftInfo.type === 'กะดึก');
+                            
+                            if (isMatchingShift) {
+                                filteredEmployees.push(emp);
+                            }
+                        }
+                    } catch (error) {
+                        console.error(`Error checking shift for employee ${emp.employeeId}:`, error);
+                        // ถ้าเกิดข้อผิดพลาด ให้แสดงพนักงานนี้ในกรณี "ทั้งหมด"
+                        if (shiftFilter === 'all') {
+                            filteredEmployees.push(emp);
+                        }
+                    }
+                }
+                
+                return filteredEmployees;
+            };
+
+            const renderAttendanceList = async (employees, existingRecords) => {
                 attendanceTabs.innerHTML = '';
                 attendanceTabContent.innerHTML = '';
                 if (!employees || employees.length === 0) {
                     attendanceTabs.innerHTML = `<p class="p-4 text-gray-500">ยังไม่มีข้อมูลพนักงาน</p>`;
+                    return;
+                }
+
+                // กรองพนักงานตามกะที่เลือก
+                const filteredEmployees = await filterEmployeesByShift(employees, currentShiftFilter);
+                
+                if (filteredEmployees.length === 0) {
+                    attendanceTabs.innerHTML = `<p class="p-4 text-gray-500">ไม่มีพนักงานในกะที่เลือก</p>`;
                     return;
                 }
 
@@ -1963,7 +2036,7 @@
                     return acc;
                 }, {});
 
-                const groupedByDept = employees.reduce((acc, emp) => {
+                const groupedByDept = filteredEmployees.reduce((acc, emp) => {
                     const dept = emp.department || 'ไม่ระบุส่วนงาน';
                     if (!acc[dept]) acc[dept] = [];
                     acc[dept].push(emp);
@@ -1974,10 +2047,20 @@
                 let isFirstTab = true;
 
                 for (const dept in groupedByDept) {
-                    // Create Tab Button
+                    // Create Tab Button with shift info
                     const tabButton = document.createElement('button');
                     tabButton.className = `tab-btn px-4 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300 whitespace-nowrap`;
-                    tabButton.textContent = dept;
+                    
+                    // แสดงชื่อแผนกและจำนวนพนักงาน พร้อมข้อมูลกะ
+                    const employeeCount = groupedByDept[dept].length;
+                    let shiftText = '';
+                    if (currentShiftFilter === 'morning') {
+                        shiftText = ' (กะเช้า)';
+                    } else if (currentShiftFilter === 'night') {
+                        shiftText = ' (กะดึก)';
+                    }
+                    
+                    tabButton.innerHTML = `${dept}${shiftText}<br><span class="text-xs text-gray-400">${employeeCount} คน</span>`;
                     tabButton.dataset.department = dept;
                     if (isFirstTab) tabButton.classList.add('active');
                     attendanceTabs.appendChild(tabButton);
@@ -1990,8 +2073,25 @@
 
                     const deptHeader = document.createElement('div');
                     deptHeader.className = 'flex justify-between items-center p-4 bg-gray-100 rounded-t-lg';
+                    
+                    // สร้างข้อมูลหัวข้อแผนกพร้อมข้อมูลกะ
+                    let headerTitle = `${dept}`;
+                    let shiftBadge = '';
+                    
+                    if (currentShiftFilter === 'morning') {
+                        shiftBadge = '<span class="ml-2 px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">กะเช้า</span>';
+                    } else if (currentShiftFilter === 'night') {
+                        shiftBadge = '<span class="ml-2 px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">กะดึก</span>';
+                    } else {
+                        shiftBadge = '<span class="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">ทุกกะ</span>';
+                    }
+                    
                     deptHeader.innerHTML = `
-                        <h3 class="text-md font-bold text-gray-800">${dept}</h3>
+                        <div class="flex items-center">
+                            <h3 class="text-md font-bold text-gray-800">${headerTitle}</h3>
+                            ${shiftBadge}
+                            <span class="ml-2 text-sm text-gray-600">(${employeeCount} คน)</span>
+                        </div>
                         <div class="flex items-center gap-2">
                             <button type="button" class="dept-reset-attendance-btn bg-gray-500 text-white px-3 py-1 rounded text-xs hover:bg-gray-600 transition-colors" data-department="${dept}">
                                 รีเซต
