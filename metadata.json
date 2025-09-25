@@ -1,0 +1,7 @@
+{
+  "name": "admin2025v1.1.0",
+  "description": "A web application to display employee information from a Google Sheet. It features a searchable and paginated table, and a detailed view for each employee.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
