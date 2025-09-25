@@ -57,6 +57,95 @@ const formatDateToYYYYMMDD = (date: Date): string => {
     return `${year}-${month}-${day}`;
 };
 
+// Mock data for testing
+const mockEmployees: Employee[] = [
+  {
+    id: 1,
+    employeeId: 'EMP001',
+    fullName: 'สมชาย ใจดี',
+    position: 'พนักงานคลัง',
+    department: 'คลังสินค้า',
+    startDate: '2023-01-15',
+    dob: '1990-05-20',
+    section: 'WH1',
+    nickname: 'ชาย',
+    gender: 'ชาย',
+    religion: 'พุทธ',
+    phone: '081-234-5678',
+    emergencyContact: 'สมหญิง ใจดี - 081-234-5679',
+    referenceInfo: 'ภรรยา',
+    photoId: '',
+  },
+  {
+    id: 2,
+    employeeId: 'EMP002',
+    fullName: 'สมหญิง รักงาน',
+    position: 'หัวหน้าคลัง',
+    department: 'คลังสินค้า',
+    startDate: '2022-03-10',
+    dob: '1988-12-15',
+    section: 'WH1',
+    nickname: 'หญิง',
+    gender: 'หญิง',
+    religion: 'พุทธ',
+    phone: '081-345-6789',
+    emergencyContact: 'สมชาย รักงาน - 081-345-6790',
+    referenceInfo: 'สามี',
+    photoId: '',
+  },
+  {
+    id: 3,
+    employeeId: 'EMP003',
+    fullName: 'สมศักดิ์ ขยันทำงาน',
+    position: 'พนักงานขับรถ',
+    department: 'ขนส่ง',
+    startDate: '2023-06-01',
+    dob: '1985-08-30',
+    section: 'Transport',
+    nickname: 'ศักดิ์',
+    gender: 'ชาย',
+    religion: 'พุทธ',
+    phone: '081-456-7890',
+    emergencyContact: 'สมใจ ขยันทำงาน - 081-456-7891',
+    referenceInfo: 'แม่',
+    photoId: '',
+  },
+  {
+    id: 4,
+    employeeId: 'EMP004',
+    fullName: 'สมปอง มานะดี',
+    position: 'พนักงานรักษาความปลอดภัย',
+    department: 'รักษาความปลอดภัย',
+    startDate: '2023-02-20',
+    dob: '1992-03-25',
+    section: 'Security',
+    nickname: 'ปอง',
+    gender: 'ชาย',
+    religion: 'พุทธ',
+    phone: '081-567-8901',
+    emergencyContact: 'สมจิต มานะดี - 081-567-8902',
+    referenceInfo: 'พ่อ',
+    photoId: '',
+  },
+  {
+    id: 5,
+    employeeId: 'EMP005',
+    fullName: 'สมใส ใสใจ',
+    position: 'เจ้าหน้าที่บัญชี',
+    department: 'บัญชี',
+    startDate: '2022-11-15',
+    dob: '1991-07-10',
+    section: 'Finance',
+    nickname: 'ใส',
+    gender: 'หญิง',
+    religion: 'พุทธ',
+    phone: '081-678-9012',
+    emergencyContact: 'สมหมาย ใสใจ - 081-678-9013',
+    referenceInfo: 'พี่ชาย',
+    photoId: '',
+  }
+];
+
 export const fetchEmployees = async (): Promise<Employee[]> => {
   try {
     const response = await fetch(GOOGLE_SHEET_URL);
@@ -81,10 +170,9 @@ export const fetchEmployees = async (): Promise<Employee[]> => {
     return validData.map(mapRawDataToEmployee);
   } catch (error) {
     console.error("Failed to fetch employee data:", error);
-    if (error instanceof Error) {
-        throw error;
-    }
-    throw new Error("Could not retrieve employee data. Please check the network connection.");
+    // Fallback to mock data if Google Sheets fails
+    console.log("Falling back to mock employee data");
+    return mockEmployees;
   }
 };
 
