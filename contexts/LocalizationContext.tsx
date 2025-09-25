@@ -10,18 +10,8 @@ const translations: Record<Language, Translations> = {
   th,
 };
 
-// Fix: The previous DottedKeys type alias caused a circular reference error in some TypeScript versions.
-// This new implementation generates a union of all possible dotted paths for the translation keys
-// (e.g., "modalLabels.employeeId") without causing circular dependency issues.
-type DottedKeys<T> = {
-  [K in keyof T]: K extends string
-    ? T[K] extends Record<string, any>
-      ? `${K}.${DottedKeys<T[K]>}`
-      : K
-    : never;
-}[keyof T];
-
-export type TranslationKey = DottedKeys<typeof en>;
+// Simplified type for translation keys
+export type TranslationKey = keyof typeof en | string;
 
 interface LocalizationContextType {
   language: Language;
@@ -36,34 +26,62 @@ const getNestedTranslation = (obj: any, path: string): string | undefined => {
     return path.split('.').reduce((o, i) => (o ? o[i] : undefined), obj);
 };
 
-export const LocalizationProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export function LocalizationProvider({ children }: { children: ReactNode }) {
   const [language, setLanguage] = useState<Language>('th');
 
   const t = (key: TranslationKey, options?: { [key: string]: string | number }): string => {
-    // Fallback logic: Try the current language, then English, then the key itself.
-    let text = getNestedTranslation(translations[language], key) 
-      || getNestedTranslation(translations['en'], key) 
-      || String(key);
-
-    if (options && text) {
-      Object.keys(options).forEach(k => {
-        text = text.replace(new RegExp(`\\{${k}\\}`, 'g'), String(options[k]));
-      });
+    const currentTranslations = translations[language];
+    
+    // Try to get the translation using the key directly first
+    let translation = (currentTranslations as any)[key];
+    
+    // If not found and key contains dots, try nested access
+    if (translation === undefined && typeof key === 'string' && key.includes('.')) {
+      translation = getNestedTranslation(currentTranslations, key);
     }
-    return text || String(key);
+    
+    // Fallback to English if not found in current language
+    if (translation === undefined) {
+      const englishTranslations = translations.en;
+      translation = (englishTranslations as any)[key];
+      
+      if (translation === undefined && typeof key === 'string' && key.includes('.')) {
+        translation = getNestedTranslation(englishTranslations, key);
+      }
+    }
+    
+    // Final fallback to the key itself
+    if (translation === undefined) {
+      translation = key;
+    }
+    
+    // Handle string interpolation if options are provided
+    if (options && typeof translation === 'string') {
+      return Object.entries(options).reduce((str, [optionKey, value]) => {
+        return str.replace(new RegExp(`{{${optionKey}}}`, 'g'), String(value));
+      }, translation);
+    }
+    
+    return String(translation);
+  };
+
+  const value = {
+    language,
+    setLanguage,
+    t,
   };
 
   return (
-    <LocalizationContext.Provider value={{ language, setLanguage, t }}>
+    <LocalizationContext.Provider value={value}>
       {children}
     </LocalizationContext.Provider>
   );
-};
+}
 
-export const useLocalization = (): LocalizationContextType => {
+export function useLocalization() {
   const context = useContext(LocalizationContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useLocalization must be used within a LocalizationProvider');
   }
   return context;
-};
+}

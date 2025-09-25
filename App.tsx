@@ -34,7 +34,7 @@ const MenuIcon = () => (
 );
 
 
-const App: React.FC = () => {
+function App() {
   const { t } = useLocalization();
   const [activeView, setActiveView] = useState<ViewType>('employees');
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
