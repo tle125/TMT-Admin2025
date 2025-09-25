@@ -7,18 +7,46 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
 dist
 dist-ssr
 *.local
 
-# Editor directories and files
+# IDE and Editor files
 .vscode/*
 !.vscode/extensions.json
 .idea
-.DS_Store
+*.swp
+*.swo
+*~
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+
+# Python cache (if any)
+__pycache__/
+*.pyc
+*.pyo
+
+# Backup files
+*.bak
+*.backup
+
+# Personal notes or sensitive files
+admin.txt
