@@ -71,7 +71,6 @@ const App: React.FC = () => {
   const [activeSection, setActiveSection] = useState<string>('All');
 
   const loadEmployees = useCallback(async () => {
-    if (allEmployees.length > 0) return;
     try {
       setLoading(true);
       setError(null);
@@ -82,7 +81,7 @@ const App: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [allEmployees.length]);
+  }, []);
   
   // Generic schedule loader
   const loadScheduleForWeek = useCallback(async (week: Date): Promise<ShiftAssignmentsMap> => {
